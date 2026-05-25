@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Amora - Eventos</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Geist:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <script>
+        if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+        }
+    </script>
+    <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            "body-md": ["Inter", "sans-serif"],
+            "body-lg": ["Inter", "sans-serif"],
+            "display": ["Geist", "sans-serif"],
+            "label-sm": ["Geist", "sans-serif"],
+            "label-md": ["Geist", "sans-serif"],
+            "headline-md": ["Geist", "sans-serif"],
+          }
+        }
+      }
+    }
+    </script>
+    <style>
+        /* Smooth transition for background, text colors, and borders during theme toggling */
+        *, *::before, *::after {
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease, opacity 0.2s ease;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-[#F9FAFB] text-gray-900 dark:bg-[#0A0A0B] dark:text-gray-100 font-normal tracking-tight antialiased min-h-screen flex selection:bg-purple-700/20 selection:text-purple-900 dark:selection:bg-purple-400/20 dark:selection:text-purple-100">
+
+<!-- SideNavBar Component -->
+<nav class="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50">
+    <!-- Header -->
+    <a href="index.html" class="px-6 pb-6 border-b border-gray-200 dark:border-[#27272A] mb-6 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg mx-2 p-2 block decoration-none">
+        <div class="w-8 h-8 rounded shrink-0 flex items-center justify-center overflow-hidden">
+            <img id="sidebar-logo" alt="Amora Logo" class="w-full h-full object-contain" src=""/>
+        </div>
+        <div class="flex-1 overflow-hidden">
+            <h2 class="font-label-md text-sm font-medium truncate text-gray-900 dark:text-white">Pedro Miguel's Works...</h2>
+            <p class="font-label-sm text-xs text-gray-500 dark:text-gray-400 truncate">personal-pedro-miguel-DM...</p>
+        </div>
+        <svg class="text-gray-400 dark:text-gray-500" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+    </a>
+    
+    <!-- Navigation Links -->
+    <div class="flex-1 overflow-y-auto px-2 space-y-6">
+        <!-- Section 1 -->
+        <div>
+            <p class="px-4 text-xs font-medium text-gray-400 dark:text-gray-500 mb-2 uppercase tracking-wider">Construir</p>
+            <div class="space-y-1">
+                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="index.html">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                    <span class="font-label-md text-sm">Builder</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Section 2 -->
+        <div>
+            <p class="px-4 text-xs font-medium text-gray-400 dark:text-gray-500 mb-2 uppercase tracking-wider">Aprender</p>
+            <div class="space-y-1">
+                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-purple-700 dark:text-purple-400 font-medium bg-purple-50 dark:bg-purple-900/20 transition-colors" href="eventos.html">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" ry="2" width="18" x="3" y="4"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                    <span class="font-label-md text-sm">Eventos</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="aulas.html">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                    <span class="font-label-md text-sm">Aulas</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors justify-between" href="comunidade.html">
+                    <div class="flex items-center gap-3">
+                        <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <span class="font-label-md text-sm">Comunidade</span>
+                    </div>
+                    <span class="text-gray-400 dark:text-gray-500 text-xs">(35)</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Section 3 -->
+        <div>
+            <p class="px-4 text-xs font-medium text-gray-400 dark:text-gray-500 mb-2 uppercase tracking-wider">Ajustes</p>
+            <div class="space-y-1">
+                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="configuracao.html">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span class="font-label-md text-sm">Configuração</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="px-4 pt-4 border-t border-gray-200 dark:border-[#27272A] space-y-4">
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" class="flex items-center gap-3 px-2 py-2 w-full rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+            <svg id="theme-toggle-icon" fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"></svg>
+            <span id="theme-toggle-text" class="font-label-md text-sm font-medium"></span>
+        </button>
+        <div class="px-2">
+            <span class="inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs">Free Plan</span>
+        </div>
+        <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer">
+            <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-800 shrink-0">
+                <img alt="Pedro Miguel" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcb76zVeNvWaW40zTrrzkpQaBZk6qO6Ey0TkOxy1dhyMk9RBKW9bfdiBqVBZ9VS6G4WcBMgYEFYIrnkeUnQwOaxt7-HKeEejqnbqXUzKbbkkQa7SCwWXi3pS0YpdM0DTjhXMfUVyx0fDpTCSOvBEyQ6njAST3EHllrte0fBE_AYuRhSnhuLnX0kCwON0rBKXdbnv13Iv_Fj-skyZyQbPwFOicwLJBOjFzyWe-_ZcH4zBzGcDMha6gP_xFqo7YxRpPWvc4uHqEi_tbx"/>
+            </div>
+            <div class="flex-1 overflow-hidden">
+                <p class="font-label-md text-sm font-medium text-gray-900 dark:text-white truncate">Pedro Miguel</p>
+                <p class="font-label-sm text-xs text-gray-500 truncate">pedromlzaparoli@gmail.com</p>
+            </div>
+            <svg class="text-gray-400 dark:text-gray-500 shrink-0" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content Canvas -->
+<main class="ml-64 flex-1 flex flex-col min-h-screen relative overflow-hidden bg-[#F9FAFB] dark:bg-[#0A0A0B]">
+    <!-- Ambient Background Pattern -->
+    <div class="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.02]" style="background-image: radial-gradient(var(--tw-colors-purple-500) 1px, transparent 1px); background-size: 24px 24px;"></div>
+    
+    <div class="flex-1 max-w-6xl mx-auto w-full px-8 pt-20 pb-12 relative z-10 flex flex-col">
+        <!-- Header Section -->
+        <section class="mb-12">
+            <h2 class="font-display font-semibold text-3xl text-gray-900 dark:text-white mb-2 tracking-tight">Eventos Clínicos &amp; Científicos</h2>
+            <p class="font-body-lg text-base text-gray-500 dark:text-gray-400 max-w-2xl">Fique por dentro das últimas conferências e webinars de biotecnologia e nutrição funcional.</p>
+        </section>
+
+        <!-- Filters & Search -->
+        <div class="flex flex-col md:flex-row gap-4 mb-12 items-center justify-between">
+            <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-2 md:pb-0">
+                <button class="px-6 py-2 rounded-full bg-purple-700 text-white font-label-md text-sm shadow-sm transition-colors" id="filter-all">Todos</button>
+                <button class="px-6 py-2 rounded-full border border-gray-200 dark:border-[#27272A] text-gray-600 dark:text-gray-400 font-label-md text-sm hover:border-purple-700 dark:hover:border-purple-400 hover:text-purple-700 dark:hover:text-purple-400 transition-all">Biotecnologia</button>
+                <button class="px-6 py-2 rounded-full border border-gray-200 dark:border-[#27272A] text-gray-600 dark:text-gray-400 font-label-md text-sm hover:border-purple-700 dark:hover:border-purple-400 hover:text-purple-700 dark:hover:text-purple-400 transition-all">Nutrição Clínica</button>
+                <button class="px-6 py-2 rounded-full border border-gray-200 dark:border-[#27272A] text-gray-600 dark:text-gray-400 font-label-md text-sm hover:border-purple-700 dark:hover:border-purple-400 hover:text-purple-700 dark:hover:text-purple-400 transition-all">Clean-Tech</button>
+            </div>
+            <div class="relative w-full md:w-auto min-w-[300px]">
+                <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                <input class="w-full border border-gray-200 dark:border-[#27272A] bg-white dark:bg-[#18181B] text-gray-900 dark:text-white rounded-full py-2.5 pl-12 pr-6 focus:ring-1 focus:ring-purple-700 dark:focus:ring-purple-400 focus:border-purple-700 dark:focus:border-purple-400 transition-all outline-none text-sm" placeholder="Buscar eventos..." type="text"/>
+            </div>
+        </div>
+
+        <!-- Featured Event Card -->
+        <div class="relative group overflow-hidden rounded-2xl mb-16 border border-gray-200 dark:border-[#27272A] bg-white dark:bg-[#18181B] shadow-sm">
+            <div class="grid lg:grid-cols-5 h-full min-h-[400px]">
+                <div class="lg:col-span-3 p-10 flex flex-col justify-between">
+                    <div>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 font-label-sm text-xs mb-6 border border-orange-100 dark:border-orange-950">
+                            ★ Destaque
+                        </span>
+                        <div class="flex items-center gap-4 text-gray-500 dark:text-gray-400 font-label-md text-sm mb-4">
+                            <div class="flex items-center gap-1.5">
+                                <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" ry="2" width="18" x="3" y="4"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                                15 Out, 2024
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                19:00 - 21:00
+                            </div>
+                        </div>
+                        <h3 class="font-display font-semibold text-2xl text-gray-900 dark:text-white mb-4 leading-tight">I Simpósio de Clean-Tech e Nutrição Funcional</h3>
+                        <p class="font-body-md text-gray-500 dark:text-gray-400 mb-8 line-clamp-2 max-w-xl">
+                            Explore a interseção entre tecnologias de purificação sustentável e as novas fronteiras da suplementação nutricional de alta precisão.
+                        </p>
+                    </div>
+                    <div class="flex items-center justify-between mt-6">
+                        <div class="flex -space-x-3">
+                            <img alt="Speaker 1" class="w-10 h-10 rounded-full border-2 border-white dark:border-[#18181B] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0NCoZ2tPI_3JZHO_-XMQk20kh8QP1tPvS9UZzkwii_BcY_EXywFnl7nuc2WmoNMeP_bAOufRCmvbs0GZHL_WgkyxQvkt-RSKI_W8zHknKRR45bFenhfLKBHaa3veIwSBCTLgv2_FxuQQUlb1ZCVlsgemE_XiVovUkE1fnnd7WPHi_MITDR9PSlZXtIJnm4446iMSXpqsk3boVNeTiw4e_ZxgQSUwTDCrTdGkQ94dk2vj7nEeRCigMt_V6NwXfzsuf5iHbEGknXchB"/>
+                            <img alt="Speaker 2" class="w-10 h-10 rounded-full border-2 border-white dark:border-[#18181B] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHcCUxrgeroKcPcZlJlTKVd9Ygxi21HztPMXgH4FegTwZpHffG2vxniVALuyZz83JXxN_L_63SIvhGtgKTsEnOoLJIWPZs_uehmfNwvPmz_OXQSH7P5oAHGYeoOhCWqjOn95Q1YEm_ekDvYt9vZ_YvCPBeFXlp3AePzz3HC1PbguwgDwotTqS-nTEzs8vBBPiYhLwqy4JZdJG5PMuOtajOhN0FiWnyaKgiqAw3oIAp5K6OOCcHrdz-fEy3SHz53EQJDUDGA5EEtzjF"/>
+                            <div class="w-10 h-10 rounded-full border-2 border-white dark:border-[#18181B] bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-[10px] font-bold text-gray-500 dark:text-gray-400">+12</div>
+                        </div>
+                        <button class="bg-purple-700 hover:bg-purple-800 text-white dark:bg-purple-400 dark:text-gray-900 dark:hover:bg-purple-500 px-6 py-2.5 rounded-full font-medium text-sm transition-all flex items-center gap-2 shadow-sm">
+                            Garantir Vaga
+                            <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><line x1="5" x2="19" y1="12" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 relative h-64 lg:h-auto overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-white dark:from-[#18181B] lg:from-transparent lg:to-transparent z-10"></div>
+                    <img alt="Featured Event" class="w-full h-full object-cover grayscale-[20%] hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDu_zZ9Dd4-KQitiEzA3fb3sD3EpMTbSk0wuTvAa_FNWTw5AbFDHQIAHnemYXHjnMpLYuDk-ZXeO3l0INdw8vX5Etre-mlSo3yjqh2GjiimzxsRgpmuxPHzEmrbqsunjDhZYGIq7pZD70781rAa-WWDgHQ7KE_HI6sJNQH0Upg6EulkwixJfY0QC9kkU6HvPL3ksA62OZhRps7wzdeaPCrBZetXEyiFirws2gjZ6oLY-N-iwLFC3feqSZqcer3JYzCPSQTzB5PvTD3L"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Events Section -->
+        <div class="mb-8 flex items-center justify-between">
+            <h4 class="font-display font-semibold text-xl text-gray-900 dark:text-white">Próximos Eventos</h4>
+            <a class="text-purple-700 dark:text-purple-400 font-label-md text-sm hover:underline" href="#">Ver calendário completo</a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+            <!-- Card 1 -->
+            <div class="group border border-gray-200 dark:border-[#27272A] rounded-2xl p-6 bg-white dark:bg-[#18181B] hover:border-purple-700 dark:hover:border-purple-400 transition-all shadow-sm">
+                <span class="inline-block px-2.5 py-1 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 font-label-sm text-[10px] mb-4 uppercase tracking-wider font-semibold border border-purple-100/50 dark:border-purple-950">Biotecnologia</span>
+                <div class="text-gray-400 dark:text-gray-500 font-label-sm text-xs mb-2">22 Setembro, 2024 • 14h</div>
+                <h5 class="font-display font-semibold text-base text-gray-900 dark:text-white mb-4 leading-snug group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">Webinar: Bio-impressão de Tecidos Vegetais</h5>
+                <div class="flex items-center gap-2 mb-6">
+                    <img alt="Presenter 1" class="w-6 h-6 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKN4shT5-IVBkH5XpkLQJ1kqWMkqyJdxZHqVsoRePx5MwEkdyE8Fnj24EhqbiZcd3kEv8gNYjDM64TU0b6kzkKILFsPpxw-_QmkBL8cNII3KGz_eLhXGlwpvqo5f9nGqSlJOt0EVCvd0YgYD50EMUDL1QGoXKAmSdgv8u2s1q1pZMbSV-s6UAcE_HLnBs_ImjA35JIW7YQm96EEKgRCqXzUPqeBAIiSunneIAZ8AiN1pn0pwV8Jbl08PSOsAnl-9zzycEqtDeRxMD3"/>
+                    <span class="text-gray-500 dark:text-gray-400 text-xs font-medium">Dra. Helena Martins</span>
+                </div>
+                <a class="inline-flex items-center gap-1 text-purple-700 dark:text-purple-400 font-semibold text-sm hover:translate-x-1 transition-transform" href="#">
+                    Registrar 
+                    <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </a>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="group border border-gray-200 dark:border-[#27272A] rounded-2xl p-6 bg-white dark:bg-[#18181B] hover:border-purple-700 dark:hover:border-purple-400 transition-all shadow-sm">
+                <span class="inline-block px-2.5 py-1 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 font-label-sm text-[10px] mb-4 uppercase tracking-wider font-semibold border border-orange-100/50 dark:border-orange-950">Nutrição</span>
+                <div class="text-gray-400 dark:text-gray-500 font-label-sm text-xs mb-2">30 Setembro, 2024 • 09h</div>
+                <h5 class="font-display font-semibold text-base text-gray-900 dark:text-white mb-4 leading-snug group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">Congresso de Inovação Genômica 2024</h5>
+                <div class="flex items-center gap-2 mb-6">
+                    <img alt="Presenter 2" class="w-6 h-6 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_9-01bNn_s-L6KojI9fFjymrHlbZ9QJlvGwrny1Wpn7f0gwh05ufLR0WA23VrzQ2AXix0OcIJB7FV_sZ0o_cp24SpGhiwTtJFbb52oTuhkieNG3xxMEP_4GoH_mggfK3zOMyEqAC6ElxGmCdRvBrh1dsYejS5v2F-WrjeHKgWv-iWJf2fenkIB-mMPfbAaeb_99OeSpcdyz5C6RSDLWQjszp--Wra-J1l1Womc1P7DuAIK1--j52o96vX-thL8d-AppPKldDIpJz9"/>
+                    <span class="text-gray-500 dark:text-gray-400 text-xs font-medium">Dr. Ricardo Silva</span>
+                </div>
+                <a class="inline-flex items-center gap-1 text-purple-700 dark:text-purple-400 font-semibold text-sm hover:translate-x-1 transition-transform" href="#">
+                    Registrar 
+                    <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </a>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="group border border-gray-200 dark:border-[#27272A] rounded-2xl p-6 bg-white dark:bg-[#18181B] hover:border-purple-700 dark:hover:border-purple-400 transition-all shadow-sm">
+                <span class="inline-block px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-label-sm text-[10px] mb-4 uppercase tracking-wider font-semibold border border-blue-100/50 dark:border-blue-950">Clean-Tech</span>
+                <div class="text-gray-400 dark:text-gray-500 font-label-sm text-xs mb-2">05 Outubro, 2024 • 16h</div>
+                <h5 class="font-display font-semibold text-base text-gray-900 dark:text-white mb-4 leading-snug group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">Workshop: Laboratórios Carbono Zero</h5>
+                <div class="flex items-center gap-2 mb-6">
+                    <img alt="Presenter 3" class="w-6 h-6 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBm8uzb30q58nI9lLO-UQQggxyruUQGOjrGZ-qkC40C3J5BpVVnlUs76ya-0lCytZjeU2DYHhcrgb_mKo5-xtekv6uoXX-mB0Boj0U-fQ-20hf-QzrfIShyvZPKf1a7kROeIkh-XN7ntEBwm7akdekEWqlpdklkiq5Zuym-fEIHJXz9JO7zUwZz7qLvd8emQ7xMTR6Ik0GqC-7m37nr1zyD65Qgz0e39fXvy0vj_hUEHtzL2mLBYTKAsnSxTbo9xfqxWXxV9WVtvJvc"/>
+                    <span class="text-gray-500 dark:text-gray-400 text-xs font-medium">Eng. Cláudia Fontana</span>
+                </div>
+                <a class="inline-flex items-center gap-1 text-purple-700 dark:text-purple-400 font-semibold text-sm hover:translate-x-1 transition-transform" href="#">
+                    Registrar 
+                    <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </a>
+            </div>
+        </div>
+
+        <!-- Archive Section -->
+        <section class="mb-20">
+            <div class="flex items-center justify-between mb-8">
+                <h4 class="font-display font-semibold text-xl text-gray-900 dark:text-white">Eventos Passados</h4>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- Past Item 1 -->
+                <div class="flex flex-col sm:flex-row items-center justify-between p-4 border border-gray-200 dark:border-[#27272A] rounded-xl bg-white dark:bg-[#18181B] group hover:border-purple-700 dark:hover:border-purple-400 transition-colors shadow-sm">
+                    <div class="flex items-center gap-6 w-full sm:w-auto">
+                        <div class="w-12 h-12 rounded bg-gray-50 dark:bg-gray-800 flex flex-col items-center justify-center border border-gray-200 dark:border-[#27272A]">
+                            <span class="text-[9px] font-bold uppercase text-gray-400 dark:text-gray-500">Ago</span>
+                            <span class="text-base font-bold text-gray-800 dark:text-white leading-none">12</span>
+                        </div>
+                        <div>
+                            <h6 class="font-display font-semibold text-base text-gray-900 dark:text-white mb-1">Sustentabilidade em Laboratórios Clínicos</h6>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Ministrado por Amora Labs Group</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 mt-4 sm:mt-0">
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-[#27272A] text-xs font-semibold text-gray-500 dark:text-gray-400">
+                            👁 2.4k views
+                        </div>
+                        <button class="flex items-center gap-2 px-4 py-2 rounded-full border border-purple-700 text-purple-700 hover:bg-purple-700 hover:text-white dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-400 dark:hover:text-gray-900 transition-all font-medium text-xs">
+                            Assistir Gravação
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Past Item 2 -->
+                <div class="flex flex-col sm:flex-row items-center justify-between p-4 border border-gray-200 dark:border-[#27272A] rounded-xl bg-white dark:bg-[#18181B] group hover:border-purple-700 dark:hover:border-purple-400 transition-colors shadow-sm">
+                    <div class="flex items-center gap-6 w-full sm:w-auto">
+                        <div class="w-12 h-12 rounded bg-gray-50 dark:bg-gray-800 flex flex-col items-center justify-center border border-gray-200 dark:border-[#27272A]">
+                            <span class="text-[9px] font-bold uppercase text-gray-400 dark:text-gray-500">Jul</span>
+                            <span class="text-base font-bold text-gray-800 dark:text-white leading-none">28</span>
+                        </div>
+                        <div>
+                            <h6 class="font-display font-semibold text-base text-gray-900 dark:text-white mb-1">Microbioma e Desempenho Cognitivo</h6>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Webinar Científico com Dr. Arthur Leite</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 mt-4 sm:mt-0">
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-[#27272A] text-xs font-semibold text-gray-500 dark:text-gray-400">
+                            👁 1.8k views
+                        </div>
+                        <button class="flex items-center gap-2 px-4 py-2 rounded-full border border-purple-700 text-purple-700 hover:bg-purple-700 hover:text-white dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-400 dark:hover:text-gray-900 transition-all font-medium text-xs">
+                            Assistir Gravação
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script>
+    // Asset URLs for Light and Dark (Night) Themes
+    const ASSETS = {
+        light: {
+            sidebarLogo: "./logo-black.svg",
+            mainLogo: "./logo-black.svg"
+        },
+        dark: {
+            sidebarLogo: "./logo-white.svg",
+            mainLogo: "./logo-white.svg"
+        }
+    };
+
+    // DOM Elements
+    const htmlEl = document.documentElement;
+    const sidebarLogoEl = document.getElementById("sidebar-logo");
+    const mainLogoEl = document.getElementById("main-logo");
+    const themeToggleBtn = document.getElementById("theme-toggle");
+    const themeToggleIcon = document.getElementById("theme-toggle-icon");
+    const themeToggleText = document.getElementById("theme-toggle-text");
+
+    // Icon SVGs
+    const SUN_SVG = `<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>`;
+    const MOON_SVG = `<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>`;
+
+    // Apply selected theme
+    function setTheme(theme) {
+        if (theme === "dark") {
+            htmlEl.classList.add("dark");
+            if (sidebarLogoEl) sidebarLogoEl.src = ASSETS.dark.sidebarLogo;
+            if (mainLogoEl) mainLogoEl.src = ASSETS.dark.mainLogo;
+            if (themeToggleIcon) themeToggleIcon.innerHTML = SUN_SVG;
+            if (themeToggleText) themeToggleText.innerText = "Modo claro";
+            localStorage.setItem("theme", "dark");
+        } else {
+            htmlEl.classList.remove("dark");
+            if (sidebarLogoEl) sidebarLogoEl.src = ASSETS.light.sidebarLogo;
+            if (mainLogoEl) mainLogoEl.src = ASSETS.light.mainLogo;
+            if (themeToggleIcon) themeToggleIcon.innerHTML = MOON_SVG;
+            if (themeToggleText) themeToggleText.innerText = "Modo escuro";
+            localStorage.setItem("theme", "light");
+        }
+    }
+
+    // Toggle event listener
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener("click", () => {
+            const isDark = htmlEl.classList.contains("dark");
+            setTheme(isDark ? "light" : "dark");
+        });
+    }
+
+    // Initialize theme from localStorage or system preference
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+        setTheme(savedTheme);
+    } else {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        setTheme(prefersDark ? "dark" : "light");
+    }
+
+    // Micro-interaction for filter buttons
+    const filterButtons = document.querySelectorAll('button.rounded-full');
+    filterButtons.forEach(btn => {
+        if (btn.id === 'theme-toggle') return;
+        btn.addEventListener('click', () => {
+            filterButtons.forEach(f => {
+                if (f.id === 'theme-toggle') return;
+                f.className = "px-6 py-2 rounded-full border border-gray-200 dark:border-[#27272A] text-gray-600 dark:text-gray-400 font-label-md text-sm hover:border-purple-700 dark:hover:border-purple-400 hover:text-purple-700 dark:hover:text-purple-400 transition-all";
+            });
+            btn.className = "px-6 py-2 rounded-full bg-purple-700 text-white font-label-md text-sm shadow-sm transition-colors";
+        });
+    });
+
+    // Search highlight effect
+    const searchInput = document.querySelector('input[type="text"]');
+    if (searchInput) {
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('scale-[1.01]');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('scale-[1.01]');
+        });
+    }
+</script>
+</body>
+</html>

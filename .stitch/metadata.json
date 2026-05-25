@@ -1,0 +1,13 @@
+{
+  "name": "projects/15120793825541029640",
+  "projectId": "15120793825541029640",
+  "title": "Clinical Clean-Tech Dashboard",
+  "visibility": "PRIVATE",
+  "deviceType": "DESKTOP",
+  "screens": {
+    "index": {
+      "id": "507105432077481489b0ad6d49448574",
+      "sourceScreen": "projects/15120793825541029640/screens/507105432077481489b0ad6d49448574"
+    }
+  }
+}

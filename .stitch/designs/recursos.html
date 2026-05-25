@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a4455;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#a15100",
+                      "on-tertiary": "#ffffff",
+                      "background": "#fbf8ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-error": "#ffffff",
+                      "outline": "#7b7487",
+                      "surface-container-highest": "#e3e1ec",
+                      "surface-container": "#eeedf7",
+                      "outline-variant": "#ccc3d8",
+                      "surface-dim": "#dad9e3",
+                      "primary-fixed": "#eaddff",
+                      "on-secondary-fixed-variant": "#3323cc",
+                      "on-secondary": "#ffffff",
+                      "tertiary": "#7d3d00",
+                      "inverse-primary": "#d2bbff",
+                      "error": "#ba1a1a",
+                      "secondary-container": "#645efb",
+                      "primary": "#630ed4",
+                      "on-secondary-container": "#fffbff",
+                      "primary-container": "#7c3aed",
+                      "tertiary-fixed": "#ffdcc6",
+                      "on-tertiary-container": "#ffe0cd",
+                      "inverse-on-surface": "#f1effa",
+                      "tertiary-fixed-dim": "#ffb784",
+                      "on-tertiary-fixed-variant": "#713700",
+                      "on-primary-container": "#ede0ff",
+                      "error-container": "#ffdad6",
+                      "secondary-fixed": "#e2dfff",
+                      "surface-variant": "#e3e1ec",
+                      "surface-container-high": "#e8e7f1",
+                      "on-primary-fixed-variant": "#5a00c6",
+                      "surface-bright": "#fbf8ff",
+                      "on-primary": "#ffffff",
+                      "surface-container-low": "#f4f2fd",
+                      "surface-tint": "#732ee4",
+                      "primary-fixed-dim": "#d2bbff",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#c3c0ff",
+                      "on-surface": "#1a1b22",
+                      "on-tertiary-fixed": "#301400",
+                      "inverse-surface": "#2f3038",
+                      "secondary": "#4b41e1",
+                      "surface": "#fbf8ff",
+                      "on-primary-fixed": "#25005a",
+                      "on-surface-variant": "#4a4455",
+                      "on-background": "#1a1b22",
+                      "on-secondary-fixed": "#0f0069"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "xl": "40px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "margin": "32px",
+                      "xs": "4px",
+                      "lg": "24px",
+                      "container-max": "1280px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "body-sm": ["Inter"],
+                      "label-sm": ["Geist"],
+                      "body-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "headline-md": ["Geist"],
+                      "display": ["Geist"],
+                      "label-md": ["Geist"],
+                      "headline-lg-mobile": ["Geist"],
+                      "headline-lg": ["Geist"]
+              },
+              "fontSize": {
+                      "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                      "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+      </script>
+</head>
+<body class="bg-surface dark:bg-surface-dim text-on-surface dark:text-inverse-on-surface min-h-screen">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-surface dark:bg-surface-dim border-r border-outline-variant dark:border-outline flex flex-col h-full py-md px-sm z-50">
+<!-- Header Identity -->
+<div class="flex items-center gap-md px-sm mb-xl">
+<div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined font-bold">clinical_notes</span>
+</div>
+<div class="overflow-hidden">
+<h2 class="text-label-md font-label-md font-bold truncate">Pedro Miguel's Works...</h2>
+<p class="text-label-sm font-label-sm text-on-surface-variant opacity-70 truncate">personal-pedro-miguel-DM...</p>
+</div>
+</div>
+<!-- Navigation Sections -->
+<nav class="flex-1 space-y-lg">
+<div>
+<p class="px-sm text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest mb-sm">Construir</p>
+<a class="flex items-center gap-md px-sm py-md rounded-lg text-primary dark:text-inverse-primary font-bold border-r-2 border-primary hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">build</span>
+<span class="text-label-md font-label-md">Builder</span>
+</a>
+</div>
+<div>
+<p class="px-sm text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest mb-sm">Aprender</p>
+<div class="space-y-xs">
+<a class="flex items-center gap-md px-sm py-md rounded-lg text-on-surface-variant dark:text-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">event</span>
+<span class="text-label-md font-label-md">Eventos</span>
+</a>
+<a class="flex items-center gap-md px-sm py-md rounded-lg text-on-surface-variant dark:text-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="text-label-md font-label-md">Aulas</span>
+</a>
+<a class="flex items-center gap-md px-sm py-md rounded-lg text-on-surface-variant dark:text-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-label-md font-label-md">Comunidade</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Footer Actions -->
+<div class="mt-auto space-y-md border-t border-outline-variant dark:border-outline pt-md">
+<button class="w-full flex items-center gap-md px-sm py-md rounded-lg text-on-surface-variant dark:text-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200" onclick="document.documentElement.classList.toggle('dark')">
+<span class="material-symbols-outlined">dark_mode</span>
+<span class="text-label-md font-label-md">Theme Toggle</span>
+</button>
+<div class="px-sm py-sm bg-surface-container-low dark:bg-surface-container rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-sm">workspace_premium</span>
+<span class="text-label-sm font-label-sm font-bold uppercase">Free Plan</span>
+</div>
+<span class="text-[10px] bg-outline-variant/30 px-sm py-xs rounded text-on-surface-variant">Upgrade</span>
+</div>
+<div class="flex items-center gap-md px-sm py-sm rounded-lg">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center overflow-hidden">
+<img alt="Pedro Miguel" class="w-full h-full object-cover" data-alt="A professional close-up portrait of a male clinician in his 30s with a friendly smile, wearing a modern dark navy scrub. The lighting is bright and clean with a clinical aesthetic, shot against a soft blurred medical laboratory background. The overall tone is professional, trustworthy, and technologically sophisticated with a premium dark mode UI color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcSx_GKTjToZ2lAUn1vePdy_jpJ7JiARkif42h9Ws6FkLGaaTTu42uhBwRnYEu0aQrd6MwZRg14lcYUeOIrxqtHEgcCiaUNvEyabY6OfQgdMxQumKqpmBo_lH-NB9fLaRzaSwndhPhltZi5EuRV4oXb7m1R4UcP7lPKYJauVITLzXvMRy7weOQb6ieehdjMesmHnqFHtxCHyrzvPNbgJxpniSeRwbmqVoWVP6qUj6-IxAm0rGu0dFV7kaszgkD0Rk40ZKuNEugESpw"/>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-label-md font-label-md font-bold truncate">Pedro Miguel</p>
+<p class="text-[10px] text-on-surface-variant truncate">Nutricionista Clínico</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">more_vert</span>
+</div>
+</div>
+</aside>
+<!-- TopAppBar Anchor -->
+<header class="fixed top-0 right-0 left-64 z-40 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md border-b border-outline-variant dark:border-outline flex justify-between items-center h-16 px-lg w-full">
+<div class="flex items-center gap-md">
+<h1 class="text-headline-md font-headline-md font-extrabold text-primary dark:text-inverse-primary tracking-tight">Clinical Intelligence</h1>
+</div>
+<div class="flex items-center gap-lg">
+<div class="hidden md:flex items-center bg-surface-container-low dark:bg-surface-container px-md py-xs rounded-full border border-outline-variant dark:border-outline w-64">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-label-sm font-label-sm w-full outline-none" placeholder="Pesquisar..." type="text"/>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">settings</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">help</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 p-margin max-w-container-max mx-auto">
+<!-- Hero Header -->
+<div class="mb-xl">
+<div class="flex items-center gap-sm mb-xs">
+<span class="text-primary font-bold text-label-sm">Dashboard</span>
+<span class="material-symbols-outlined text-[10px] opacity-40">chevron_right</span>
+<span class="text-on-surface-variant text-label-sm">Recursos Profissionais</span>
+</div>
+<h2 class="text-headline-lg font-headline-lg text-on-surface dark:text-white">Recursos Profissionais</h2>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-2xl">Ferramentas clínicas e calculadoras nutricionais para o seu dia a dia.</p>
+</div>
+<!-- 2x2 Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Card 1: Calculadora de IMC -->
+<section class="bg-surface-container-low dark:bg-surface-container/30 border border-outline-variant dark:border-outline p-lg rounded-xl flex flex-col transition-all hover:border-primary/50 group">
+<div class="flex items-center gap-md mb-lg">
+<div class="w-10 h-10 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined">calculate</span>
+</div>
+<div>
+<h3 class="text-label-md font-label-md font-bold">Calculadora de IMC</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Índice de Massa Corporal</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-md mb-lg">
+<div class="space-y-xs">
+<label class="text-label-sm font-label-sm text-on-surface-variant">Peso (kg)</label>
+<input class="w-full bg-surface dark:bg-surface-dim border border-outline-variant dark:border-outline rounded-lg px-md py-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="70.0" type="number"/>
+</div>
+<div class="space-y-xs">
+<label class="text-label-sm font-label-sm text-on-surface-variant">Altura (cm)</label>
+<input class="w-full bg-surface dark:bg-surface-dim border border-outline-variant dark:border-outline rounded-lg px-md py-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="175" type="number"/>
+</div>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container py-md rounded-lg font-bold hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-sm">
+<span>Calcular IMC</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</section>
+<!-- Card 2: Tabela TACO -->
+<section class="bg-surface-container-low dark:bg-surface-container/30 border border-outline-variant dark:border-outline p-lg rounded-xl flex flex-col transition-all hover:border-primary/50">
+<div class="flex items-center gap-md mb-lg">
+<div class="w-10 h-10 rounded-lg bg-secondary-container/10 flex items-center justify-center text-secondary-container">
+<span class="material-symbols-outlined">nutrition</span>
+</div>
+<div>
+<h3 class="text-label-md font-label-md font-bold">Tabela TACO</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Composição de Alimentos</p>
+</div>
+</div>
+<div class="flex gap-sm mb-md">
+<div class="flex-1 relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-md py-sm bg-surface dark:bg-surface-dim border border-outline-variant dark:border-outline rounded-lg focus:ring-2 focus:ring-primary outline-none text-label-sm" placeholder="Buscar alimento..." type="text"/>
+</div>
+<select class="bg-surface dark:bg-surface-dim border border-outline-variant dark:border-outline rounded-lg px-md py-sm text-label-sm outline-none">
+<option>100g</option>
+<option>50g</option>
+<option>Porção</option>
+</select>
+</div>
+<div class="flex-1 overflow-auto rounded-lg border border-outline-variant/30">
+<table class="w-full text-left text-label-sm">
+<thead class="bg-surface-container-high/50 text-on-surface-variant">
+<tr>
+<th class="p-sm">Alimento</th>
+<th class="p-sm">Kcal</th>
+<th class="p-sm">Prot</th>
+<th class="p-sm">Carb</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20">
+<tr class="hover:bg-primary/5 transition-colors">
+<td class="p-sm">Arroz Branco Cozido</td>
+<td class="p-sm font-medium">128</td>
+<td class="p-sm">2.5g</td>
+<td class="p-sm">28.1g</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors">
+<td class="p-sm">Feijão Carioca</td>
+<td class="p-sm font-medium">76</td>
+<td class="p-sm">4.8g</td>
+<td class="p-sm">13.6g</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Card 3: Montador de Dietas -->
+<section class="bg-surface-container-low dark:bg-surface-container/30 border border-outline-variant dark:border-outline p-lg rounded-xl flex flex-col transition-all hover:border-primary/50 md:row-span-1">
+<div class="flex items-center justify-between mb-lg">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container/10 flex items-center justify-center text-tertiary-container">
+<span class="material-symbols-outlined">restaurant</span>
+</div>
+<div>
+<h3 class="text-label-md font-label-md font-bold">Montador de Dietas</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Planejamento alimentar</p>
+</div>
+</div>
+<button class="p-sm rounded-full hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">settings_suggest</span>
+</button>
+</div>
+<div class="space-y-md">
+<!-- Refeição 1 -->
+<div class="p-md rounded-lg bg-surface/50 dark:bg-surface-dim/50 border border-outline-variant/40">
+<div class="flex justify-between items-center mb-sm">
+<span class="text-label-sm font-bold uppercase tracking-tight">Café da manhã</span>
+<span class="text-label-sm text-on-surface-variant">08:00</span>
+</div>
+<button class="w-full flex items-center justify-center gap-xs py-sm border-2 border-dashed border-outline-variant rounded-lg text-label-sm text-on-surface-variant hover:border-primary hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>Adicionar item</span>
+</button>
+</div>
+<!-- Refeição 2 -->
+<div class="p-md rounded-lg bg-surface/50 dark:bg-surface-dim/50 border border-outline-variant/40">
+<div class="flex justify-between items-center mb-sm">
+<span class="text-label-sm font-bold uppercase tracking-tight">Almoço</span>
+<span class="text-label-sm text-on-surface-variant">12:30</span>
+</div>
+<button class="w-full flex items-center justify-center gap-xs py-sm border-2 border-dashed border-outline-variant rounded-lg text-label-sm text-on-surface-variant hover:border-primary hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>Adicionar item</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Card 4: Análise de Exames (AI) -->
+<section class="bg-surface-container-low dark:bg-surface-container/30 border border-outline-variant dark:border-outline p-lg rounded-xl flex flex-col transition-all hover:border-primary/50 relative overflow-hidden">
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 blur-[60px] rounded-full pointer-events-none"></div>
+<div class="flex items-center gap-md mb-lg">
+<div class="w-10 h-10 rounded-lg bg-secondary-container/10 flex items-center justify-center text-secondary-container relative">
+<span class="material-symbols-outlined">clinical_notes</span>
+<span class="material-symbols-outlined absolute -top-1 -right-1 text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div>
+<h3 class="text-label-md font-label-md font-bold">Análise de Exames</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Insights com IA preditiva</p>
+</div>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-outline-variant rounded-xl p-xl bg-surface/20 dark:bg-surface-dim/20 hover:bg-primary/5 hover:border-primary transition-all cursor-pointer group/upload">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center mb-md group-hover/upload:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined text-display text-primary/40 group-hover/upload:text-primary transition-colors">upload_file</span>
+</div>
+<p class="text-label-md font-bold mb-xs">Arraste seus laudos aqui</p>
+<p class="text-label-sm text-on-surface-variant mb-lg">Suporta PDF, JPG e PNG</p>
+<div class="flex gap-sm items-center py-xs px-md bg-primary-container/10 rounded-full">
+<span class="material-symbols-outlined text-sm text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="text-label-sm font-bold text-primary">Análise IA Ativada</span>
+</div>
+</div>
+<p class="mt-md text-[10px] text-center text-on-surface-variant opacity-60">Os dados são processados localmente seguindo as normas da LGPD.</p>
+</section>
+</div>
+<!-- Secondary Section: Insights -->
+<section class="mt-xl grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="col-span-1 md:col-span-2">
+<div class="bg-surface-container-high/30 p-lg rounded-xl border border-outline-variant/30">
+<div class="flex justify-between items-center mb-lg">
+<h4 class="text-label-md font-bold">Últimas Atividades</h4>
+<button class="text-primary text-label-sm font-bold hover:underline">Ver tudo</button>
+</div>
+<div class="space-y-md">
+<div class="flex items-center justify-between py-sm border-b border-outline-variant/20 last:border-0">
+<div class="flex items-center gap-md">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div>
+<p class="text-label-sm font-medium">Cálculo de IMC realizado</p>
+<p class="text-[10px] text-on-surface-variant">Paciente: Maria S. • Há 2 horas</p>
+</div>
+</div>
+<span class="text-label-sm font-bold">24.5 kg/m²</span>
+</div>
+<div class="flex items-center justify-between py-sm border-b border-outline-variant/20 last:border-0">
+<div class="flex items-center gap-md">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<div>
+<p class="text-label-sm font-medium">Dieta atualizada</p>
+<p class="text-[10px] text-on-surface-variant">Paciente: João P. • Há 5 horas</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">open_in_new</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Link Card -->
+<div class="relative overflow-hidden rounded-xl border border-outline-variant/30 group cursor-pointer">
+<img alt="Laboratory precision" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A clean, high-precision laboratory setting with advanced medical equipment and soft purple ambient lighting. The scene features a stainless steel workstation with a high-resolution monitor displaying complex clinical data graphs. The atmosphere is sterile, professional, and reflects a modern 'clinical clean-tech' aesthetic with a focus on accuracy and cutting-edge technology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjahlIUZJ5HxoNThV0NJ9JjBTBdF8It_uXAUSeGa1whHUwe4NeY18JGSqJu4cFDwiLKpX43OQ4ONDPUyb319xDm7y3AVBJYCKnVTECSZjx8k5x9x46hZCnRs_hWH1ZRYUWTaULERoDU_aNXG8AB3zanPji3Lcqzz33JOZtb7qxzNkH2PSn5dVWcChlRPsEz8rkhMWUd-Lh2BBuwEkYmUTyVa_Hyc1DCR399hVG0LgmHczCoDF2j5k48iRNxUHwyM1Pjii8-VxpfE1p"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-dim via-surface-dim/40 to-transparent flex flex-col justify-end p-lg">
+<span class="text-primary-container text-[10px] font-bold uppercase tracking-widest mb-xs">Base de Conhecimento</span>
+<h4 class="text-label-md font-bold mb-sm text-white">Novos Protocolos de Interpretação</h4>
+<p class="text-label-sm text-on-surface-variant leading-tight mb-md">Acesse os guias atualizados para 2024 sobre análise lipídica.</p>
+<div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white self-end">
+<span class="material-symbols-outlined">arrow_forward</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Contextual FAB - Suppression Logic: Hide on dashboard if too busy, but here it's useful for 'Quick Calc' -->
+<button class="fixed bottom-lg right-lg w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+<script>
+        // Micro-interactions and local state handling
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme initial check
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+
+            // Input interactions
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    input.parentElement.classList.add('ring-2', 'ring-primary/20');
+                });
+                input.addEventListener('blur', () => {
+                    input.parentElement.classList.remove('ring-2', 'ring-primary/20');
+                });
+            });
+
+            // Simulate AI sparkle effect
+            const aiIcon = document.querySelector('.material-symbols-outlined[style*="auto_awesome"]');
+            setInterval(() => {
+                aiIcon.style.opacity = (Math.random() * 0.5 + 0.5).toString();
+            }, 1500);
+        });
+    </script>
+</body></html>

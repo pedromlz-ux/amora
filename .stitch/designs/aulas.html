@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        .video-gradient-overlay {
+            background: linear-gradient(0deg, rgba(26, 27, 34, 0.8) 0%, rgba(26, 27, 34, 0) 50%);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #7b7487; border-radius: 10px; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#fffbff",
+                      "inverse-surface": "#2f3038",
+                      "surface-container": "#eeedf7",
+                      "on-surface-variant": "#4a4455",
+                      "secondary-fixed": "#e2dfff",
+                      "error": "#ba1a1a",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#713700",
+                      "on-surface": "#1a1b22",
+                      "error-container": "#ffdad6",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-container": "#7c3aed",
+                      "outline-variant": "#ccc3d8",
+                      "inverse-primary": "#d2bbff",
+                      "surface": "#fbf8ff",
+                      "secondary-fixed-dim": "#c3c0ff",
+                      "primary": "#630ed4",
+                      "on-secondary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "tertiary-container": "#a15100",
+                      "outline": "#7b7487",
+                      "surface-container-highest": "#e3e1ec",
+                      "surface-bright": "#fbf8ff",
+                      "primary-fixed": "#eaddff",
+                      "background": "#fbf8ff",
+                      "on-error": "#ffffff",
+                      "surface-variant": "#e3e1ec",
+                      "on-secondary-fixed": "#0f0069",
+                      "surface-container-low": "#f4f2fd",
+                      "surface-container-high": "#e8e7f1",
+                      "primary-fixed-dim": "#d2bbff",
+                      "on-tertiary-container": "#ffe0cd",
+                      "on-primary-fixed-variant": "#5a00c6",
+                      "secondary": "#4b41e1",
+                      "on-tertiary-fixed": "#301400",
+                      "on-primary-fixed": "#25005a",
+                      "on-primary": "#ffffff",
+                      "tertiary": "#7d3d00",
+                      "surface-tint": "#732ee4",
+                      "on-secondary-fixed-variant": "#3323cc",
+                      "tertiary-fixed-dim": "#ffb784",
+                      "on-background": "#1a1b22",
+                      "inverse-on-surface": "#f1effa",
+                      "surface-dim": "#dad9e3",
+                      "secondary-container": "#645efb",
+                      "tertiary-fixed": "#ffdcc6",
+                      "on-primary-container": "#ede0ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "base": "4px",
+                      "sm": "8px",
+                      "lg": "24px",
+                      "xs": "4px",
+                      "xl": "40px",
+                      "container-max": "1280px",
+                      "margin": "32px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "label-sm": ["Geist"],
+                      "headline-md": ["Geist"],
+                      "label-md": ["Geist"],
+                      "body-sm": ["Inter"],
+                      "body-md": ["Inter"],
+                      "display": ["Geist"],
+                      "headline-lg": ["Geist"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                      "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface dark:bg-inverse-surface min-h-screen font-body-md text-on-surface dark:text-inverse-on-surface overflow-x-hidden">
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 top-0 h-full w-64 border-r border-outline-variant dark:border-outline bg-surface dark:bg-inverse-surface flex flex-col py-md px-md z-50">
+<div class="mb-xl flex items-center gap-sm">
+<div class="w-10 h-10 bg-primary-container flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-on-primary-container">architecture</span>
+</div>
+<div>
+<h1 class="font-display text-headline-md font-semibold text-primary dark:text-primary-fixed-dim leading-none">Amora</h1>
+<p class="font-body-sm text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-surface-variant">Clinical Clean-Tech</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md">Construir</span>
+</a>
+<!-- Active Tab: Aprender (LMS context mapping to Aulas) -->
+<a class="flex items-center gap-md p-md rounded-lg text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary dark:border-primary-fixed-dim bg-primary/5" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-md">Aprender</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md">Histórico</span>
+</a>
+</nav>
+<div class="mt-auto pt-md border-t border-outline-variant dark:border-outline">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-md">Perfil</span>
+</a>
+</div>
+</aside>
+<!-- Top App Bar Shell -->
+<header class="flex justify-between items-center w-full px-gutter h-16 ml-64 max-w-[calc(100%-16rem)] fixed top-0 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md z-40 border-b border-outline-variant dark:border-outline shadow-sm dark:shadow-none">
+<div class="flex items-center gap-md">
+<span class="font-label-md font-bold text-on-surface dark:text-inverse-on-surface">Amora Workspace</span>
+<div class="h-4 w-[1px] bg-outline-variant"></div>
+<span class="font-label-md text-on-surface-variant dark:text-surface-variant">LMS Acadêmico</span>
+</div>
+<div class="flex items-center gap-lg">
+<div class="hidden md:flex items-center gap-gutter">
+<a class="font-label-md text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="font-label-md text-primary dark:text-primary-fixed-dim border-b-2 border-primary pb-1" href="#">Aulas</a>
+<a class="font-label-md text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors" href="#">Configurações</a>
+</div>
+<div class="flex items-center gap-md">
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors active:scale-95">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional medical researcher in a high-tech laboratory setting, wearing a white clinical coat and looking at a tablet with a focused expression. The lighting is bright and sterile, emphasizing a clean-tech clinical environment. The color palette is dominated by whites, clinical greys, and subtle purple accents from the workspace technology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVIhLFYj-tNxvIcNKgiI7hyKc9wWyXpVSivSnw-qx4rf6RtXE0LT-34ol3XkRUZ_m2sN656YsZ1Xw7zzQz6u_LJjHbQ0YOexSQ3czAOta3KQg51nsBw_nA0gNYh9Q5dYUHMnbOxv82tPtnqTdJScXBnee_9cOjKwyGBPCp3k6PYXUQkTKVWe9TgufrAoJ03G_mjuW5EQjdotriBSzhHb5E_g7mdQEwZWOTRf168YPcV3kRQW7Ui2ZcYGREEbcpvWeqIFVHYW9g9jYH"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Stage -->
+<main class="ml-64 pt-20 px-gutter pb-xl">
+<!-- Top Progress Hero Card -->
+<section class="mb-lg">
+<div class="bg-surface dark:bg-inverse-surface border border-outline-variant dark:border-outline rounded-xl p-lg flex flex-col md:flex-row md:items-center justify-between gap-md shadow-sm">
+<div class="flex-1">
+<div class="flex items-center gap-sm mb-base">
+<span class="font-label-sm text-primary uppercase">Progresso do Curso</span>
+<span class="text-on-surface-variant dark:text-surface-variant">•</span>
+<span class="font-label-md font-bold">65% concluído</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden mb-sm">
+<div class="h-full bg-primary transition-all duration-1000" style="width: 65%;"></div>
+</div>
+<p class="font-body-sm text-on-surface-variant dark:text-surface-variant">Próxima aula: <span class="text-on-surface font-semibold dark:text-inverse-on-surface">Nutrição Molecular</span></p>
+</div>
+<div class="flex gap-sm">
+<button class="px-md py-sm bg-primary text-on-primary rounded-lg font-label-md flex items-center gap-sm hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+                        Continuar de onde parou
+                    </button>
+</div>
+</div>
+</section>
+<!-- Two Column Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+<!-- Left Sidebar: Modules (4 Columns) -->
+<aside class="lg:col-span-4 space-y-md">
+<h2 class="font-display text-headline-md mb-md text-on-surface dark:text-inverse-on-surface">Módulos</h2>
+<!-- Module 1 -->
+<div class="border border-outline-variant dark:border-outline rounded-xl overflow-hidden bg-surface-container-low dark:bg-inverse-surface">
+<button class="w-full flex items-center justify-between p-md hover:bg-surface-container-high transition-colors text-left group">
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant dark:text-surface-variant">Módulo 01</span>
+<span class="font-label-md font-bold text-on-surface dark:text-inverse-on-surface">Introdução ao Clean-Tech</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-y-0.5 transition-transform">expand_more</span>
+</button>
+<div class="bg-surface/50 dark:bg-black/10 px-md py-sm border-t border-outline-variant/30">
+<p class="text-xs text-on-surface-variant dark:text-surface-variant">2 aulas concluídas</p>
+</div>
+</div>
+<!-- Module 2: Active -->
+<div class="border border-primary/30 dark:border-primary-fixed-dim/30 rounded-xl overflow-hidden bg-surface dark:bg-inverse-surface shadow-md">
+<div class="w-full flex items-center justify-between p-md bg-primary/5 border-b border-primary/10">
+<div class="flex flex-col">
+<span class="font-label-sm text-primary font-bold uppercase">Módulo 02</span>
+<span class="font-label-md font-extrabold text-on-surface dark:text-inverse-on-surface">Suplementação Genômica</span>
+</div>
+<span class="material-symbols-outlined text-primary">expand_less</span>
+</div>
+<div class="p-base">
+<!-- Lesson 1 (Completed) -->
+<button class="w-full flex items-center gap-md p-md rounded-lg hover:bg-surface-container-high transition-colors text-left">
+<div class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 text-sm">check</span>
+</div>
+<div class="flex-1">
+<p class="font-label-md text-on-surface dark:text-inverse-on-surface">Fundamentos da Genômica</p>
+<p class="text-[10px] text-on-surface-variant dark:text-surface-variant">15:30 • Concluído</p>
+</div>
+</button>
+<!-- Lesson 2 (Active/Watching) -->
+<button class="w-full flex items-center gap-md p-md rounded-lg bg-primary/10 border-l-4 border-primary text-left">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+<div class="flex-1">
+<p class="font-label-md text-primary font-bold">Mapeamento Nutricional de Precisão</p>
+<p class="text-[10px] text-primary/80">42:15 • Assistindo agora</p>
+</div>
+</button>
+</div>
+</div>
+<!-- Module 3 -->
+<div class="border border-outline-variant dark:border-outline rounded-xl overflow-hidden bg-surface-container-low dark:bg-inverse-surface opacity-60">
+<button class="w-full flex items-center justify-between p-md text-left">
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant dark:text-surface-variant">Módulo 03</span>
+<span class="font-label-md font-bold text-on-surface dark:text-inverse-on-surface">Biotecnologia Aplicada</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">lock</span>
+</button>
+</div>
+</aside>
+<!-- Right Column: Video & Details (8 Columns) -->
+<section class="lg:col-span-8 space-y-lg">
+<!-- Video Player Container -->
+<div class="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl group border border-outline-variant/20">
+<img alt="Lesson Background" class="w-full h-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-105" data-alt="A high-definition cinematic shot of a professional clinical laboratory setting. A scientist is working with glowing blue genetic sequence holographic projections above a laboratory bench. The aesthetic is clean-tech with clinical minimalism, using a color palette of deep violets and cool whites. Sharp focus, soft ambient lighting from technological displays, and professional cinematic composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0zb65zuSBJax2iThGwJzOzw6piNdgeayq-m1I2fEHHJeEUYD4omlEVfA_RfUSx9Nl2IyoO3wVgrxBA-1uIw8gnxa7BZMT4lXRadilkEIqX9zdqm4JMsLBuJm2c9_PNyEyEtlsMlOZhzx20_zgGOReNwOwFQYqVZt7qFKl3TYfiqXFraTXZbud4Jj6DDwDbcqBVVWZJ9fanHkT09pk_tozv190JaJLg4CC3B7yNVeCMe4Fu2iuDfQIT49mbGLY1NE13jBgtQAonF13"/>
+<div class="absolute inset-0 video-gradient-overlay"></div>
+<!-- Center Play Button -->
+<div class="absolute inset-0 flex items-center justify-center">
+<button class="w-20 h-20 bg-primary/90 text-on-primary rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined !text-4xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+<!-- Bottom Controls Placeholder -->
+<div class="absolute bottom-0 left-0 w-full p-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<span class="font-label-sm text-white bg-black/40 backdrop-blur px-sm py-xs rounded">42:15</span>
+<div class="h-1 w-40 bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/4"></div>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-white cursor-pointer hover:text-primary transition-colors">settings</span>
+<span class="material-symbols-outlined text-white cursor-pointer hover:text-primary transition-colors">fullscreen</span>
+</div>
+</div>
+</div>
+<!-- Lesson Info -->
+<div class="space-y-md">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md border-b border-outline-variant dark:border-outline pb-md">
+<div>
+<h2 class="font-display text-headline-lg text-on-surface dark:text-inverse-on-surface">Mapeamento Nutricional de Precisão</h2>
+<div class="flex items-center gap-sm mt-sm">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="Instructor" class="w-full h-full object-cover" data-alt="A professional headshot of a female doctor with a kind and intelligent expression, wearing a clinical white coat and a stethoscope around her neck. She is set against a soft, out-of-focus laboratory background. The lighting is high-key and flattering, maintaining a high-end medical professional aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTtvKmM6Y6z80TTzNwLzrJJ5h120ae2Sdew0cDHBR0-xrCw49Iwc36J0c2-FcOBxPcYW9fbRywwnXEEKbDISC5f7lEdNs9W-_OPOpAC-4CHCxpKAdG6r6Y2zeXXaprcGpl05PdWCtSz2m5BnSE3N6PieJKfWfyZKoc3FgnmGRSyzQHG2ye5oZ55KYa_sTGDN5gqQ8j058fUBnmqwD2wJqFMpIWqwUTWeZjx9bMpHNtvwGyfRa1L0_6F3BCH5Qrm5Ttm0Ku1scDMrDa"/>
+</div>
+<span class="font-label-md text-on-surface-variant dark:text-surface-variant">Profª Dra. Helena Martins</span>
+</div>
+</div>
+<div class="flex gap-sm">
+<button class="flex items-center gap-sm px-md py-sm rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">thumb_up</span>
+<span class="font-label-sm">Útil</span>
+</button>
+<button class="flex items-center gap-sm px-md py-sm rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">share</span>
+<span class="font-label-sm">Compartilhar</span>
+</button>
+</div>
+</div>
+<div class="max-w-3xl">
+<h3 class="font-label-md font-bold mb-sm">Sobre esta aula</h3>
+<p class="font-body-md text-on-surface-variant dark:text-surface-variant leading-relaxed">
+                            Nesta sessão avançada, exploramos como a tecnologia clean-tech permite a personalização nutricional baseada em sequenciamento genômico de alta precisão. Discutimos a bio-disponibilidade de micronutrientes e como o DNA individual dita a absorção e o metabolismo celular, otimizando protocolos clínicos para máxima performance e longevidade.
+                        </p>
+</div>
+<!-- Supporting Materials -->
+<div class="bg-surface-container-low dark:bg-inverse-surface/40 rounded-xl p-lg border border-outline-variant/50">
+<h3 class="font-label-md font-bold mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">description</span>
+                            Materiais de Apoio
+                        </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+<a class="flex items-center justify-between p-md bg-surface dark:bg-inverse-surface border border-outline-variant dark:border-outline rounded-lg hover:border-primary transition-all group" href="#">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-red-50 dark:bg-red-900/20 flex items-center justify-center rounded text-red-600">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md">Guia de Mapeamento.pdf</span>
+<span class="text-[10px] text-on-surface-variant">2.4 MB</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">download</span>
+</a>
+<a class="flex items-center justify-between p-md bg-surface dark:bg-inverse-surface border border-outline-variant dark:border-outline rounded-lg hover:border-primary transition-all group" href="#">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-red-50 dark:bg-red-900/20 flex items-center justify-center rounded text-red-600">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md">Protocolos Clínicos.pdf</span>
+<span class="text-[10px] text-on-surface-variant">1.8 MB</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">download</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<script>
+        // Simple micro-interaction for the progress bar
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressBar = document.querySelector('.h-full.bg-primary');
+            if (progressBar) {
+                setTimeout(() => {
+                    progressBar.style.width = '65%';
+                }, 100);
+            }
+        });
+    </script>
+</body></html>

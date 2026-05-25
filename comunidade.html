@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Amora - Comunidade</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Geist:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script>
+        if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+        }
+    </script>
+    <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            "body-md": ["Inter", "sans-serif"],
+            "body-lg": ["Inter", "sans-serif"],
+            "display": ["Geist", "sans-serif"],
+            "label-sm": ["Geist", "sans-serif"],
+            "label-md": ["Geist", "sans-serif"],
+            "headline-md": ["Geist", "sans-serif"],
+          }
+        }
+      }
+    }
+    </script>
+    <style>
+        /* Smooth transition for background, text colors, and borders during theme toggling */
+        *, *::before, *::after {
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease, opacity 0.2s ease;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-[#F9FAFB] text-gray-900 dark:bg-[#0A0A0B] dark:text-gray-100 font-normal tracking-tight antialiased min-h-screen flex selection:bg-purple-700/20 selection:text-purple-900 dark:selection:bg-purple-400/20 dark:selection:text-purple-100">
+
+<!-- SideNavBar Component -->
+<nav class="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50">
+    <!-- Header -->
+    <a href="index.html" class="px-6 pb-6 border-b border-gray-200 dark:border-[#27272A] mb-6 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg mx-2 p-2 block decoration-none">
+        <div class="w-8 h-8 rounded shrink-0 flex items-center justify-center overflow-hidden">
+            <img id="sidebar-logo" alt="Amora Logo" class="w-full h-full object-contain" src=""/>
+        </div>
+        <div class="flex-1 overflow-hidden">
+            <h2 class="font-label-md text-sm font-medium truncate text-gray-900 dark:text-white">Pedro Miguel's Works...</h2>
+            <p class="font-label-sm text-xs text-gray-500 dark:text-gray-400 truncate">personal-pedro-miguel-DM...</p>
+        </div>
+        <svg class="text-gray-400 dark:text-gray-500" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+    </a>
+    
+    <!-- Navigation Links -->
+    <div class="flex-1 overflow-y-auto px-2 space-y-6">
+        <!-- Section 1 -->
+        <div>
+            <p class="px-4 text-xs font-medium text-gray-400 dark:text-gray-500 mb-2 uppercase tracking-wider">Construir</p>
+            <div class="space-y-1">
+                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="index.html">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                    <span class="font-label-md text-sm">Builder</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Section 2 -->
+        <div>
+            <p class="px-4 text-xs font-medium text-gray-400 dark:text-gray-500 mb-2 uppercase tracking-wider">Aprender</p>
+            <div class="space-y-1">
+                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="eventos.html">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" ry="2" width="18" x="3" y="4"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                    <span class="font-label-md text-sm">Eventos</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="aulas.html">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                    <span class="font-label-md text-sm">Aulas</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-purple-700 dark:text-purple-400 font-medium bg-purple-50 dark:bg-purple-900/20 transition-colors justify-between" href="comunidade.html">
+                    <div class="flex items-center gap-3">
+                        <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <span class="font-label-md text-sm">Comunidade</span>
+                    </div>
+                    <span class="text-purple-600 dark:text-purple-400 text-xs font-semibold">(35)</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Section 3 -->
+        <div>
+            <p class="px-4 text-xs font-medium text-gray-400 dark:text-gray-500 mb-2 uppercase tracking-wider">Ajustes</p>
+            <div class="space-y-1">
+                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="configuracao.html">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span class="font-label-md text-sm">Configuração</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="px-4 pt-4 border-t border-gray-200 dark:border-[#27272A] space-y-4">
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" class="flex items-center gap-3 px-2 py-2 w-full rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+            <svg id="theme-toggle-icon" fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"></svg>
+            <span id="theme-toggle-text" class="font-label-md text-sm font-medium"></span>
+        </button>
+        <div class="px-2">
+            <span class="inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs">Free Plan</span>
+        </div>
+        <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer">
+            <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-800 shrink-0">
+                <img alt="Pedro Miguel" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcb76zVeNvWaW40zTrrzkpQaBZk6qO6Ey0TkOxy1dhyMk9RBKW9bfdiBqVBZ9VS6G4WcBMgYEFYIrnkeUnQwOaxt7-HKeEejqnbqXUzKbbkkQa7SCwWXi3pS0YpdM0DTjhXMfUVyx0fDpTCSOvBEyQ6njAST3EHllrte0fBE_AYuRhSnhuLnX0kCwON0rBKXdbnv13Iv_Fj-skyZyQbPwFOicwLJBOjFzyWe-_ZcH4zBzGcDMha6gP_xFqo7YxRpPWvc4uHqEi_tbx"/>
+            </div>
+            <div class="flex-1 overflow-hidden">
+                <p class="font-label-md text-sm font-medium text-gray-900 dark:text-white truncate">Pedro Miguel</p>
+                <p class="font-label-sm text-xs text-gray-500 truncate">pedromlzaparoli@gmail.com</p>
+            </div>
+            <svg class="text-gray-400 dark:text-gray-500 shrink-0" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content Canvas -->
+<main class="ml-64 flex-1 flex flex-col min-h-screen relative overflow-hidden bg-[#F9FAFB] dark:bg-[#0A0A0B]">
+    <!-- Ambient Background Pattern -->
+    <div class="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.02]" style="background-image: radial-gradient(#A855F7 1px, transparent 1px); background-size: 24px 24px;"></div>
+    
+    <div class="flex-1 max-w-6xl mx-auto w-full px-8 pt-20 pb-12 relative z-10 flex flex-col gap-8">
+        <!-- Hero Header -->
+        <section class="max-w-4xl space-y-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-xs font-bold border border-purple-200 dark:border-purple-800/50">
+                <span class="material-symbols-outlined !text-[14px]">bolt</span>
+                Lançamento: Clinical Hub v2.4
+            </div>
+            <h1 class="font-display text-4xl font-semibold tracking-tight text-gray-900 dark:text-white leading-tight">
+                Conectando a <span class="text-purple-700 dark:text-purple-400">Vanguarda</span> da Biotecnologia.
+            </h1>
+            <p class="font-body-lg text-base text-gray-500 dark:text-gray-400 max-w-2xl">
+                Participe de discussões, compartilhe aprendizados e colabore com outros profissionais de saúde e biotecnologia em nossa plataforma segura de Clean-Tech.
+            </p>
+        </section>
+
+        <!-- Filters, Search & Action -->
+        <div class="flex flex-col lg:flex-row gap-4 mb-4 items-center justify-between">
+            <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-2 lg:pb-0">
+                <button class="px-6 py-2 rounded-full bg-purple-700 text-white font-label-md text-sm shadow-sm transition-colors" id="filter-all">Todos os posts</button>
+                <button class="px-6 py-2 rounded-full border border-gray-200 dark:border-[#27272A] text-gray-600 dark:text-gray-400 font-label-md text-sm hover:border-purple-700 dark:hover:border-purple-400 hover:text-purple-700 dark:hover:text-purple-400 transition-all">Mais Recentes</button>
+                <button class="px-6 py-2 rounded-full border border-gray-200 dark:border-[#27272A] text-gray-600 dark:text-gray-400 font-label-md text-sm hover:border-purple-700 dark:hover:border-purple-400 hover:text-purple-700 dark:hover:text-purple-400 transition-all">Em Destaque</button>
+                <button class="px-6 py-2 rounded-full border border-gray-200 dark:border-[#27272A] text-gray-600 dark:text-gray-400 font-label-md text-sm hover:border-purple-700 dark:hover:border-purple-400 hover:text-purple-700 dark:hover:text-purple-400 transition-all">Meus Tópicos</button>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto items-center">
+                <div class="relative w-full lg:w-64">
+                    <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                    <input class="w-full border border-gray-200 dark:border-[#27272A] bg-white dark:bg-[#18181B] text-gray-900 dark:text-white rounded-full py-2 pl-12 pr-6 focus:ring-1 focus:ring-purple-700 dark:focus:ring-purple-400 focus:border-purple-700 dark:focus:border-purple-400 transition-all outline-none text-sm" placeholder="Pesquisar tópicos..." type="text"/>
+                </div>
+                <button class="w-full sm:w-auto bg-purple-700 hover:bg-purple-800 text-white dark:bg-purple-400 dark:text-gray-900 dark:hover:bg-purple-500 px-6 py-2.5 rounded-full font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-sm whitespace-nowrap">
+                    <span class="material-symbols-outlined !text-sm">add</span>
+                    Novo Tópico
+                </button>
+            </div>
+        </div>
+
+        <!-- Bento Layout Feed -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left Column: Discussions -->
+            <div class="lg:col-span-8 space-y-6">
+                <!-- Feed Card 1 -->
+                <article class="border border-gray-200 dark:border-[#27272A] rounded-2xl p-6 bg-white dark:bg-[#18181B] hover:border-purple-700 dark:hover:border-purple-400 transition-all shadow-sm group cursor-pointer">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <img alt="Dra. Letícia Lima" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPA6ybAh7MZgxmAnwD6i26AyIBQWpMsNLU9fnSL7aXdpNNRLcL7FmKqsm8n_NmZ5a3wJISsqxoXmCQ5opVERUM5COH6lWrxKVyQDN1Tp79jDIXSeZaW9K9LDNG3lw2jzdSMpMg4VzInyJgsG1MKRNfWkxYe6jAB1EV6DaPcRe-KH_CEWEQp8womy40fT6gp8MPoIHRK7h1KDJOqhBmsNxscx3QPiwLwZpK3Lm_CPMDVh29KUjr-x8bmiH452_xo5n291KAzCdQOqpW"/>
+                            <div>
+                                <h3 class="font-bold text-gray-900 dark:text-white text-sm">Dra. Letícia Lima</h3>
+                                <p class="text-xs text-gray-400 dark:text-gray-500 font-medium">Metabolômica • 2h atrás</p>
+                            </div>
+                        </div>
+                        <button class="text-gray-400 hover:text-purple-700 dark:text-gray-500 dark:hover:text-purple-400 transition-colors">
+                            <span class="material-symbols-outlined">more_horiz</span>
+                        </button>
+                    </div>
+                    <h2 class="font-display font-semibold text-lg text-gray-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors mb-2">Impacto da nutrição genômica na longevidade celular</h2>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 mb-4">Recentemente finalizamos uma rodada de testes onde correlacionamos a suplementação personalizada de polifenóis com marcadores de metilação de DNA em pacientes...</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="px-2.5 py-1 rounded bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">#Nutrição</span>
+                        <span class="px-2.5 py-1 rounded bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">#Biotech</span>
+                    </div>
+                    <div class="flex items-center gap-6 border-t border-gray-100 dark:border-[#27272A]/50 pt-4">
+                        <button class="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-purple-700 dark:hover:text-purple-400 transition-colors text-xs font-semibold">
+                            <span class="material-symbols-outlined !text-base">favorite</span> 124
+                        </button>
+                        <button class="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-purple-700 dark:hover:text-purple-400 transition-colors text-xs font-semibold">
+                            <span class="material-symbols-outlined !text-base">comment</span> 48
+                        </button>
+                        <button class="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-purple-700 dark:hover:text-purple-400 transition-colors text-xs font-semibold ml-auto">
+                            <span class="material-symbols-outlined !text-base">share</span> Compartilhar
+                        </button>
+                    </div>
+                </article>
+
+                <!-- Feed Card 2 (Image Featured) -->
+                <article class="border border-gray-200 dark:border-[#27272A] rounded-2xl p-6 bg-white dark:bg-[#18181B] hover:border-purple-700 dark:hover:border-purple-400 transition-all shadow-sm group cursor-pointer">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <img alt="Dr. André Costa" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1lFwsr6rh34cAa4177Jg4Bph0cDqUcuXFe7CXrp1Mi15h6FHnk5aWc6W-yFvzFLPENzpM_hO6yXqHhHkV474E5pb_am-tDBKu8h3zNyH7zJ_-oPVGY8Kl_bIi6e9b21HxgoUZ3CNbguHcpD3GJTrF94EZCTykX9IG6VWeOUEkLnUxdymeAMBDocE1pAN6C7kEjHCo_BgoCIpFEtG9NlEmCMBy8K9ZyZc66gvC9pH6Bkc6gWYkM821E3LqYM-i5UIHiGA77sarVnQc"/>
+                            <div>
+                                <h3 class="font-bold text-gray-900 dark:text-white text-sm">Dr. André Costa</h3>
+                                <p class="text-xs text-gray-400 dark:text-gray-500 font-medium">Farmacogenômica • 5h atrás</p>
+                            </div>
+                        </div>
+                    </div>
+                    <h2 class="font-display font-semibold text-lg text-gray-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors mb-2">Resultados do teste clínico de fase 2 do Amora-L1</h2>
+                    
+                    <!-- Visual Element -->
+                    <div class="w-full h-48 rounded-lg overflow-hidden my-4 relative">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <img alt="Lab Test" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuWhnYIDZD27_FXhI6wKXwOpdATV3ikdU8JIVUhymjSpRNL8U1Pp3X7tR-HU1vP60PLTWjyOir3PUqKDMemqtYvQQQnG4iuStg5Hx1_uSa5ImMvuRYMveKAejAvFWT-9odmZOqgHbjsNvSeryBGYBqMeNIp70O9q2IT4whHUcsK1miaVoK8DxP_CUjW7tMMctGYn6IDwbu8GNRXrweXvwJ3u9lyaNHLk_Gf5gF7RuKIwhgxrac0Rs0UVns528rSWqWmKPvPfWqaGLq_"/>
+                        <div class="absolute bottom-3 left-3 flex items-center">
+                            <span class="bg-purple-700 text-white dark:bg-purple-400 dark:text-gray-900 px-2 py-0.5 rounded text-[10px] font-bold">PDF DE RESULTADOS</span>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">A eficácia demonstrou um aumento de 22% na absorção de micronutrientes em comparação com o grupo controle...</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="px-2.5 py-1 rounded bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">#Ensaio Clínico</span>
+                        <span class="px-2.5 py-1 rounded bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">#CleanTech</span>
+                    </div>
+                    <div class="flex items-center gap-6 border-t border-gray-100 dark:border-[#27272A]/50 pt-4">
+                        <button class="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-purple-700 dark:hover:text-purple-400 transition-colors text-xs font-semibold">
+                            <span class="material-symbols-outlined !text-base">favorite</span> 89
+                        </button>
+                        <button class="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-purple-700 dark:hover:text-purple-400 transition-colors text-xs font-semibold">
+                            <span class="material-symbols-outlined !text-base">comment</span> 15
+                        </button>
+                        <button class="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-purple-700 dark:hover:text-purple-400 transition-colors text-xs font-semibold ml-auto">
+                            <span class="material-symbols-outlined !text-base">bookmark</span>
+                        </button>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Right Column: Widgets -->
+            <aside class="lg:col-span-4 space-y-6">
+                <!-- Widget: Tópicos em Alta -->
+                <div class="border border-gray-200 dark:border-[#27272A] rounded-2xl p-6 bg-white dark:bg-[#18181B] shadow-sm">
+                    <div class="flex items-center justify-between mb-6">
+                        <h4 class="font-bold font-label-md text-xs tracking-wider uppercase text-gray-400 dark:text-gray-500">Tópicos em Alta</h4>
+                        <span class="material-symbols-outlined text-gray-400 dark:text-gray-500">trending_up</span>
+                    </div>
+                    <ul class="space-y-4">
+                        <li class="flex items-center justify-between group cursor-pointer">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm text-gray-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">#CleanTech</span>
+                                <span class="text-xs text-gray-400 dark:text-gray-500">124 posts hoje</span>
+                            </div>
+                            <span class="material-symbols-outlined text-purple-700 dark:text-purple-400 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all">chevron_right</span>
+                        </li>
+                        <li class="flex items-center justify-between group cursor-pointer">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm text-gray-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">#NutricaoMolecular</span>
+                                <span class="text-xs text-gray-400 dark:text-gray-500">89 posts hoje</span>
+                            </div>
+                            <span class="material-symbols-outlined text-purple-700 dark:text-purple-400 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all">chevron_right</span>
+                        </li>
+                        <li class="flex items-center justify-between group cursor-pointer">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm text-gray-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">#EnsaioClinico</span>
+                                <span class="text-xs text-gray-400 dark:text-gray-500">56 posts hoje</span>
+                            </div>
+                            <span class="material-symbols-outlined text-purple-700 dark:text-purple-400 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all">chevron_right</span>
+                        </li>
+                    </ul>
+                    <button class="w-full mt-6 text-center text-xs font-bold text-purple-700 dark:text-purple-400 hover:underline transition-all">Ver todos os tópicos</button>
+                </div>
+
+                <!-- Widget: Membros em Destaque -->
+                <div class="border border-gray-200 dark:border-[#27272A] rounded-2xl p-6 bg-white dark:bg-[#18181B] shadow-sm">
+                    <div class="flex items-center justify-between mb-6">
+                        <h4 class="font-bold font-label-md text-xs tracking-wider uppercase text-gray-400 dark:text-gray-500">Membros em Destaque</h4>
+                        <span class="material-symbols-outlined text-gray-400 dark:text-gray-500">verified</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <img alt="Membro" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCszeo6oY9ON3rDLgVhsST_vsJtXE-wKGnFZCReYJE4FUZbe2hx_tI1hjlvSESa9jK2cpeu2H66PH-xvBTeAobkcv6Xo4X3StwAvlFomb2GGe-qfSCRAEu6HgRxNqrpaRbpMfgiXxWzi7Ry4mowZRZytrlHUk99feXBN9pwpx8NWV9wjv6iknkWLHOQTm7nbm6M4NLHUxTab83NFmdBGDIsZWzZoQEi__aWzGb8f0RHLL0bDVRznURBikaXXy42z3jM6p7r2ZvBeoKL"/>
+                            <div class="flex-1 min-w-0">
+                                <h5 class="font-bold text-sm text-gray-900 dark:text-white truncate">Sofia Mendonça</h5>
+                                <p class="text-[10px] text-gray-400 dark:text-gray-500 truncate">Especialista em Longevidade</p>
+                            </div>
+                            <div class="w-2 h-2 rounded-full bg-purple-700 dark:bg-purple-400 animate-pulse"></div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <img alt="Membro" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChDXvN5dWaHGBQWToIlzxsePw0JGvlEft7bas0_oWcFQp5bGtuw4Yz5WGW7z34gS0-ukkHkuYj46Kz430rnMjbUEK-6Jb6Ce8WLVJLKxIfb2-k46PLEgjmr_vL5M1EFqNgFtWs79YYM6AUih4n2nXSAcUWQNKDMswdIYBBalak6pMguOypq5F4QGRxQmu5epn7CC3WxhiMVKjvJ_UwkrKRepN5TCdMiP_DTVMTPJDiHYXhczX9PN19D0oYmr2nBP9iBdRCunCQQWR"/>
+                            <div class="flex-1 min-w-0">
+                                <h5 class="font-bold text-sm text-gray-900 dark:text-white truncate">Lucas Ferrari</h5>
+                                <p class="text-[10px] text-gray-400 dark:text-gray-500 truncate">Bioinformatics Engineer</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <img alt="Membro" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0CERpW-VKTpVxFS9-jBtO0MUb-mn_iPXxudIHq7hHnQvBoQ1uxrHrkr7ex5QQ-9aPsL9d3061vhSDUg5fUMeqhrskNV8D4zb_mK6C7Pyh0k00SjqyLplK4Sem5nUDT8ctxm_LFdiUKisWsuyk1vWVeJNBNKUVtPvPK-9CgR9mL3GH1YgjcNF6QDZAZp0N8OaWZDWq_ABQTbb2Ag-CZmriMd-kM8CyS9_8aGbgDi26ABprOV6Pzqenyz9RmZvRc5uFyjMqUR0RAMTl"/>
+                            <div class="flex-1 min-w-0">
+                                <h5 class="font-bold text-sm text-gray-900 dark:text-white truncate">Beatriz Oliveira</h5>
+                                <p class="text-[10px] text-gray-400 dark:text-gray-500 truncate">Genetista Clínica</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA Promo -->
+                <div class="relative rounded-2xl bg-purple-700 dark:bg-purple-900/30 p-6 overflow-hidden group border border-purple-800/20">
+                    <div class="relative z-10">
+                        <h4 class="font-display font-semibold text-lg text-white dark:text-purple-300 mb-2">Upgrade Workspace</h4>
+                        <p class="text-purple-100 dark:text-purple-400 text-sm mb-6">Desbloqueie ferramentas de análise avançada e integrações de CRM para sua clínica.</p>
+                        <button class="w-full bg-white text-purple-700 dark:bg-purple-400 dark:text-gray-900 px-4 py-2.5 rounded-lg text-xs font-extrabold uppercase tracking-widest hover:bg-opacity-90 transition-all shadow-sm">Explorar Planos</button>
+                    </div>
+                    <span class="material-symbols-outlined absolute -bottom-4 -right-4 text-[120px] text-white/10 dark:text-purple-400/10 group-hover:rotate-12 transition-transform pointer-events-none">workspace_premium</span>
+                </div>
+            </aside>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Asset URLs for Light and Dark (Night) Themes
+    const ASSETS = {
+        light: {
+            sidebarLogo: "./logo-black.svg",
+            mainLogo: "./logo-black.svg"
+        },
+        dark: {
+            sidebarLogo: "./logo-white.svg",
+            mainLogo: "./logo-white.svg"
+        }
+    };
+
+    // DOM Elements
+    const htmlEl = document.documentElement;
+    const sidebarLogoEl = document.getElementById("sidebar-logo");
+    const themeToggleBtn = document.getElementById("theme-toggle");
+    const themeToggleIcon = document.getElementById("theme-toggle-icon");
+    const themeToggleText = document.getElementById("theme-toggle-text");
+
+    // Icon SVGs
+    const SUN_SVG = `<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>`;
+    const MOON_SVG = `<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>`;
+
+    // Apply selected theme
+    function setTheme(theme) {
+        if (theme === "dark") {
+            htmlEl.classList.add("dark");
+            if (sidebarLogoEl) sidebarLogoEl.src = ASSETS.dark.sidebarLogo;
+            if (themeToggleIcon) themeToggleIcon.innerHTML = SUN_SVG;
+            if (themeToggleText) themeToggleText.innerText = "Modo claro";
+            localStorage.setItem("theme", "dark");
+        } else {
+            htmlEl.classList.remove("dark");
+            if (sidebarLogoEl) sidebarLogoEl.src = ASSETS.light.sidebarLogo;
+            if (themeToggleIcon) themeToggleIcon.innerHTML = MOON_SVG;
+            if (themeToggleText) themeToggleText.innerText = "Modo escuro";
+            localStorage.setItem("theme", "light");
+        }
+    }
+
+    // Toggle event listener
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener("click", () => {
+            const isDark = htmlEl.classList.contains("dark");
+            setTheme(isDark ? "light" : "dark");
+        });
+    }
+
+    // Initialize theme from localStorage or system preference
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+        setTheme(savedTheme);
+    } else {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        setTheme(prefersDark ? "dark" : "light");
+    }
+
+    // Smooth scroll reveal for cards
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('opacity-100', 'translate-y-0');
+                entry.target.classList.remove('opacity-0', 'translate-y-4');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('article').forEach(el => {
+        el.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-700');
+        observer.observe(el);
+    });
+
+    // Search bar interaction
+    const searchInput = document.querySelector('input[type="text"]');
+    if (searchInput) {
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('scale-[1.01]');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('scale-[1.01]');
+        });
+    }
+
+    // Micro-interaction for filter buttons
+    const filterButtons = document.querySelectorAll('button.rounded-full');
+    filterButtons.forEach(btn => {
+        if (btn.id === 'theme-toggle' || btn.innerText === 'Novo Tópico') return;
+        btn.addEventListener('click', () => {
+            filterButtons.forEach(f => {
+                if (f.id === 'theme-toggle' || f.innerText === 'Novo Tópico') return;
+                f.className = "px-6 py-2 rounded-full border border-gray-200 dark:border-[#27272A] text-gray-600 dark:text-gray-400 font-label-md text-sm hover:border-purple-700 dark:hover:border-purple-400 hover:text-purple-700 dark:hover:text-purple-400 transition-all";
+            });
+            btn.className = "px-6 py-2 rounded-full bg-purple-700 text-white font-label-md text-sm shadow-sm transition-colors";
+        });
+    });
+</script>
+</body></html>
