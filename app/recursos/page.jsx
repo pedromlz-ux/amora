@@ -250,13 +250,13 @@ export default function Recursos() {
                           <svg fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                           <span className="font-label-md text-sm">Amora</span>
                       </a>
-                      <a className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="/aulas">
-                          <svg fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
-                          <span className="font-label-md text-sm">Aulas</span>
-                      </a>
                       <a className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-purple-700 dark:text-purple-400 font-medium bg-purple-50 dark:bg-purple-900/20 transition-colors" href="/recursos">
                           <svg fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14h6"></path><path d="M9 18h6"></path><path d="M12 11v-4"></path></svg>
                           <span className="font-label-md text-sm">Recursos Profissionais</span>
+                      </a>
+                      <a className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="/blog">
+                          <svg fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                          <span className="font-label-md text-sm">Blog</span>
                       </a>
                   </div>
               </div>
@@ -690,8 +690,7 @@ export default function Recursos() {
         </div>
 
         {/* Secondary Section: Insights */}
-        <section className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="col-span-1 md:col-span-2">
+        <section className="mt-10">
         <div className="bg-white dark:bg-[#18181B] p-6 rounded-2xl border border-gray-200 dark:border-[#27272A] shadow-sm">
         <div className="flex justify-between items-center mb-6">
         <h4 className="text-sm font-bold dark:text-white">Últimas Atividades</h4>
@@ -717,19 +716,6 @@ export default function Recursos() {
         </div>
         </div>
         <span className="material-symbols-outlined text-sm text-gray-400">open_in_new</span>
-        </div>
-        </div>
-        </div>
-        </div>
-        
-        {/* Quick Link Card */}
-        <div className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-[#27272A] group cursor-pointer shadow-sm min-h-[200px] h-full bg-gradient-to-br from-gray-800 to-black">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6">
-        <span className="text-purple-300 text-[10px] font-bold uppercase tracking-widest mb-1">Base de Conhecimento</span>
-        <h4 className="text-sm font-bold mb-2 text-white">Novos Protocolos de Interpretação</h4>
-        <p className="text-xs text-gray-300 leading-tight mb-4">Acesse os guias atualizados para 2024 sobre análise lipídica.</p>
-        <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white self-end">
-        <span className="material-symbols-outlined">arrow_forward</span>
         </div>
         </div>
         </div>

@@ -18,9 +18,11 @@ Amora is a modern platform designed for clinical research, biotech exploration, 
 - [ ] Aulas (`aulas.html`) - Online lecture modules and video list.
 - [ ] Comunidade (`comunidade.html`) - Feed of discussions and posts.
 - [ ] Configuração (`configuracao.html`) - Settings page for user profile, plan, and options.
+- [x] Blog (`app/blog`) - Blog page containing news, research updates, and articles.
 
 ## 4. Roadmap / Generation Backlog
 1. Generate `eventos.html` with card list of clinical research seminars.
 2. Generate `aulas.html` with playlist structure and progress metrics.
 3. Generate `comunidade.html` with discussion feed and posts card deck.
 4. Generate `configuracao.html` with user settings tabs.
+5. Integrate Blog with next-gen layout.

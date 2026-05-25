@@ -54,26 +54,28 @@ export default function Page() {
             function setTheme(theme) {
                 if (theme === "dark") {
                     htmlEl.classList.add("dark");
-                    sidebarLogoEl.src = ASSETS.dark.sidebarLogo;
-                    mainLogoEl.src = ASSETS.dark.mainLogo;
-                    themeToggleIcon.innerHTML = SUN_SVG;
-                    themeToggleText.innerText = "Modo claro";
+                    if (sidebarLogoEl) sidebarLogoEl.src = ASSETS.dark.sidebarLogo;
+                    if (mainLogoEl) mainLogoEl.src = ASSETS.dark.mainLogo;
+                    if (themeToggleIcon) themeToggleIcon.innerHTML = SUN_SVG;
+                    if (themeToggleText) themeToggleText.innerText = "Modo claro";
                     localStorage.setItem("theme", "dark");
                 } else {
                     htmlEl.classList.remove("dark");
-                    sidebarLogoEl.src = ASSETS.light.sidebarLogo;
-                    mainLogoEl.src = ASSETS.light.mainLogo;
-                    themeToggleIcon.innerHTML = MOON_SVG;
-                    themeToggleText.innerText = "Modo escuro";
+                    if (sidebarLogoEl) sidebarLogoEl.src = ASSETS.light.sidebarLogo;
+                    if (mainLogoEl) mainLogoEl.src = ASSETS.light.mainLogo;
+                    if (themeToggleIcon) themeToggleIcon.innerHTML = MOON_SVG;
+                    if (themeToggleText) themeToggleText.innerText = "Modo escuro";
                     localStorage.setItem("theme", "light");
                 }
             }
 
             // Toggle event listener
-            themeToggleBtn.addEventListener("click", () => {
-                const isDark = htmlEl.classList.contains("dark");
-                setTheme(isDark ? "light" : "dark");
-            });
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener("click", () => {
+                    const isDark = htmlEl.classList.contains("dark");
+                    setTheme(isDark ? "light" : "dark");
+                });
+            }
 
             // Initialize theme from localStorage or system preference
             const savedTheme = localStorage.getItem("theme");
@@ -130,16 +132,16 @@ export default function Page() {
                 tabMeus.addEventListener("click", () => {
                     tabMeus.className = "px-6 py-2 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm transition-colors active:scale-98";
                     tabTime.className = "px-6 py-2 rounded-full text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors active:scale-98";
-                    emptyTitle.innerText = "Nenhum projeto ainda";
-                    emptySubtitle.innerText = "Descreva o que você quer aprender acima e nós ajudaremos você a começar.";
+                    if (emptyTitle) emptyTitle.innerText = "Nenhum projeto ainda";
+                    if (emptySubtitle) emptySubtitle.innerText = "Descreva o que você quer aprender acima e nós ajudaremos você a começar.";
                     showToast("Exibindo seus projetos pessoais 📂");
                 });
 
                 tabTime.addEventListener("click", () => {
                     tabTime.className = "px-6 py-2 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm transition-colors active:scale-98";
                     tabMeus.className = "px-6 py-2 rounded-full text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors active:scale-98";
-                    emptyTitle.innerText = "Nenhum projeto de time";
-                    emptySubtitle.innerText = "Os projetos compartilhados com a sua equipe serão listados aqui.";
+                    if (emptyTitle) emptyTitle.innerText = "Nenhum projeto de time";
+                    if (emptySubtitle) emptySubtitle.innerText = "Os projetos compartilhados com a sua equipe serão listados aqui.";
                     showToast("Exibindo projetos compartilhados da equipe 👥");
                 });
             }
@@ -536,69 +538,104 @@ export default function Page() {
     }
 
     return (
-        <div suppressHydrationWarning dangerouslySetInnerHTML={{
+        <div suppressHydrationWarning className="bg-[#F9FAFB] dark:bg-[#0A0A0B] min-h-screen text-gray-900 dark:text-white" dangerouslySetInnerHTML={{
             __html: `
 
 <!-- SideNavBar Component -->
-<nav class="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50">
+<nav
+    class="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50">
     <!-- Header -->
-    <a href="/" class="px-6 pb-6 border-b border-gray-200 dark:border-[#27272A] mb-6 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg mx-2 p-2 block decoration-none">
+    <a href="/"
+        class="px-6 pb-6 border-b border-gray-200 dark:border-[#27272A] mb-6 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg mx-2 p-2 block decoration-none">
         <div class="w-8 h-8 rounded shrink-0 flex items-center justify-center overflow-hidden">
-            <img id="sidebar-logo" alt="Amora Logo" class="w-full h-full object-contain" src=""/>
+            <img id="sidebar-logo" alt="Amora Logo" class="w-full h-full object-contain" src="" />
         </div>
         <div class="flex-1 overflow-hidden">
-            <h2 id="sidebar-workspace-title" class="font-label-md text-sm font-medium truncate text-gray-900 dark:text-white">Pedro Miguel's Works...</h2>
-            <p id="sidebar-workspace-subtitle" class="font-label-sm text-xs text-gray-500 dark:text-gray-400 truncate">personal-pedro-miguel-DM...</p>
+            <h2 id="sidebar-workspace-title" class="font-label-md text-sm font-medium truncate text-gray-900 dark:text-white">Pedro Miguel's
+                Works...</h2>
+            <p id="sidebar-workspace-subtitle" class="font-label-sm text-xs text-gray-500 dark:text-gray-400 truncate">personal-pedro-miguel-DM...
+            </p>
         </div>
-        <svg class="text-gray-400 dark:text-gray-500" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+        <svg class="text-gray-400 dark:text-gray-500" fill="none" height="16" stroke="currentColor"
+            stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="16"
+            xmlns="http://www.w3.org/2000/svg">
+            <path d="m7 15 5 5 5-5"></path>
+            <path d="m7 9 5-5 5 5"></path>
+        </svg>
     </a>
-    
+
     <!-- Navigation Links -->
     <div class="flex-1 overflow-y-auto px-2 space-y-6">
         <!-- Section 1 -->
         <div>
-            <p class="px-4 text-xs font-medium text-gray-400 dark:text-gray-500 mb-2 uppercase tracking-wider">Aprender</p>
+            <p class="px-4 text-xs font-medium text-gray-400 dark:text-gray-500 mb-2 uppercase tracking-wider">
+                Aprender</p>
             <div class="space-y-1">
-                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-purple-700 dark:text-purple-400 font-medium bg-purple-50 dark:bg-purple-900/20 transition-colors" href="/">
-                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-purple-700 dark:text-purple-400 font-medium bg-purple-50 dark:bg-purple-900/20 transition-colors"
+                    href="/">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
                     <span class="font-label-md text-sm">Amora</span>
-                </a>
-                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="/aulas">
-                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
-                    <span class="font-label-md text-sm">Aulas</span>
                 </a>
                 <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="/recursos">
                     <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14h6"></path><path d="M9 18h6"></path><path d="M12 11v-4"></path></svg>
                     <span class="font-label-md text-sm">Recursos Profissionais</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="/blog">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    <span class="font-label-md text-sm">Blog</span>
                 </a>
             </div>
         </div>
 
         <!-- Section 3 -->
         <div>
-            <p class="px-4 text-xs font-medium text-gray-400 dark:text-gray-500 mb-2 uppercase tracking-wider">Ajustes</p>
+            <p class="px-4 text-xs font-medium text-gray-400 dark:text-gray-500 mb-2 uppercase tracking-wider">
+                Ajustes</p>
             <div class="space-y-1">
-                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="/configuracao">
-                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                    href="/configuracao">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z">
+                        </path>
+                    </svg>
                     <span class="font-label-md text-sm">Configuração</span>
                 </a>
             </div>
         </div>
-    
+    </div>
+
     <!-- Footer -->
     <div class="px-4 pt-4 border-t border-gray-200 dark:border-[#27272A] space-y-4">
         <div class="px-2">
-            <span id="sidebar-plan-badge" class="inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs">Free Plan</span>
+            <span id="sidebar-plan-badge"
+                class="inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs">Free
+                Plan</span>
         </div>
-        <div onclick="window.location.href='/configuracao'" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer">
+        <div onclick="window.location.href='/configuracao'"
+            class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer">
             <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-800 shrink-0 relative">
-                <img id="sidebar-avatar" alt="Pedro Miguel" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcb76zVeNvWaW40zTrrzkpQaBZk6qO6Ey0TkOxy1dhyMk9RBKW9bfdiBqVBZ9VS6G4WcBMgYEFYIrnkeUnQwOaxt7-HKeEejqnbqXUzKbbkkQa7SCwWXi3pS0YpdM0DTjhXMfUVyx0fDpTCSOvBEyQ6njAST3EHllrte0fBE_AYuRhSnhuLnX0kCwON0rBKXdbnv13Iv_Fj-skyZyQbPwFOicwLJBOjFzyWe-_ZcH4zBzGcDMha6gP_xFqo7YxRpPWvc4uHqEi_tbx"/>
+                <img id="sidebar-avatar" alt="Pedro Miguel" class="w-full h-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcb76zVeNvWaW40zTrrzkpQaBZk6qO6Ey0TkOxy1dhyMk9RBKW9bfdiBqVBZ9VS6G4WcBMgYEFYIrnkeUnQwOaxt7-HKeEejqnbqXUzKbbkkQa7SCwWXi3pS0YpdM0DTjhXMfUVyx0fDpTCSOvBEyQ6njAST3EHllrte0fBE_AYuRhSnhuLnX0kCwON0rBKXdbnv13Iv_Fj-skyZyQbPwFOicwLJBOjFzyWe-_ZcH4zBzGcDMha6gP_xFqo7YxRpPWvc4uHqEi_tbx" />
             </div>
             <div class="flex-1 overflow-hidden">
                 <p id="sidebar-name" class="font-label-md text-sm font-medium text-gray-900 dark:text-white truncate">Pedro Miguel</p>
                 <p id="sidebar-email" class="font-label-sm text-xs text-gray-500 truncate">pedromlzaparoli@gmail.com</p>
             </div>
-            <svg class="text-gray-400 dark:text-gray-500 shrink-0" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+            <svg class="text-gray-400 dark:text-gray-500 shrink-0" fill="none" height="16" stroke="currentColor"
+                stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="16"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="m7 15 5 5 5-5"></path>
+                <path d="m7 15 5 5 5-5"></path>
+                <path d="m7 9 5-5 5 5"></path>
+            </svg>
         </div>
         
         <!-- Sign Out Button -->

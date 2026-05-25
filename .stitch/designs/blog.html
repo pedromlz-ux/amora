@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aprender - Amora Clinical Clean-Tech</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#e8e7f1",
+                      "primary-fixed-dim": "#d2bbff",
+                      "outline-variant": "#ccc3d8",
+                      "inverse-on-surface": "#f1effa",
+                      "surface-container-highest": "#e3e1ec",
+                      "primary-fixed": "#eaddff",
+                      "tertiary-fixed": "#ffdcc6",
+                      "on-primary": "#ffffff",
+                      "primary": "#630ed4",
+                      "secondary-container": "#645efb",
+                      "surface-container-low": "#f4f2fd",
+                      "secondary": "#4b41e1",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface": "#fbf8ff",
+                      "outline": "#7b7487",
+                      "on-secondary-fixed": "#0f0069",
+                      "secondary-fixed-dim": "#c3c0ff",
+                      "on-tertiary-fixed": "#301400",
+                      "on-tertiary": "#ffffff",
+                      "surface-variant": "#e3e1ec",
+                      "tertiary-container": "#a15100",
+                      "on-tertiary-fixed-variant": "#713700",
+                      "background": "#fbf8ff",
+                      "on-primary-container": "#ede0ff",
+                      "tertiary-fixed-dim": "#ffb784",
+                      "on-surface-variant": "#4a4455",
+                      "secondary-fixed": "#e2dfff",
+                      "on-primary-fixed": "#25005a",
+                      "inverse-surface": "#2f3038",
+                      "tertiary": "#7d3d00",
+                      "inverse-primary": "#d2bbff",
+                      "error": "#ba1a1a",
+                      "surface-container": "#eeedf7",
+                      "on-secondary-fixed-variant": "#3323cc",
+                      "on-secondary-container": "#fffbff",
+                      "primary-container": "#7c3aed",
+                      "surface-tint": "#732ee4",
+                      "surface-dim": "#dad9e3",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#5a00c6",
+                      "on-background": "#1a1b22",
+                      "on-tertiary-container": "#ffe0cd",
+                      "surface-bright": "#fbf8ff",
+                      "on-surface": "#1a1b22",
+                      "on-error-container": "#93000a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "container-max": "1280px",
+                      "xl": "40px",
+                      "base": "4px",
+                      "md": "16px",
+                      "xs": "4px",
+                      "gutter": "24px",
+                      "sm": "8px",
+                      "margin": "32px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "display": [
+                              "Geist"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Geist"
+                      ],
+                      "label-sm": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill-icon {
+          font-variation-settings: 'FILL' 1, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased selection:bg-primary-container selection:text-on-primary-container flex min-h-screen">
+<!-- SideNavBar -->
+<nav class="hidden md:flex bg-surface dark:bg-inverse-surface fixed left-0 top-0 h-full w-64 border-r border-outline-variant dark:border-outline flex-col py-md px-md z-50 transition-all duration-300">
+<!-- Header -->
+<div class="mb-xl flex items-center gap-sm px-sm">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center shrink-0">
+<span class="text-primary font-headline-md text-headline-md font-semibold">A</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim font-semibold tracking-tight">Amora</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">Clinical Clean-Tech</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<ul class="space-y-sm flex-1">
+<li>
+<a class="flex items-center gap-md px-sm py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="architecture">architecture</span>
+<span class="font-label-md text-label-md">Construir</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-sm rounded-lg text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary dark:border-primary-fixed-dim bg-primary/5 opacity-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined fill-icon" data-icon="school" data-weight="fill">school</span>
+<span class="font-label-md text-label-md">Aprender</span>
+</a>
+</li>
+</ul>
+<!-- Footer Links -->
+<div class="mt-auto border-t border-outline-variant/30 dark:border-outline/30 pt-md">
+<a class="flex items-center gap-md px-sm py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="account_circle">account_circle</span>
+<span class="font-label-md text-label-md">Perfil</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 w-full max-w-[calc(100%-16rem)] min-h-screen">
+<!-- TopAppBar (Minimal for content focus) -->
+<header class="bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md docked full-width top-0 sticky z-40 border-b border-outline-variant dark:border-outline shadow-sm dark:shadow-none flex justify-between items-center w-full px-gutter h-16">
+<div class="flex items-center gap-md">
+<h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim font-semibold">Amora Workspace</h2>
+</div>
+<div class="flex items-center gap-sm">
+<!-- Search (Abstracted as minimal icon trigger) -->
+<button aria-label="Search" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest hover:text-primary dark:hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<!-- Trailing Actions -->
+<button aria-label="Toggle Dark Mode" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" onclick="document.documentElement.classList.toggle('dark')">
+<span class="material-symbols-outlined" data-icon="dark_mode">dark_mode</span>
+</button>
+<button aria-label="Notifications" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest hover:text-primary dark:hover:text-primary-fixed-dim transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface dark:border-inverse-surface"></span>
+</button>
+<!-- Profile -->
+<button class="ml-sm w-8 h-8 rounded-full border border-outline-variant dark:border-outline overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:focus:ring-offset-inverse-surface transition-shadow">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A close-up, high-quality professional portrait of a person with a neutral expression. The lighting is soft and studio-quality, emphasizing clarity and modern clinical professionalism. The background is a stark, minimal white, creating a clean, high-contrast tech aesthetic suitable for a healthcare technology platform profile picture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcibpCTBx_R5iE8Jx7dog9F-PJEZdVEH0zNv7CeZPpgqFjfhhTYrAM130Rku7gbTkUn-8ejIld9E-vgnqp4OMP896QT3vS100SoS41qAbV2xKXtgk-QH5yQ-wekQS_Vgj2GIJQ_hBDNdDpZ9wiX_oOVuSb3gj0bhAbHdb8CFqoxQvzM0rH3OZZUhutDeieJwfBU1ZIwsdiRaeatWdCv-12o51FRbe0oohGvU1C6R_08gqDMILsEEfKzibk6iwxfaKpTHo8Y8AjkO_a"/>
+</button>
+</div>
+</header>
+<!-- Content Area -->
+<div class="px-gutter py-margin max-w-container-max mx-auto space-y-xl">
+<!-- Category Filter Chips -->
+<div class="flex items-center gap-sm overflow-x-auto pb-sm no-scrollbar">
+<button class="px-4 py-1.5 rounded-full bg-primary/10 text-primary dark:text-primary-fixed-dim border border-primary/20 font-label-md text-label-md transition-colors whitespace-nowrap">Todas as Categorias</button>
+<button class="px-4 py-1.5 rounded-full bg-transparent text-on-surface-variant dark:text-surface-variant border border-outline-variant dark:border-outline hover:border-primary/50 hover:text-primary transition-colors font-label-md text-label-md whitespace-nowrap">Nutrição Clínica</button>
+<button class="px-4 py-1.5 rounded-full bg-transparent text-on-surface-variant dark:text-surface-variant border border-outline-variant dark:border-outline hover:border-primary/50 hover:text-primary transition-colors font-label-md text-label-md whitespace-nowrap">Biotecnologia</button>
+<button class="px-4 py-1.5 rounded-full bg-transparent text-on-surface-variant dark:text-surface-variant border border-outline-variant dark:border-outline hover:border-primary/50 hover:text-primary transition-colors font-label-md text-label-md whitespace-nowrap">Health Tech</button>
+<button class="px-4 py-1.5 rounded-full bg-transparent text-on-surface-variant dark:text-surface-variant border border-outline-variant dark:border-outline hover:border-primary/50 hover:text-primary transition-colors font-label-md text-label-md whitespace-nowrap">Pesquisa Aplicada</button>
+</div>
+<!-- Featured Article (Hero) -->
+<article class="group relative rounded-xl overflow-hidden border border-outline-variant/50 dark:border-outline/50 bg-surface dark:bg-inverse-surface hover:shadow-[0_4px_20px_rgba(0,0,0,0.05)] dark:hover:shadow-none transition-all duration-300">
+<div class="grid md:grid-cols-2 gap-0">
+<div class="relative h-64 md:h-full min-h-[400px] overflow-hidden">
+<img alt="Pesquisa em Laboratório" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="A pristine, highly illuminated modern laboratory environment focused on clinical research. A scientist in a crisp white lab coat is meticulously examining a sample under a sleek, advanced microscope. The lighting is cool, bright, and clinical, utilizing a stark palette of whites, cool grays, and subtle tech-blue accents. The atmosphere conveys rigorous precision, cutting-edge biotechnology, and deep scientific focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqsnY0Ba7b8OCZwb5nApOLKDPGPqdjrLU-zgiT5mahdk4qF9rDyRgSXiyWOF5PGlEfGvFTm8LuAZGeRZXdxUT8dF_5rexFuruz6LeTIOKVdsOCt_PmbbEo-nuGuywxV8IVCi5D5BdUse8mmdRcO6wN-RyiVEY3L9o6JeGik6aNG43oLHP864W8U0NQOdUR_Rto1W2xhwGhJTO8-C-AClrxd58pCe8RNBpGM7S0bV6bYiIRpXXa4ejgHB8L1mHXkiszGQynunS3umON"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent md:hidden pointer-events-none"></div>
+</div>
+<div class="p-lg md:p-xl flex flex-col justify-center bg-surface dark:bg-inverse-surface z-10 relative">
+<div class="absolute top-0 right-0 p-lg opacity-10 md:opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-[120px]" data-icon="science">science</span>
+</div>
+<div class="space-y-md relative z-20">
+<div class="flex items-center gap-sm">
+<span class="px-2 py-1 rounded-sm bg-primary/10 text-primary dark:text-primary-fixed-dim font-label-sm text-label-sm uppercase tracking-widest border border-primary/20">Pesquisa</span>
+<span class="text-on-surface-variant dark:text-surface-variant font-label-sm text-label-sm flex items-center gap-xs">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+                                    12 Min Leitura
+                                </span>
+</div>
+<h2 class="font-display text-display text-on-surface dark:text-inverse-on-surface group-hover:text-primary dark:group-hover:text-primary-fixed-dim transition-colors leading-tight">Avanços em Biomarcadores Nutricionais para Terapias Personalizadas</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant dark:text-surface-variant font-light leading-relaxed max-w-xl">
+                                Uma análise profunda das metodologias emergentes de sequenciamento que estão redefinindo a precisão diagnóstica em intervenções dietéticas clínicas.
+                            </p>
+<div class="pt-sm flex items-center gap-md">
+<img alt="Autor" class="w-10 h-10 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a female clinical researcher in a modern office setting. She is wearing subtle, sophisticated professional attire. The lighting is soft and neutral, casting a clean, bright, light-mode aesthetic. The background is slightly blurred but suggests a high-tech, minimalist corporate environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5hPaIk9vEjjrytz5suGQ70K9PDJjoG1VfkLeivvKeZFZAsZTnT1vVD4i4jyPkj3AWkVWTxEWLnyWXBTCxWizs2jNmg3rXIlMNsLqlrj0RjmSl9eMKSef3curr9kYyboNAzmR2b5n_i-KVBK5MbCPKJz3MeDof6DLVo2ulKN49qOgxdM5LUbHYcIXX9jV7W-xFbLBtftYNHbIHLQJHL6M5UbSItIUfys96FvL33tSVAmsZccDs8LcAHxocyzGDfydbWeyM_A0haAc4"/>
+<div>
+<p class="font-label-md text-label-md text-on-surface dark:text-inverse-on-surface">Dra. Elena Rostova</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant font-normal">Diretora de Pesquisa</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Card 1 -->
+<article class="group flex flex-col bg-surface dark:bg-inverse-surface border border-outline-variant/50 dark:border-outline/50 rounded-xl overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.05)] dark:hover:shadow-none transition-all duration-300">
+<div class="relative h-48 overflow-hidden border-b border-outline-variant/30 dark:border-outline/30">
+<img alt="Análise de Dados" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out grayscale-[20%]" data-alt="Close-up of a sleek, high-resolution monitor displaying complex, minimalist data visualizations and genomic sequences. The screen is the primary light source in a dimly lit, hyper-modern tech workspace. The color palette is restricted to deep blacks, charcoal grays, and precise, thin lines of glowing tech-purple and stark white. The image embodies data precision and advanced bioinformatics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBG2iuVWVh-hv2hSkjwIW8rLqHQaIs3xdu-bQSZQ3ZpO0B4UPDSk7wFojLDxWjRQE_5AGeqYI_AUa4GFzsHl1uuA6P4HSP8PKEfI4MT-TBiJjc-FgI7ATF1hTLQ-k4eZJ6nZ20m1dNTx5zkWp6-1YLqpQJcwjQ84P6-YVzSqPm0A92PoecY-DnNoqCj4nNR9wDK53ySFOiSgroYYITpi02u42ri1eetyTOrxalcVRzq9jhyiP4gpFDiQ32i5Cz_Pr_OQxWwjqAmIkjJ"/>
+</div>
+<div class="p-lg flex-1 flex flex-col">
+<div class="flex items-center gap-sm mb-sm">
+<span class="text-primary dark:text-primary-fixed-dim font-label-sm text-label-sm uppercase tracking-widest">Tecnologia</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-on-surface-variant dark:text-surface-variant font-label-sm text-label-sm">8 Min</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface dark:text-inverse-on-surface mb-sm group-hover:text-primary dark:group-hover:text-primary-fixed-dim transition-colors line-clamp-2">Integração de APIs de Saúde em Protocolos Clínicos</h3>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant font-light line-clamp-3 mb-md flex-1">
+                            Como a padronização de dados FHIR está acelerando a interoperabilidade entre plataformas de nutrição e registros eletrônicos de saúde.
+                        </p>
+<div class="mt-auto flex items-center justify-between border-t border-outline-variant/20 dark:border-outline/20 pt-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant">24 Outubro, 2023</span>
+<span class="material-symbols-outlined text-outline hover:text-primary transition-colors cursor-pointer text-[20px]" data-icon="bookmark">bookmark</span>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="group flex flex-col bg-surface dark:bg-inverse-surface border border-outline-variant/50 dark:border-outline/50 rounded-xl overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.05)] dark:hover:shadow-none transition-all duration-300">
+<div class="relative h-48 overflow-hidden border-b border-outline-variant/30 dark:border-outline/30 bg-surface-container-high dark:bg-surface-container-highest flex items-center justify-center">
+<!-- Abstract representation instead of photo for variety -->
+<div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary via-transparent to-transparent"></div>
+<span class="material-symbols-outlined text-[80px] text-primary/40 dark:text-primary-fixed-dim/40 relative z-10" data-icon="biotech">biotech</span>
+</div>
+<div class="p-lg flex-1 flex flex-col">
+<div class="flex items-center gap-sm mb-sm">
+<span class="text-primary dark:text-primary-fixed-dim font-label-sm text-label-sm uppercase tracking-widest">Biotecnologia</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-on-surface-variant dark:text-surface-variant font-label-sm text-label-sm">15 Min</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface dark:text-inverse-on-surface mb-sm group-hover:text-primary dark:group-hover:text-primary-fixed-dim transition-colors line-clamp-2">Sintetização de Proteínas e o Futuro Suplementar</h3>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant font-light line-clamp-3 mb-md flex-1">
+                            Revisão sistemática das técnicas de fermentação de precisão na criação de perfis de aminoácidos otimizados para recuperação pós-operatória.
+                        </p>
+<div class="mt-auto flex items-center justify-between border-t border-outline-variant/20 dark:border-outline/20 pt-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant">18 Outubro, 2023</span>
+<span class="material-symbols-outlined text-outline hover:text-primary transition-colors cursor-pointer text-[20px]" data-icon="bookmark">bookmark</span>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="group flex flex-col bg-surface dark:bg-inverse-surface border border-outline-variant/50 dark:border-outline/50 rounded-xl overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.05)] dark:hover:shadow-none transition-all duration-300">
+<div class="relative h-48 overflow-hidden border-b border-outline-variant/30 dark:border-outline/30">
+<img alt="Nutrição Clínica" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="A highly stylized, minimalist flat-lay of clinical nutrition elements. Clean white plates, precise measuring instruments, and vibrant, natural whole foods (like leafy greens and berries) arranged in an exact geometric grid on a sterile white surface. The lighting is extremely bright and even, eliminating harsh shadows to create a pristine, scientific, and healthy aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCocE0btlYxAEeNkY6T-I2KlQFOL162uapJMPX_CZ8bmhdpmOARG2UKN0-RIuEXTerhJ8kXGQdAhc6Xw6XRySGeeClKL-yDW0SWvAH8mNM05yW3kDClTdH_hvah625e20oFBZvGXSKfLi7A67866i08cjybvFTU2WO8uDwDVklBzEAMiRaVZ096bwAM8VIl_RcUrjsdWbRBZuk1PzhEEm6aXLTNddfaFFT4WV0EpzassWpNZ4yVKqRukosT0A5g4xubC-pGrTIC1ZbR"/>
+</div>
+<div class="p-lg flex-1 flex flex-col">
+<div class="flex items-center gap-sm mb-sm">
+<span class="text-primary dark:text-primary-fixed-dim font-label-sm text-label-sm uppercase tracking-widest">Nutrição Clínica</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-on-surface-variant dark:text-surface-variant font-label-sm text-label-sm">5 Min</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface dark:text-inverse-on-surface mb-sm group-hover:text-primary dark:group-hover:text-primary-fixed-dim transition-colors line-clamp-2">Microbioma e Resposta Glicêmica</h3>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant font-light line-clamp-3 mb-md flex-1">
+                            Estudo de coorte evidenciando a correlação entre a diversidade da flora intestinal e a variabilidade glicêmica contínua em pacientes pré-diabéticos.
+                        </p>
+<div class="mt-auto flex items-center justify-between border-t border-outline-variant/20 dark:border-outline/20 pt-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant">12 Outubro, 2023</span>
+<span class="material-symbols-outlined text-outline hover:text-primary transition-colors cursor-pointer text-[20px]" data-icon="bookmark">bookmark</span>
+</div>
+</div>
+</article>
+</div>
+<!-- Load More (Ghost Button) -->
+<div class="flex justify-center pt-md pb-xl">
+<button class="px-6 py-2 rounded-lg border border-outline-variant dark:border-outline text-on-surface dark:text-inverse-on-surface font-label-md text-label-md hover:bg-surface-container-high dark:hover:bg-surface-container-highest hover:border-primary/50 transition-all flex items-center gap-sm group">
+                    Carregar Mais Artigos
+                    <span class="material-symbols-outlined text-[18px] group-hover:translate-y-0.5 transition-transform" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</div>
+</main>
+</body></html>

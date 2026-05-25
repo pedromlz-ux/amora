@@ -217,6 +217,47 @@ export default function Page() {
                 }, 1500);
             });
         }
+
+        // Initialize Theme preference select buttons
+        const btnSelectLight = document.getElementById("theme-select-light");
+        const btnSelectDark = document.getElementById("theme-select-dark");
+
+        function updateThemeSelectionUI(theme) {
+            if (theme === "dark") {
+                if (btnSelectDark) {
+                    btnSelectDark.className = "flex flex-col items-center justify-center p-4 rounded-xl border-2 border-purple-700 dark:border-purple-400 bg-purple-50/50 dark:bg-purple-950/20 transition-all text-center";
+                }
+                if (btnSelectLight) {
+                    btnSelectLight.className = "flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 dark:border-[#27272A] bg-gray-50 dark:bg-black/25 hover:border-purple-500 dark:hover:border-purple-400 transition-all text-center opacity-70";
+                }
+            } else {
+                if (btnSelectLight) {
+                    btnSelectLight.className = "flex flex-col items-center justify-center p-4 rounded-xl border-2 border-purple-700 dark:border-purple-400 bg-purple-50/50 dark:bg-purple-950/20 transition-all text-center";
+                }
+                if (btnSelectDark) {
+                    btnSelectDark.className = "flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 dark:border-[#27272A] bg-gray-50 dark:bg-black/25 hover:border-purple-500 dark:hover:border-purple-400 transition-all text-center opacity-70";
+                }
+            }
+        }
+
+        const currentTheme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        updateThemeSelectionUI(currentTheme);
+
+        if (btnSelectLight) {
+            btnSelectLight.addEventListener("click", () => {
+                setTheme("light");
+                updateThemeSelectionUI("light");
+                showToast("Tema claro ativado");
+            });
+        }
+
+        if (btnSelectDark) {
+            btnSelectDark.addEventListener("click", () => {
+                setTheme("dark");
+                updateThemeSelectionUI("dark");
+                showToast("Tema escuro ativado");
+            });
+        }
         
         // Função de Sign Out global
         window.handleSignOut = function() {
@@ -234,7 +275,7 @@ export default function Page() {
   if (loading) return null;
 
   return (
-    <div suppressHydrationWarning dangerouslySetInnerHTML={{ __html: `
+    <div suppressHydrationWarning className="bg-[#F9FAFB] dark:bg-[#0A0A0B] min-h-screen text-gray-900 dark:text-white" dangerouslySetInnerHTML={{ __html: `
 
     <!-- SideNavBar Component -->
     <nav
@@ -275,19 +316,13 @@ export default function Page() {
                         </svg>
                         <span class="font-label-md text-sm">Amora</span>
                     </a>
-                    <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                        href="/aulas">
-                        <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round"
-                            stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
-                            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
-                        </svg>
-                        <span class="font-label-md text-sm">Aulas</span>
-                    </a>
                     <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="/recursos">
                         <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14h6"></path><path d="M9 18h6"></path><path d="M12 11v-4"></path></svg>
                         <span class="font-label-md text-sm">Recursos Profissionais</span>
+                    </a>
+                    <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="/blog">
+                        <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        <span class="font-label-md text-sm">Blog</span>
                     </a>
                 </div>
             </div>
@@ -562,21 +597,25 @@ export default function Page() {
                             <div
                                 class="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-2xl p-6 shadow-sm space-y-6">
 
-                                <!-- Toggle 1: Modo Escuro Sincronizado -->
+                                <!-- Theme Selection: Tema da interface -->
                                 <div
-                                    class="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-[#27272A]/50">
-                                    <div class="flex-1 pr-4">
-                                        <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Modo Escuro
-                                            Global</h4>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-light">Ative a
-                                            interface com tons noturnos escuros para reduzir a fadiga ocular.</p>
+                                    class="flex flex-col gap-3 pb-6 border-b border-gray-100 dark:border-[#27272A]/50">
+                                    <div>
+                                        <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Tema da interface</h4>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-light">Escolha a aparência da interface do Amora de acordo com a sua preferência.</p>
                                     </div>
-                                    <label class="relative inline-flex items-center cursor-pointer select-none">
-                                        <input type="checkbox" id="pref-darkmode" class="sr-only peer" />
-                                        <div
-                                            class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-650 peer-checked:bg-purple-750">
-                                        </div>
-                                    </label>
+                                    <div class="grid grid-cols-2 gap-4 mt-2">
+                                        <!-- Option Light -->
+                                        <button type="button" id="theme-select-light" class="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 dark:border-[#27272A] bg-gray-50 dark:bg-black/25 hover:border-purple-500 dark:hover:border-purple-400 transition-all text-center">
+                                            <span class="material-symbols-outlined text-gray-500 mb-2">light_mode</span>
+                                            <span class="text-xs font-semibold text-gray-900 dark:text-white">Claro</span>
+                                        </button>
+                                        <!-- Option Dark -->
+                                        <button type="button" id="theme-select-dark" class="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 dark:border-[#27272A] bg-gray-50 dark:bg-black/25 hover:border-purple-500 dark:hover:border-purple-400 transition-all text-center">
+                                            <span class="material-symbols-outlined text-gray-500 mb-2">dark_mode</span>
+                                            <span class="text-xs font-semibold text-gray-900 dark:text-white">Escuro</span>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <!-- Toggle 2: Notificações por E-mail -->
