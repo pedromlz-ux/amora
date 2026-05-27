@@ -12,9 +12,9 @@ const ARTICLES = [
     image: '/blog_biomarcadores.png',
     date: '24 Outubro, 2026',
     author: {
-      name: 'Dra. Elena Rostova',
-      role: 'Diretora de Pesquisa',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=150'
+      name: 'Equipe Editorial Amora',
+      role: 'Equipe Editorial',
+      avatar: 'https://ui-avatars.com/api/?name=Equipe+Editorial+Amora&background=7e22ce&color=fff&size=256&bold=true'
     },
     summary: 'Uma análise profunda das metodologias emergentes de sequenciamento que estão redefinindo a precisão diagnóstica em intervenções dietéticas clínicas.',
     content: `Os biomarcadores nutricionais representam a vanguarda da nutrição clínica de precisão, permitindo uma avaliação objetiva do estado metabólico e da ingestão alimentar. Tradicionalmente, a anamnese alimentar baseava-se em recordatórios subjetivos, propensos a biases de memória e estimativas incorretas de porções. A introdução de técnicas analíticas modernas permitiu substituir essas métricas imprecisas por indicadores moleculares estáveis obtidos diretamente de tecidos biológicos.
@@ -43,12 +43,12 @@ Em suma, a transição para uma medicina diagnóstica baseada em biomarcadores o
     image: '/blog_apis.png',
     date: '18 Outubro, 2026',
     author: {
-      name: 'Dr. Sarah Chen',
-      role: 'Líder de Integrações Médicas',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150'
+      name: 'Equipe Editorial Amora',
+      role: 'Equipe Editorial',
+      avatar: 'https://ui-avatars.com/api/?name=Equipe+Editorial+Amora&background=7e22ce&color=fff&size=256&bold=true'
     },
     summary: 'Como a padronização de dados FHIR está acelerando a interoperabilidade entre plataformas de nutrição e registros eletrônicos de saúde.',
-    content: `A convergência entre sistemas de informação em saúde e a prática nutricional contemporânea estabeleceu um novo paradigma baseado no consumo integrado de APIs robustas. APIs que se conectam a dispositivos de monitoramento contínuo de glicose (CGM), balanças de bioimpedância e wearables de variabilidade cardíaca fornecem aos profissionais um ecossistema contínuo e contextualizado. A telemetria de dados substitui as consultas esporádicas por um acompanhamento longitudinal ininterrupto.
+    content: `A convergência entre sistemas de informação em saúde e a prática nutricional contemporânea estabeleceu um novo paradigma baseado no consumo integrado de APIs robustas. APIs que se conectam a dispositivos de monitoramento contínuo de glicose (CGM), balanças de bioimpedância e wearables de variabilidade cardíaca fornece aos profissionais um ecossistema contínuo e contextualizado. A telemetria de dados substitui as consultas esporádicas por um acompanhamento longitudinal ininterrupto.
 
 O papel das APIs de CGM é crucial na elucidação das respostas glicêmicas individuais aos alimentos do cotidiano. Em vez de estimar o índice glicêmico teórico de uma refeição, o profissional de saúde acessa as curvas glicêmicas reais registradas em intervalos de cinco minutos. Isso permite correlacionar picos glicêmicos pós-prandiais imediatos com alimentos específicos consumidos e registrados pelo paciente.
 
@@ -74,9 +74,9 @@ Por fim, a centralização de dados biométricos via APIs cria uma plataforma de
     image: '/blog_sintese.png',
     date: '12 Outubro, 2026',
     author: {
-      name: 'Dr. Marcus Vance',
-      role: 'Especialista em Proteínas Alternativas',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150'
+      name: 'Equipe Editorial Amora',
+      role: 'Equipe Editorial',
+      avatar: 'https://ui-avatars.com/api/?name=Equipe+Editorial+Amora&background=7e22ce&color=fff&size=256&bold=true'
     },
     summary: 'Revisão sistemática das técnicas de fermentação de precisão na criação de perfis de aminoácidos otimizados para recuperação pós-operatória.',
     content: `A engenharia biológica e a tecnologia de alimentos uniram forças para revolucionar a terapia nutricional clínica por meio da síntese controlada de proteínas via fermentação de precisão. Esse processo biotecnológico avançado utiliza microrganismos programados para expressar proteínas idênticas às de origem animal, porém sem os componentes associados que causam intolerâncias ou alergias alimentares comuns.
@@ -93,7 +93,7 @@ A cicatrização de feridas crônicas (como úlceras de decúbito e pé diabéti
 
 Outra vantagem crítica reside na eliminação completa de antígenos alimentares. Proteínas do leite sintetizadas em laboratório não contêm lactose, caseína de digestão lenta ou beta-lactoglobulinas alergênicas. Pacientes portadores de alergias múltiplas ou doenças autoimunes intestinais encontram nessas formulações uma fonte segura de nitrogênio biodisponível.
 
-Adicionalmente, os suplementos de precisão eliminam contaminantes químicos e físicos que podem estar presentes em fontes animais e vegetais convencionais, como metais pesados, pesticidas e resíduos de antibióticos. A purificação em nível farmacêutico garante a entrega de um nutriente inócuo.
+Adicionalmente, os suplementos de precisão eliminam contaminantes químicos e físicos que podem estar presentes em fontes animais e vegetais convencionais, como metals pesados, pesticidas e resíduos de antibióticos. A purificação em nível farmacêutico garante a entrega de um nutriente inócuo.
 
 O futuro dos suplementos reside na produção sob demanda de perfis nutricionais personalizados em biorreatores domésticos ou clínicos de microescala. O perfil de aminoácidos ingerido pelo paciente será sintonizado com sua taxa de degradação proteica diária avaliada via biomarcadores urinários. A nutrição alcança, assim, a sua escala de personalização molecular máxima.`
   },
@@ -105,9 +105,9 @@ O futuro dos suplementos reside na produção sob demanda de perfis nutricionais
     image: '/blog_microbioma.png',
     date: '05 Outubro, 2026',
     author: {
-      name: 'Dra. Juliana Mendes',
-      role: 'Pesquisadora Associada de Microbiologia',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=150'
+      name: 'Equipe Editorial Amora',
+      role: 'Equipe Editorial',
+      avatar: 'https://ui-avatars.com/api/?name=Equipe+Editorial+Amora&background=7e22ce&color=fff&size=256&bold=true'
     },
     summary: 'Estudo de coorte evidenciando a correlação entre a diversidade da flora intestinal e a variabilidade glicêmica contínua em pacientes pré-diabéticos.',
     content: `A regulação homeostática da glicemia e a tolerância periférica à insulina estão diretamente coordenadas pela diversidade taxonômica e abundância funcional do microbioma intestinal humano. Microrganismos dos filos Firmicutes, Bacteroidetes e Actinobacteria digerem polissacarídeos complexos e fibras insolúveis que escapam à digestão enzimática no intestino delgado, convertendo-os em metabólitos de sinalização essenciais conhecidos como ácidos graxos de cadeia curta (AGCC).
@@ -223,19 +223,8 @@ export default function Page() {
 
       {/* SideNavBar Component */}
       <nav className={`h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50 transition-transform duration-300 md:translate-x-0 ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        {/* Header */}
-        <a href="/" className="px-6 pb-6 border-b border-gray-200 dark:border-[#27272A] mb-6 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg mx-2 p-2 block decoration-none">
-          <div className="w-8 h-8 rounded shrink-0 flex items-center justify-center overflow-hidden bg-purple-750 text-white font-bold text-sm">
-            A
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <h2 className="font-medium text-sm truncate text-gray-900 dark:text-white">{userProfile.name.split(' ')[0]}'s Works...</h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{workspaceSubtitle}</p>
-          </div>
-          <svg className="text-gray-400 dark:text-gray-500" fill="none" height="16" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
-            <path d="m7 15 5 5 5-5"></path>
-            <path d="m7 9 5-5 5 5"></path>
-          </svg>
+        <a href="/" className="px-6 py-4 mb-4 flex items-center justify-center cursor-pointer decoration-none">
+          <img src="/logo-horizontal.svg" alt="Amora Logo" className="w-32 h-auto object-contain dark:invert" />
         </a>
 
         {/* Navigation Links */}
@@ -317,47 +306,33 @@ export default function Page() {
 
       {/* Main Content Canvas */}
       <main className="flex-1 md:ml-64 w-full min-h-screen flex flex-col">
-        
-        {/* TopAppBar */}
-        <header className="bg-white/80 dark:bg-[#0A0A0B]/80 backdrop-blur-md top-0 sticky z-40 border-b border-gray-200 dark:border-[#27272A] flex justify-between items-center w-full px-8 h-16">
-          <div className="flex items-center gap-4">
-            {/* Mobile Hamburger Button */}
-            <button 
-              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)} 
-              className="md:hidden w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Abrir Menu"
-            >
-              <span className="material-symbols-outlined">menu</span>
-            </button>
-            <h2 className="text-lg text-purple-700 dark:text-purple-400 font-semibold cursor-pointer" onClick={() => setActiveArticleId(null)}>
-              Amora Workspace
-            </h2>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            {/* Theme Toggle Button */}
-            <button 
-              onClick={toggleTheme} 
-              aria-label="Toggle Dark Mode" 
-              className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors active:scale-95 transition-transform"
-            >
-              <span className="material-symbols-outlined">
-                {theme === 'dark' ? 'light_mode' : 'dark_mode'}
-              </span>
-            </button>
-            <button aria-label="Notifications" className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
-          </div>
-        </header>
 
         {/* Content Area */}
         <div className="px-6 py-8 max-w-5xl mx-auto w-full flex-1 flex flex-col">
           
+          {/* Mobile Menu Button */}
+          <button 
+            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)} 
+            className="md:hidden w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mb-4 self-start"
+            aria-label="Abrir Menu"
+          >
+            <span className="material-symbols-outlined">menu</span>
+          </button>
+          
           {activeArticleId === null ? (
             // LIST VIEW
             <div className="space-y-8 flex-1 flex flex-col">
+
+              {/* Hero Header */}
+              <div className="mb-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-purple-700 dark:text-purple-400 font-bold text-xs">Dashboard</span>
+                  <span className="material-symbols-outlined text-[10px] opacity-40">chevron_right</span>
+                  <span className="text-gray-500 text-xs">Blog</span>
+                </div>
+                <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">Blog</h2>
+                <p className="text-base text-gray-500 max-w-2xl mt-2">Artigos científicos, atualizações de produtos e novidades sobre nutrição e biotecnologia.</p>
+              </div>
               
               {/* Category Filter Chips */}
               <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">

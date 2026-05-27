@@ -234,9 +234,26 @@ export default function Page() {
 
             // Send Simulated Chat & AI Response Flow
             const btnSend = document.getElementById("btn-send");
+            const btnClearChat = document.getElementById("btn-clear-chat");
             const emptyState = document.getElementById("empty-state");
             const chatMessages = document.getElementById("chat-messages");
             let chatHistory = [];
+
+            if (btnClearChat) {
+                btnClearChat.addEventListener("click", () => {
+                    const email = localStorage.getItem("user_email") || "guest";
+                    localStorage.removeItem(`amora_chat_history_${email}`);
+                    chatHistory = [];
+                    if (chatMessages) {
+                        chatMessages.innerHTML = "";
+                        chatMessages.classList.add("hidden");
+                    }
+                    if (emptyState) {
+                        emptyState.classList.remove("hidden");
+                    }
+                    showToast("Histórico de conversa limpo.");
+                });
+            }
 
             function getAmoraResponse(prompt) {
                 const cleaned = prompt.toLowerCase();
@@ -394,6 +411,7 @@ export default function Page() {
                     newMessage.inlineData = inlineData;
                 }
                 chatHistory.push(newMessage);
+                saveChatHistory();
 
                 appendThinkingIndicator();
 
@@ -442,6 +460,7 @@ export default function Page() {
                     }
 
                     chatHistory.push({ role: 'model', content: fullResponse });
+                    saveChatHistory();
 
                 } catch (error) {
                     const indicator = document.getElementById("thinking-indicator");
@@ -449,6 +468,58 @@ export default function Page() {
                     showToast("Erro ao contatar a Amora. Tente novamente.");
                     console.error(error);
                 }
+
+                function saveChatHistory() {
+                    const email = localStorage.getItem("user_email") || "guest";
+                    const cleanHistory = chatHistory.map(msg => ({ role: msg.role, content: msg.content }));
+                    localStorage.setItem(`amora_chat_history_${email}`, JSON.stringify(cleanHistory));
+                }
+
+                function loadChatHistory() {
+                    const email = localStorage.getItem("user_email") || "guest";
+                    const saved = localStorage.getItem(`amora_chat_history_${email}`);
+                    if (saved) {
+                        try {
+                            const parsed = JSON.parse(saved);
+                            if (parsed && parsed.length > 0) {
+                                chatHistory = parsed;
+                                if (emptyState) emptyState.classList.add("hidden");
+                                chatMessages.classList.remove("hidden");
+                                chatMessages.innerHTML = "";
+                                chatHistory.forEach(msg => {
+                                    if (msg.role === 'user') {
+                                        appendUserMessage(msg.content, null);
+                                    } else if (msg.role === 'model') {
+                                        appendStaticAIMessage(msg.content);
+                                    }
+                                });
+                            }
+                        } catch (e) {
+                            console.error("Error loading chat history:", e);
+                        }
+                    }
+                }
+
+                function appendStaticAIMessage(responseText) {
+                    const aiMsg = document.createElement("div");
+                    aiMsg.className = "flex items-start gap-4";
+                    const logoSrc = htmlEl.classList.contains("dark") ? ASSETS.dark.sidebarLogo : ASSETS.light.sidebarLogo;
+
+                    let styled = responseText.replace(/\n/g, '<br/>');
+                    styled = styled.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-purple-700 dark:text-purple-400">$1</strong>');
+
+                    aiMsg.innerHTML = `
+                        <div class="w-8 h-8 rounded-full bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-sm">
+                            <img class="w-full h-full object-contain" src="${logoSrc}"/>
+                        </div>
+                        <div class="flex-1 bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-[20px] rounded-tl-[4px] p-5 text-sm leading-relaxed shadow-sm font-light text-gray-800 dark:text-gray-200 space-y-4">
+                            <p class="typing-text-block">${styled}</p>
+                        </div>
+                    `;
+                    chatMessages.appendChild(aiMsg);
+                }
+
+                window.loadChatHistory = loadChatHistory;
             }
 
             if (btnSend && textarea) {
@@ -523,6 +594,9 @@ export default function Page() {
 
             // Call on load
             loadUserProfile();
+            if (window.loadChatHistory) {
+                window.loadChatHistory();
+            }
 
         } catch (e) {
             console.error(e);
@@ -544,24 +618,8 @@ export default function Page() {
 <!-- SideNavBar Component -->
 <nav
     class="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50">
-    <!-- Header -->
-    <a href="/"
-        class="px-6 pb-6 border-b border-gray-200 dark:border-[#27272A] mb-6 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg mx-2 p-2 block decoration-none">
-        <div class="w-8 h-8 rounded shrink-0 flex items-center justify-center overflow-hidden">
-            <img id="sidebar-logo" alt="Amora Logo" class="w-full h-full object-contain" src="" />
-        </div>
-        <div class="flex-1 overflow-hidden">
-            <h2 id="sidebar-workspace-title" class="font-label-md text-sm font-medium truncate text-gray-900 dark:text-white">Pedro Miguel's
-                Works...</h2>
-            <p id="sidebar-workspace-subtitle" class="font-label-sm text-xs text-gray-500 dark:text-gray-400 truncate">personal-pedro-miguel-DM...
-            </p>
-        </div>
-        <svg class="text-gray-400 dark:text-gray-500" fill="none" height="16" stroke="currentColor"
-            stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="16"
-            xmlns="http://www.w3.org/2000/svg">
-            <path d="m7 15 5 5 5-5"></path>
-            <path d="m7 9 5-5 5 5"></path>
-        </svg>
+    <a href="/" class="px-6 py-4 mb-4 flex items-center justify-center cursor-pointer decoration-none">
+        <img src="/logo-horizontal.svg" alt="Amora Logo" class="w-32 h-auto object-contain dark:invert" />
     </a>
 
     <!-- Navigation Links -->

@@ -52,6 +52,15 @@ export default function Recursos() {
   const [exameResultado, setExameResultado] = useState(null);
   const fileInputRef = useRef(null);
 
+  // Gasto Energético State
+  const [gastoPeso, setGastoPeso] = useState('');
+  const [gastoAltura, setGastoAltura] = useState('');
+  const [gastoIdade, setGastoIdade] = useState('');
+  const [gastoSexo, setGastoSexo] = useState('feminino');
+  const [gastoFormula, setGastoFormula] = useState('mifflin');
+  const [gastoAtividade, setGastoAtividade] = useState('1.2');
+  const [resultadoGasto, setResultadoGasto] = useState(null);
+
   useEffect(() => {
     // Load User
     const name = localStorage.getItem("user_name") || "Pedro Miguel";
@@ -73,6 +82,45 @@ export default function Recursos() {
     localStorage.removeItem("user_email");
     localStorage.removeItem("user_avatar");
     window.location.href = "/login";
+  };
+
+  const calcularGasto = () => {
+    if (!gastoPeso || !gastoAltura || !gastoIdade) return;
+    const p = parseFloat(gastoPeso);
+    const a = parseFloat(gastoAltura);
+    const i = parseInt(gastoIdade);
+    let tmb = 0;
+
+    if (gastoFormula === 'mifflin') {
+      if (gastoSexo === 'masculino') {
+        tmb = (10 * p) + (6.25 * a) - (5 * i) + 5;
+      } else {
+        tmb = (10 * p) + (6.25 * a) - (5 * i) - 161;
+      }
+    } else if (gastoFormula === 'harris') {
+      if (gastoSexo === 'masculino') {
+        tmb = 88.362 + (13.397 * p) + (4.799 * a) - (5.677 * i);
+      } else {
+        tmb = 447.593 + (9.247 * p) + (3.098 * a) - (4.330 * i);
+      }
+    } else if (gastoFormula === 'fao') {
+      if (gastoSexo === 'masculino') {
+        if (i >= 18 && i <= 30) tmb = (15.3 * p) + 679;
+        else if (i > 30 && i <= 60) tmb = (11.6 * p) + 879;
+        else tmb = (13.5 * p) + 487;
+      } else {
+        if (i >= 18 && i <= 30) tmb = (14.7 * p) + 496;
+        else if (i > 30 && i <= 60) tmb = (8.7 * p) + 829;
+        else tmb = (10.5 * p) + 596;
+      }
+    }
+
+    const tdee = tmb * parseFloat(gastoAtividade);
+    
+    setResultadoGasto({
+      tmb: Math.round(tmb),
+      tdee: Math.round(tdee)
+    });
   };
 
   const calcularImc = () => {
@@ -229,15 +277,8 @@ export default function Recursos() {
       {/* SideNavBar Component */}
       <nav className="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50">
           {/* Header */}
-          <a href="/" className="px-6 pb-6 border-b border-gray-200 dark:border-[#27272A] mb-6 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg mx-2 p-2 block decoration-none">
-              <div className="w-8 h-8 rounded shrink-0 flex items-center justify-center overflow-hidden">
-                  <img alt="Amora Logo" className="w-full h-full object-contain" src=""/>
-              </div>
-              <div className="flex-1 overflow-hidden">
-                  <h2 className="font-label-md text-sm font-medium truncate text-gray-900 dark:text-white">{userProfile.name.split(' ')[0]}'s Works...</h2>
-                  <p className="font-label-sm text-xs text-gray-500 dark:text-gray-400 truncate">{workspaceSubtitle}</p>
-              </div>
-              <svg className="text-gray-400 dark:text-gray-500" fill="none" height="16" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+          <a href="/" className="px-6 py-4 mb-4 flex items-center justify-center cursor-pointer decoration-none">
+              <img src="/logo-horizontal.svg" alt="Amora Logo" className="w-32 h-auto object-contain dark:invert" />
           </a>
           
           {/* Navigation Links */}
@@ -297,26 +338,8 @@ export default function Recursos() {
           </div>
       </nav>
 
-      {/* TopAppBar Anchor */}
-      <header className="fixed top-0 right-0 left-64 z-40 bg-white/80 dark:bg-[#0A0A0B]/80 backdrop-blur-md border-b border-gray-200 dark:border-[#27272A] flex justify-between items-center h-16 px-6 w-[calc(100%-16rem)]">
-        <div className="flex items-center gap-4">
-        <h1 className="text-xl font-extrabold text-purple-700 dark:text-purple-400 tracking-tight">Clinical Intelligence</h1>
-        </div>
-        <div className="flex items-center gap-6">
-        <div className="hidden md:flex items-center bg-gray-50 dark:bg-gray-800/50 px-4 py-2 rounded-full border border-gray-200 dark:border-[#27272A] w-64">
-        <span className="material-symbols-outlined text-gray-500 text-sm mr-2">search</span>
-        <input className="bg-transparent border-none focus:ring-0 text-sm w-full outline-none dark:text-white" placeholder="Pesquisar..." type="text"/>
-        </div>
-        <div className="flex items-center gap-4">
-        <button className="material-symbols-outlined text-gray-500 hover:text-purple-700 transition-colors">notifications</button>
-        <button className="material-symbols-outlined text-gray-500 hover:text-purple-700 transition-colors" onClick={() => window.location.href='/configuracao'}>settings</button>
-        <button className="material-symbols-outlined text-gray-500 hover:text-purple-700 transition-colors">help</button>
-        </div>
-        </div>
-      </header>
-
       {/* Main Content Canvas */}
-      <main className="ml-64 pt-24 pb-12 px-8 max-w-[1280px] mx-auto min-h-screen">
+      <main className="ml-64 pt-8 pb-12 px-8 max-w-[1280px] mx-auto min-h-screen">
         {/* Hero Header */}
         <div className="mb-10">
         <div className="flex items-center gap-2 mb-2">
@@ -687,39 +710,102 @@ export default function Recursos() {
         </div>
         <p className="mt-4 text-[10px] text-center text-gray-400">Os dados são processados localmente seguindo as normas da LGPD.</p>
         </section>
+
+        {/* Card 5: Calculadora de Gasto Energético */}
+        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 group shadow-sm md:col-span-2">
+           <div className="flex items-center gap-4 mb-6">
+             <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center text-red-700 dark:text-red-400">
+               <span className="material-symbols-outlined">local_fire_department</span>
+             </div>
+             <div>
+               <h3 className="text-sm font-bold dark:text-white">Calculadora de Gasto Energético</h3>
+               <p className="text-xs text-gray-500">TMB e Gasto Total (TDEE)</p>
+             </div>
+           </div>
+
+           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+             <div className="space-y-2">
+               <label className="text-xs text-gray-500">Idade</label>
+               <input 
+                 className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-500 outline-none transition-all dark:text-white" 
+                 type="number" value={gastoIdade} onChange={(e) => setGastoIdade(e.target.value)} 
+               />
+             </div>
+             <div className="space-y-2">
+               <label className="text-xs text-gray-500">Sexo biológico</label>
+               <select 
+                 className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-500 outline-none transition-all dark:text-white" 
+                 value={gastoSexo} onChange={(e) => setGastoSexo(e.target.value)}
+               >
+                 <option value="feminino">Feminino</option>
+                 <option value="masculino">Masculino</option>
+               </select>
+             </div>
+             <div className="space-y-2">
+               <label className="text-xs text-gray-500">Peso (kg)</label>
+               <input 
+                 className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-500 outline-none transition-all dark:text-white" 
+                 type="number" value={gastoPeso} onChange={(e) => setGastoPeso(e.target.value)} 
+               />
+             </div>
+             <div className="space-y-2">
+               <label className="text-xs text-gray-500">Altura (cm)</label>
+               <input 
+                 className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-500 outline-none transition-all dark:text-white" 
+                 type="number" value={gastoAltura} onChange={(e) => setGastoAltura(e.target.value)} 
+               />
+             </div>
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+             <div className="space-y-2">
+               <label className="text-xs text-gray-500">Fórmula</label>
+               <select 
+                 className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-500 outline-none transition-all dark:text-white" 
+                 value={gastoFormula} onChange={(e) => setGastoFormula(e.target.value)}
+               >
+                 <option value="mifflin">Mifflin-St Jeor (Mais precisa)</option>
+                 <option value="harris">Harris-Benedict</option>
+                 <option value="fao">FAO/OMS</option>
+               </select>
+             </div>
+             <div className="space-y-2">
+               <label className="text-xs text-gray-500">Nível de Atividade</label>
+               <select 
+                 className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-500 outline-none transition-all dark:text-white" 
+                 value={gastoAtividade} onChange={(e) => setGastoAtividade(e.target.value)}
+               >
+                 <option value="1.2">Sedentário (pouco/nenhum exercício)</option>
+                 <option value="1.375">Levemente ativo (exercício 1-3 dias/sem)</option>
+                 <option value="1.55">Moderadamente ativo (exercício 3-5 dias/sem)</option>
+                 <option value="1.725">Muito ativo (exercício 6-7 dias/sem)</option>
+                 <option value="1.9">Extremamente ativo (físico/treino 2x/dia)</option>
+               </select>
+             </div>
+           </div>
+
+           {resultadoGasto && (
+             <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-100 dark:border-red-900/30 flex justify-around items-center">
+                <div className="text-center">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Taxa Metabólica Basal (TMB)</p>
+                  <p className="text-lg font-bold text-red-700 dark:text-red-400">{resultadoGasto.tmb} kcal</p>
+                </div>
+                <div className="w-px h-8 bg-red-200 dark:bg-red-900/30"></div>
+                <div className="text-center">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Gasto Energético Total (TDEE)</p>
+                  <p className="text-lg font-bold text-red-700 dark:text-red-400">{resultadoGasto.tdee} kcal</p>
+                </div>
+             </div>
+           )}
+
+           <button onClick={calcularGasto} className="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-auto">
+             <span>Calcular Gasto Energético</span>
+             <span className="material-symbols-outlined text-sm">arrow_forward</span>
+           </button>
+        </section>
+
         </div>
 
-        {/* Secondary Section: Insights */}
-        <section className="mt-10">
-        <div className="bg-white dark:bg-[#18181B] p-6 rounded-2xl border border-gray-200 dark:border-[#27272A] shadow-sm">
-        <div className="flex justify-between items-center mb-6">
-        <h4 className="text-sm font-bold dark:text-white">Últimas Atividades</h4>
-        <button className="text-purple-700 dark:text-purple-400 text-xs font-bold hover:underline">Ver tudo</button>
-        </div>
-        <div className="space-y-4">
-        <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-[#27272A] last:border-0">
-        <div className="flex items-center gap-4">
-        <div className="w-2 h-2 rounded-full bg-purple-700"></div>
-        <div>
-        <p className="text-sm font-medium dark:text-white">Cálculo de IMC realizado</p>
-        <p className="text-[10px] text-gray-500">Paciente: Maria S. • Há 2 horas</p>
-        </div>
-        </div>
-        <span className="text-sm font-bold dark:text-white">24.5 kg/m²</span>
-        </div>
-        <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-[#27272A] last:border-0">
-        <div className="flex items-center gap-4">
-        <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-        <div>
-        <p className="text-sm font-medium dark:text-white">Dieta atualizada</p>
-        <p className="text-[10px] text-gray-500">Paciente: João P. • Há 5 horas</p>
-        </div>
-        </div>
-        <span className="material-symbols-outlined text-sm text-gray-400">open_in_new</span>
-        </div>
-        </div>
-        </div>
-        </section>
       </main>
     </div>
   );

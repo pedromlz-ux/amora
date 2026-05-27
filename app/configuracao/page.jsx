@@ -218,6 +218,110 @@ export default function Page() {
             });
         }
 
+        const btnUpgrade = document.getElementById("btn-upgrade-plan");
+        if (btnUpgrade) {
+            btnUpgrade.addEventListener("click", () => {
+                // Remove original button
+                btnUpgrade.style.display = 'none';
+
+                // Create container for the brick
+                const container = document.getElementById('paymentBrick_container');
+                if (container) container.innerHTML = '';
+                
+                // Show loading indicator
+                const loadingInfo = document.createElement('div');
+                loadingInfo.id = 'mp-loading';
+                loadingInfo.innerHTML = '<span class="material-symbols-outlined animate-spin align-middle mr-2">progress_activity</span> Carregando Pagamento Seguro...';
+                loadingInfo.className = 'text-sm font-medium text-gray-500 py-4';
+                
+                if (container) {
+                    container.appendChild(loadingInfo);
+                } else {
+                    const newContainer = document.createElement('div');
+                    newContainer.id = 'paymentBrick_container';
+                    newContainer.className = 'w-full mt-4';
+                    newContainer.appendChild(loadingInfo);
+                    // Append below the plan title area
+                    btnUpgrade.parentNode.appendChild(newContainer);
+                }
+
+                // Function to initialize Brick
+                const initBrick = async () => {
+                    const mp = new window.MercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY, { locale: 'pt-BR' });
+                    const bricksBuilder = mp.bricks();
+
+                    const renderPaymentBrick = async (bricksBuilder) => {
+                      const settings = {
+                        initialization: {
+                          amount: 49.9,
+                          preferenceId: null,
+                        },
+                        customization: {
+                          visual: { style: { theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default' } },
+                          paymentMethods: {
+                            ticket: "all",
+                            bankTransfer: "all",
+                            creditCard: "all",
+                            debitCard: "all",
+                            mercadoPago: "all",
+                          },
+                        },
+                        callbacks: {
+                          onReady: () => {
+                            const loader = document.getElementById('mp-loading');
+                            if (loader) loader.remove();
+                          },
+                          onSubmit: ({ selectedPaymentMethod, formData }) => {
+                            return new Promise((resolve, reject) => {
+                              fetch("/api/payment", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(formData),
+                              })
+                                .then((response) => response.json())
+                                .then((response) => {
+                                  if (response.error) {
+                                      showToast("Erro no pagamento: " + response.error);
+                                      reject();
+                                  } else {
+                                      showToast("Pagamento processado com sucesso!");
+                                      resolve();
+                                      setTimeout(() => window.location.reload(), 2000);
+                                  }
+                                })
+                                .catch((error) => {
+                                  showToast("Erro na comunicação com servidor.");
+                                  reject();
+                                });
+                            });
+                          },
+                          onError: (error) => {
+                            console.error(error);
+                            showToast("Erro no componente de pagamento.");
+                          },
+                        },
+                      };
+                      window.paymentBrickController = await bricksBuilder.create(
+                        "payment",
+                        "paymentBrick_container",
+                        settings
+                      );
+                    };
+                    renderPaymentBrick(bricksBuilder);
+                };
+
+                // Load MP SDK script dynamically if not loaded
+                if (!window.MercadoPago) {
+                    const script = document.createElement('script');
+                    script.src = "https://sdk.mercadopago.com/js/v2";
+                    script.onload = initBrick;
+                    document.body.appendChild(script);
+                } else {
+                    initBrick();
+                }
+            });
+        }
+
         // Initialize Theme preference select buttons
         const btnSelectLight = document.getElementById("theme-select-light");
         const btnSelectDark = document.getElementById("theme-select-dark");
@@ -280,24 +384,9 @@ export default function Page() {
     <!-- SideNavBar Component -->
     <nav
         class="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50">
-        <!-- Header -->
         <a href="/"
-            class="px-6 pb-6 border-b border-gray-200 dark:border-[#27272A] mb-6 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg mx-2 p-2 block decoration-none">
-            <div class="w-8 h-8 rounded shrink-0 flex items-center justify-center overflow-hidden">
-                <img id="sidebar-logo" alt="Amora Logo" class="w-full h-full object-contain" src="" />
-            </div>
-            <div class="flex-1 overflow-hidden">
-                <h2 id="sidebar-workspace-title" class="font-label-md text-sm font-medium truncate text-gray-900 dark:text-white">Pedro Miguel's
-                    Works...</h2>
-                <p id="sidebar-workspace-subtitle" class="font-label-sm text-xs text-gray-500 dark:text-gray-400 truncate">personal-pedro-miguel-DM...
-                </p>
-            </div>
-            <svg class="text-gray-400 dark:text-gray-500" fill="none" height="16" stroke="currentColor"
-                stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="16"
-                xmlns="http://www.w3.org/2000/svg">
-                <path d="m7 15 5 5 5-5"></path>
-                <path d="m7 9 5-5 5 5"></path>
-            </svg>
+            class="px-6 py-4 mb-4 flex items-center justify-center cursor-pointer decoration-none">
+            <img src="/logo-horizontal.svg" alt="Amora Logo" class="w-32 h-auto object-contain dark:invert" />
         </a>
 
         <!-- Navigation Links -->
