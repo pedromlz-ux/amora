@@ -195,6 +195,9 @@ export default function Page() {
                 });
                 if (res.ok) {
                     const data = await res.json();
+                    if (data.plan) {
+                        localStorage.setItem("user_plan", data.plan);
+                    }
                     
                     const planBadge = document.getElementById("plan-badge-main");
                     const planTitle = document.getElementById("plan-title-main");
@@ -512,10 +515,10 @@ export default function Page() {
         <!-- Mobile Header / Hamburger Menu -->
         <div class="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#27272A] bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-md sticky top-0 z-30">
             <div class="flex items-center gap-2">
-                <button id="btn-hamburger" class="p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><path d="M4 12h16M4 6h16M4 18h16"></path></svg>
+                <button id="btn-hamburger" aria-label="Abrir menu" class="p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <svg aria-hidden="true" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><path d="M4 12h16M4 6h16M4 18h16"></path></svg>
                 </button>
-                <img src="/logo-horizontal.svg" alt="Amora Logo" class="h-6 w-auto object-contain dark:invert" />
+                <img src="/logo-horizontal.svg" alt="Amora Logo" width="128" height="32" class="h-8 w-auto object-contain dark:invert" />
             </div>
         </div>
 

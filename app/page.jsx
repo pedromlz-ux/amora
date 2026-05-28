@@ -275,30 +275,170 @@ export default function Page() {
             const chatMessages = document.getElementById("chat-messages");
             let chatHistory = [];
 
-            if (btnClearChat) {
-                btnClearChat.addEventListener("click", () => {
-                    const email = localStorage.getItem("user_email") || "guest";
-                    localStorage.removeItem(`amora_chat_history_${email}`);
-                    chatHistory = [];
-                    if (chatMessages) {
-                        chatMessages.innerHTML = "";
-                        chatMessages.classList.add("hidden");
-                    }
-                    if (emptyState) {
-                        emptyState.classList.remove("hidden");
-                    }
-                    showToast("Histórico de conversa limpo.");
+            // Supabase Chat History state and logic
+            let activeChatId = null;
+            let chatsList = [];
+            let currentUser = null;
+
+            // Fetch current user and load their chats
+            supabase.auth.getUser().then(({ data: { user } }) => {
+                if (user) {
+                    currentUser = user;
+                    loadChatsList();
+                }
+            });
+
+            async function loadChatsList() {
+                if (!currentUser) return;
+                const { data, error } = await supabase
+                    .from('chats')
+                    .select('id, title, created_at')
+                    .order('created_at', { ascending: false });
+                if (error) {
+                    console.error("Error loading chats list:", error);
+                    return;
+                }
+                chatsList = data || [];
+                renderChatsList();
+            }
+
+            function renderChatsList() {
+                const listContainer = document.getElementById("sidebar-chats-list");
+                if (!listContainer) return;
+
+                if (chatsList.length === 0) {
+                    listContainer.innerHTML = `
+                        <div class="px-4 py-3 text-xs text-gray-400 dark:text-gray-500 italic">
+                            Nenhuma conversa salva
+                        </div>
+                    `;
+                    return;
+                }
+
+                listContainer.innerHTML = chatsList.map(chat => {
+                    const isActive = chat.id === activeChatId;
+                    const activeClass = isActive 
+                        ? "bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 font-medium" 
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50";
+                    return `
+                        <div data-chat-id="${chat.id}" class="group flex items-center justify-between px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer ${activeClass}">
+                            <span class="truncate flex-1 font-label-md select-none">${chat.title}</span>
+                            <button class="btn-delete-chat p-1 rounded hover:bg-red-50 dark:hover:bg-red-950/30 text-gray-450 hover:text-red-600 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1 cursor-pointer" data-id="${chat.id}" title="Excluir conversa">
+                                <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" x2="10" y1="11" y2="17"></line>
+                                    <line x1="14" x2="14" y1="11" y2="17"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+                // Attach click listeners to loaded chat items and delete buttons
+                listContainer.querySelectorAll('[data-chat-id]').forEach(item => {
+                    item.addEventListener("click", () => {
+                        const chatId = item.getAttribute("data-chat-id");
+                        selectChatSession(chatId);
+                    });
+                });
+
+                listContainer.querySelectorAll('.btn-delete-chat').forEach(btn => {
+                    btn.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        const chatId = btn.getAttribute("data-id");
+                        deleteChatSession(chatId);
+                    });
                 });
             }
+
+            async function selectChatSession(chatId) {
+                activeChatId = chatId;
+                const { data, error } = await supabase
+                    .from('chats')
+                    .select('messages')
+                    .eq('id', chatId)
+                    .single();
+                if (error) {
+                    showToast("Erro ao carregar conversa.");
+                    return;
+                }
+                chatHistory = data.messages || [];
+                renderChatHistory();
+                renderChatsList();
+            }
+
+            function renderChatHistory() {
+                if (!chatMessages) return;
+                
+                chatMessages.innerHTML = "";
+                if (chatHistory.length === 0) {
+                    if (emptyState) emptyState.classList.remove("hidden");
+                    chatMessages.classList.add("hidden");
+                    return;
+                }
+
+                if (emptyState) emptyState.classList.add("hidden");
+                chatMessages.classList.remove("hidden");
+
+                chatHistory.forEach(msg => {
+                    if (msg.role === 'user') {
+                        appendUserMessage(msg.content, null);
+                    } else if (msg.role === 'model') {
+                        appendStaticAIMessage(msg.content);
+                    }
+                });
+            }
+
+            async function createNewChatSession() {
+                activeChatId = null;
+                chatHistory = [];
+                renderChatHistory();
+                renderChatsList();
+                if (textarea) {
+                    textarea.value = "";
+                    textarea.focus();
+                }
+            }
+
+            async function deleteChatSession(chatId) {
+                if (!confirm("Tem certeza que deseja excluir esta conversa?")) return;
+                
+                const { error } = await supabase
+                    .from('chats')
+                    .delete()
+                    .eq('id', chatId);
+                if (error) {
+                    showToast("Erro ao excluir conversa.");
+                    return;
+                }
+                showToast("Conversa excluída.");
+                if (activeChatId === chatId) {
+                    activeChatId = null;
+                    chatHistory = [];
+                    renderChatHistory();
+                }
+                await loadChatsList();
+            }
+
+            // Setup new conversation button listener
+            setTimeout(() => {
+                const btnNewChat = document.getElementById("btn-new-chat");
+                if (btnNewChat) {
+                    btnNewChat.addEventListener("click", () => {
+                        createNewChatSession();
+                    });
+                }
+            }, 100);
 
             function getAmoraResponse(prompt) {
                 const cleaned = prompt.toLowerCase();
                 if (cleaned.includes("proteina") || cleaned.includes("proteína")) {
                     return `Para otimizar a síntese proteica, o ideal é focar em fontes de proteínas ricas em **leucina** (como ovos, peito de frango, whey protein, tofu e leguminosas) combinadas com carboidratos de absorção moderada para estimular a insulina. \n\nO ideal é fracionar o consumo em porções de **20g a 40g** a cada 3 a 4 horas! 🍳`;
                 } else if (cleaned.includes("jejum")) {
-                    return `O **jejum intermitente** pode auxiliar na autofagia celular, controle da glicemia e flexibilidade metabólica. \n\nNo entanto, o mais importante é garantir que, durante a janela de alimentação, você consuma a quantidade adequada de macronutrientes e calorias. Lembre-se: jejum não substitui uma alimentação equilibrada! ⏳`;
+                    return `O **jejum intermitente** pode auxiliar na autofagia celular, controle da glicemia e flexibilidade metabólica. \n\nMetabolicamente, é ideal garantir o consumo calórico adequado na janela de alimentação. Lembre-se: jejum não substitui qualidade alimentar! ⏳`;
                 } else if (cleaned.includes("dieta") || cleaned.includes("nutrição") || cleaned.includes("nutricao")) {
-                    return `A nutrição inteligente foca em densidade de nutrientes: alimentos in natura, fibras vegetais, gorduras de alta qualidade (como abacate, nozes e azeite) e hidratação constante. \n\nO equilíbrio metabólico começa quando entendemos que cada corpo responde de forma única aos alimentos! 🥑`;
+                    return `A nutrição inteligente foca em densidade de nutrientes: alimentos in natura, fibras vegetais, gorduras de alta qualidade (como abacate, nozes e azeite) e hidratação constante. \n\nO equilíbrio metabólico começa quando entendemos que cada corpo responde de forma única! 🥑`;
                 } else {
                     return `Esta é uma excelente pergunta sobre nutrição de precisão! Na Amora, defendemos que cada detalhe na sua rotina alimentar conta. \n\nPara dar uma resposta personalizada baseada em bio-disponibilidade celular, você poderia me contar um pouco mais sobre o seu objetivo principal (hipertrofia, emagrecimento, foco cognitivo)? 🌟`;
                 }
@@ -342,6 +482,25 @@ export default function Page() {
         `;
                 chatMessages.appendChild(userMsg);
                 userMsg.scrollIntoView({ behavior: "smooth" });
+            }
+
+            function appendStaticAIMessage(responseText) {
+                const aiMsg = document.createElement("div");
+                aiMsg.className = "flex items-start gap-4";
+                const logoSrc = htmlEl.classList.contains("dark") ? ASSETS.dark.sidebarLogo : ASSETS.light.sidebarLogo;
+
+                let styled = responseText.replace(/\n/g, '<br/>');
+                styled = styled.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-purple-700 dark:text-purple-400">$1</strong>');
+
+                aiMsg.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-sm">
+                        <img class="w-full h-full object-contain" src="${logoSrc}"/>
+                    </div>
+                    <div class="flex-1 bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-[20px] rounded-tl-[4px] p-5 text-sm leading-relaxed shadow-sm font-light text-gray-800 dark:text-gray-200 space-y-4">
+                        <p class="typing-text-block">${styled}</p>
+                    </div>
+                `;
+                chatMessages.appendChild(aiMsg);
             }
 
             function appendAIMessageWithTyping(responseText) {
@@ -447,7 +606,33 @@ export default function Page() {
                     newMessage.inlineData = inlineData;
                 }
                 chatHistory.push(newMessage);
-                saveChatHistory();
+
+                // Create a session in Supabase if no active chat session is set
+                if (!activeChatId && currentUser) {
+                    try {
+                        const title = text.length > 25 ? text.substring(0, 25) + "..." : (text || "Nova conversa");
+                        const { data: newSession, error: createErr } = await supabase
+                            .from('chats')
+                            .insert({
+                                user_id: currentUser.id,
+                                title: title,
+                                messages: chatHistory
+                            })
+                            .select()
+                            .single();
+                        if (createErr) throw createErr;
+                        activeChatId = newSession.id;
+                        await loadChatsList();
+                    } catch (e) {
+                        console.error("Error creating new chat session:", e);
+                    }
+                } else if (activeChatId) {
+                    // Update messages in the existing session
+                    await supabase
+                        .from('chats')
+                        .update({ messages: chatHistory })
+                        .eq('id', activeChatId);
+                }
 
                 appendThinkingIndicator();
 
@@ -505,7 +690,13 @@ export default function Page() {
                     }
 
                     chatHistory.push({ role: 'model', content: fullResponse });
-                    saveChatHistory();
+                    
+                    if (activeChatId) {
+                        await supabase
+                            .from('chats')
+                            .update({ messages: chatHistory })
+                            .eq('id', activeChatId);
+                    }
 
                 } catch (error) {
                     const indicator = document.getElementById("thinking-indicator");
@@ -513,58 +704,6 @@ export default function Page() {
                     showToast(error.message || "Erro ao contatar a Amora. Tente novamente.");
                     console.error(error);
                 }
-
-                function saveChatHistory() {
-                    const email = localStorage.getItem("user_email") || "guest";
-                    const cleanHistory = chatHistory.map(msg => ({ role: msg.role, content: msg.content }));
-                    localStorage.setItem(`amora_chat_history_${email}`, JSON.stringify(cleanHistory));
-                }
-
-                function loadChatHistory() {
-                    const email = localStorage.getItem("user_email") || "guest";
-                    const saved = localStorage.getItem(`amora_chat_history_${email}`);
-                    if (saved) {
-                        try {
-                            const parsed = JSON.parse(saved);
-                            if (parsed && parsed.length > 0) {
-                                chatHistory = parsed;
-                                if (emptyState) emptyState.classList.add("hidden");
-                                chatMessages.classList.remove("hidden");
-                                chatMessages.innerHTML = "";
-                                chatHistory.forEach(msg => {
-                                    if (msg.role === 'user') {
-                                        appendUserMessage(msg.content, null);
-                                    } else if (msg.role === 'model') {
-                                        appendStaticAIMessage(msg.content);
-                                    }
-                                });
-                            }
-                        } catch (e) {
-                            console.error("Error loading chat history:", e);
-                        }
-                    }
-                }
-
-                function appendStaticAIMessage(responseText) {
-                    const aiMsg = document.createElement("div");
-                    aiMsg.className = "flex items-start gap-4";
-                    const logoSrc = htmlEl.classList.contains("dark") ? ASSETS.dark.sidebarLogo : ASSETS.light.sidebarLogo;
-
-                    let styled = responseText.replace(/\n/g, '<br/>');
-                    styled = styled.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-purple-700 dark:text-purple-400">$1</strong>');
-
-                    aiMsg.innerHTML = `
-                        <div class="w-8 h-8 rounded-full bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-sm">
-                            <img class="w-full h-full object-contain" src="${logoSrc}"/>
-                        </div>
-                        <div class="flex-1 bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-[20px] rounded-tl-[4px] p-5 text-sm leading-relaxed shadow-sm font-light text-gray-800 dark:text-gray-200 space-y-4">
-                            <p class="typing-text-block">${styled}</p>
-                        </div>
-                    `;
-                    chatMessages.appendChild(aiMsg);
-                }
-
-                window.loadChatHistory = loadChatHistory;
             }
 
             if (btnSend && textarea) {
@@ -643,9 +782,6 @@ export default function Page() {
 
             // Call on load
             loadUserProfile();
-            if (window.loadChatHistory) {
-                window.loadChatHistory();
-            }
 
         } catch (e) {
             console.error(e);
@@ -698,6 +834,23 @@ export default function Page() {
                     <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                     <span class="font-label-md text-sm">Blog</span>
                 </a>
+            </div>
+        </div>
+        
+        <!-- Section 2: Conversas -->
+        <div class="border-t border-gray-100 dark:border-gray-800/40 pt-4">
+            <div class="flex items-center justify-between px-4 mb-2">
+                <p class="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                    Conversas</p>
+                <button id="btn-new-chat" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer" title="Nova Conversa">
+                    <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="12" x2="12" y1="5" y2="19"></line>
+                        <line x1="5" x2="19" y1="12" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+            <div id="sidebar-chats-list" class="space-y-1 max-h-48 overflow-y-auto pr-1">
+                <!-- Chats will be injected dynamically here -->
             </div>
         </div>
 
@@ -761,10 +914,10 @@ export default function Page() {
     <!-- Mobile Header / Hamburger Menu -->
     <div class="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#27272A] bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-md sticky top-0 z-30">
         <div class="flex items-center gap-2">
-            <button id="btn-hamburger" class="p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><path d="M4 12h16M4 6h16M4 18h16"></path></svg>
+            <button id="btn-hamburger" aria-label="Abrir menu" class="p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <svg aria-hidden="true" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><path d="M4 12h16M4 6h16M4 18h16"></path></svg>
             </button>
-            <img src="/logo-horizontal.svg" alt="Amora Logo" class="h-6 w-auto object-contain dark:invert" />
+            <img src="/logo-horizontal.svg" alt="Amora Logo" width="128" height="32" class="h-8 w-auto object-contain dark:invert" />
         </div>
     </div>
 

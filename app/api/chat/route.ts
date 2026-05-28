@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     }
 
     // Increment count before heavy processing
-    if (usageData && plan !== 'ultra') {
+    if (usageData) {
       await supabase.from('user_usage').update({ questions_count: count + 1 }).eq('user_id', user.id);
     } else if (!usageData) {
       await supabase.from('user_usage').insert({ user_id: user.id, plan: 'free', questions_count: 1 });

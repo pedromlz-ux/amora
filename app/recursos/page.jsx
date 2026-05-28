@@ -61,12 +61,16 @@ export default function Recursos() {
   const [gastoAtividade, setGastoAtividade] = useState('1.2');
   const [resultadoGasto, setResultadoGasto] = useState(null);
 
+  // Mobile Menu State
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
   useEffect(() => {
     // Load User
     const name = localStorage.getItem("user_name") || "Pedro Miguel";
     const email = localStorage.getItem("user_email") || "pedromlzaparoli@gmail.com";
     const avatar = localStorage.getItem("user_avatar") || "https://ui-avatars.com/api/?name=Pedro+Miguel&background=7e22ce&color=fff&size=256&bold=true";
-    setUserProfile({ name, email, avatar });
+    const plan = localStorage.getItem("user_plan") || "Free";
+    setUserProfile({ name, email, avatar, plan });
 
     // Load TACO
     fetch('/TACO.json')
@@ -275,11 +279,11 @@ export default function Recursos() {
     <div suppressHydrationWarning className="bg-[#F9FAFB] dark:bg-[#0A0A0B] min-h-screen text-gray-900 dark:text-white">
 
       {/* Mobile Overlay (hidden by default) */}
-<div id="mobile-sidebar-overlay" className="fixed inset-0 bg-gray-900/60 dark:bg-black/60 backdrop-blur-sm z-40 hidden md:hidden transition-opacity duration-300 opacity-0"></div>
+<div id="mobile-sidebar-overlay" onClick={() => setMobileSidebarOpen(false)} className={`fixed inset-0 bg-gray-900/60 dark:bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300 ${mobileSidebarOpen ? 'opacity-100' : 'opacity-0 hidden'}`}></div>
 
 {/* SideNavBar Component */}
 <nav id="sidebar-nav"
-    className="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+    className={`h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50 transform md:translate-x-0 transition-transform duration-300 ease-in-out ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           {/* Header */}
           <a href="/" className="px-6 py-4 mb-4 flex items-center justify-center cursor-pointer decoration-none">
               <img src="/logo-horizontal.svg" alt="Amora Logo" className="w-32 h-auto object-contain dark:invert" />
@@ -321,7 +325,13 @@ export default function Recursos() {
           {/* Footer */}
           <div className="px-4 pt-4 border-t border-gray-200 dark:border-[#27272A] space-y-4">
               <div className="px-2">
-                  <span className="inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs">Free Plan</span>
+                  {userProfile?.plan?.toLowerCase() === 'ultra' ? (
+                      <span className="inline-block px-2 py-1 rounded bg-blue-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(59,130,246,0.5)] border border-blue-400 dark:border-blue-500">Ultra Plan</span>
+                  ) : userProfile?.plan?.toLowerCase() === 'premium' ? (
+                      <span className="inline-block px-2 py-1 rounded bg-purple-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(147,51,234,0.5)] border border-purple-400 dark:border-purple-500">Premium Plan</span>
+                  ) : (
+                      <span className="inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs">Free Plan</span>
+                  )}
               </div>
               <div onClick={() => window.location.href='/configuracao'} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer">
                   <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-800 shrink-0 relative">
@@ -347,10 +357,10 @@ export default function Recursos() {
     {/* Mobile Header / Hamburger Menu */}
     <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#27272A] bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-md sticky top-0 z-30">
         <div className="flex items-center gap-2">
-            <button id="btn-hamburger" className="p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                <svg fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24"><path d="M4 12h16M4 6h16M4 18h16"></path></svg>
+            <button id="btn-hamburger" onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)} aria-label="Abrir menu" className="p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <svg aria-hidden="true" fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24"><path d="M4 12h16M4 6h16M4 18h16"></path></svg>
             </button>
-            <img src="/logo-horizontal.svg" alt="Amora Logo" className="h-6 w-auto object-contain dark:invert" />
+            <img src="/logo-horizontal.svg" alt="Amora Logo" width="128" height="32" className="h-8 w-auto object-contain dark:invert" />
         </div>
     </div>
 

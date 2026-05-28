@@ -277,9 +277,13 @@ export default function Page() {
         {/* Footer */}
         <div className="px-4 pt-4 border-t border-gray-200 dark:border-[#27272A] space-y-4">
           <div className="px-2">
-            <span className={`inline-block px-2 py-1 rounded font-medium text-xs ${userProfile.plan === 'Premium' ? 'bg-amber-500 text-black animate-pulse shadow-sm' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'}`}>
-              {userProfile.plan === 'Premium' ? 'Premium Plan' : 'Free Plan'}
-            </span>
+            {userProfile?.plan?.toLowerCase() === 'ultra' ? (
+              <span className="inline-block px-2 py-1 rounded bg-blue-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(59,130,246,0.5)] border border-blue-400 dark:border-blue-500">Ultra Plan</span>
+            ) : userProfile?.plan?.toLowerCase() === 'premium' ? (
+              <span className="inline-block px-2 py-1 rounded bg-purple-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(147,51,234,0.5)] border border-purple-400 dark:border-purple-500">Premium Plan</span>
+            ) : (
+              <span className="inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs">Free Plan</span>
+            )}
           </div>
           <div onClick={() => router.push('/configuracao')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer">
             <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-800 shrink-0 relative">
@@ -316,11 +320,11 @@ export default function Page() {
                 <button 
                   onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)} 
                   className="p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  aria-label="Abrir Menu"
+                  aria-label="Abrir menu"
                 >
-                    <svg fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24"><path d="M4 12h16M4 6h16M4 18h16"></path></svg>
+                    <svg aria-hidden="true" fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24"><path d="M4 12h16M4 6h16M4 18h16"></path></svg>
                 </button>
-                <img src="/logo-horizontal.svg" alt="Amora Logo" className="h-6 w-auto object-contain dark:invert" />
+                <img src="/logo-horizontal.svg" alt="Amora Logo" width="128" height="32" className="h-8 w-auto object-contain dark:invert" />
             </div>
         </div>
           
