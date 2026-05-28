@@ -5,7 +5,9 @@ CREATE TABLE IF NOT EXISTS public.user_usage (
     user_id UUID REFERENCES auth.users(id) PRIMARY KEY,
     plan TEXT NOT NULL DEFAULT 'free', -- 'free' ou 'premium'
     questions_count INT NOT NULL DEFAULT 0,
-    last_reset TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+    last_reset TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
+    subscription_id TEXT,
+    subscription_status TEXT
 );
 
 -- 2. Ativar RLS para garantir que os dados não possam ser editados pelo frontend maliciosamente

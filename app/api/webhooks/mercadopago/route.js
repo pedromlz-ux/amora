@@ -41,7 +41,6 @@ export async function POST(request) {
           .from('user_usage')
           .update({ 
             plan: 'premium',
-            // Opcional: resetar contador quando assina
             questions_count: 0 
           })
           .eq('user_id', externalReference);
@@ -51,6 +50,48 @@ export async function POST(request) {
           return NextResponse.json({ error: "DB Update Failed" }, { status: 500 });
         }
         console.log(`Usuário ${externalReference} atualizado para Premium com sucesso!`);
+      }
+    } else if (action === "subscription_preapproval.created" || action === "subscription_preapproval.updated" || request.url.includes("topic=subscription_preapproval")) {
+      // Import PreApproval dynamically to avoid top-level issues if SDK is old (though it is v3)
+      const { PreApproval } = require('mercadopago');
+      const client = new MercadoPagoConfig({ accessToken });
+      const preApprovalClient = new PreApproval(client);
+      
+      const subInfo = await preApprovalClient.get({ id });
+      const status = subInfo.status; // 'authorized', 'paused', 'cancelled'
+      const payerEmail = subInfo.payer_email;
+
+      if (payerEmail) {
+        const supabaseAdmin = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL,
+          process.env.SUPABASE_SERVICE_ROLE_KEY
+        );
+
+        // Fetch user by email
+        const { data: { users }, error: authError } = await supabaseAdmin.auth.admin.listUsers();
+        if (authError) throw authError;
+
+        const user = users.find(u => u.email === payerEmail);
+        
+        if (user) {
+          if (status === 'authorized') {
+            await supabaseAdmin.from('user_usage').update({ 
+              plan: 'premium', 
+              subscription_id: id,
+              subscription_status: status 
+            }).eq('user_id', user.id);
+            console.log(`Assinatura ativa para ${payerEmail}`);
+          } else if (status === 'cancelled') {
+            await supabaseAdmin.from('user_usage').update({ 
+              plan: 'free', 
+              subscription_id: null,
+              subscription_status: status 
+            }).eq('user_id', user.id);
+            console.log(`Assinatura cancelada para ${payerEmail}`);
+          }
+        } else {
+          console.error(`Usuário com e-mail ${payerEmail} não encontrado na base para vincular assinatura.`);
+        }
       }
     }
 

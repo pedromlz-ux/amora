@@ -331,151 +331,26 @@ export default function Page() {
 
         const btnUpgrade = document.getElementById("btn-upgrade-plan");
         if (btnUpgrade) {
-            btnUpgrade.addEventListener("click", () => {
-                // Remove original button
-                btnUpgrade.style.display = 'none';
-
-                // Create container for the brick
-                const container = document.getElementById('paymentBrick_container');
-                if (container) container.innerHTML = '';
+            btnUpgrade.addEventListener("click", async () => {
+                const originalText = btnUpgrade.innerHTML;
+                btnUpgrade.innerHTML = `<span class="material-symbols-outlined animate-spin align-middle mr-2 text-sm">progress_activity</span> Redirecionando...`;
+                btnUpgrade.disabled = true;
                 
-                // Show loading indicator
-                const loadingInfo = document.createElement('div');
-                loadingInfo.id = 'mp-loading';
-                loadingInfo.innerHTML = '<span class="material-symbols-outlined animate-spin align-middle mr-2">progress_activity</span> Carregando Pagamento Seguro...';
-                loadingInfo.className = 'text-sm font-medium text-gray-500 py-4';
-                
-                if (container) {
-                    container.appendChild(loadingInfo);
-                } else {
-                    const newContainer = document.createElement('div');
-                    newContainer.id = 'paymentBrick_container';
-                    newContainer.className = 'w-full mt-4';
-                    newContainer.appendChild(loadingInfo);
-                    // Append below the plan title area
-                    btnUpgrade.parentNode.appendChild(newContainer);
-                }
-
-                // Function to initialize Brick
-                const initBrick = async () => {
-                    const mp = new window.MercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY, { locale: 'pt-BR' });
-                    const bricksBuilder = mp.bricks();
-
-                    const renderPaymentBrick = async (bricksBuilder) => {
-                      const settings = {
-                        initialization: {
-                          amount: 19.9,
-                          preferenceId: null,
-                        },
-                        customization: {
-                          visual: { style: { theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default' } },
-                          paymentMethods: {
-                            ticket: "all",
-                            bankTransfer: "all",
-                            creditCard: "all",
-                            debitCard: "all",
-                            mercadoPago: "all",
-                          },
-                        },
-                        callbacks: {
-                          onReady: () => {
-                            const loader = document.getElementById('mp-loading');
-                            if (loader) loader.remove();
-                          },
-                          onSubmit: ({ selectedPaymentMethod, formData }) => {
-                            return new Promise((resolve, reject) => {
-                              supabase.auth.getSession().then(({ data: { session } }) => {
-                                const token = session?.access_token;
-                                fetch("/api/payment", {
-                                  method: "POST",
-                                  headers: { 
-                                      "Content-Type": "application/json",
-                                      "Authorization": `Bearer ${token}`
-                                  },
-                                  body: JSON.stringify(formData),
-                                })
-                                  .then((response) => response.json())
-                                .then((response) => {
-                                  console.log("MP Response:", response);
-                                  if (response.error) {
-                                      showToast("Erro no pagamento: " + response.error);
-                                      reject();
-                                  } else {
-                                      showToast("Pagamento processado com sucesso!");
-                                      resolve();
-
-                                      if (response.payment_method_id === "pix" && response.point_of_interaction?.transaction_data) {
-                                          const qrCodeBase64 = response.point_of_interaction.transaction_data.qr_code_base64;
-                                          const qrCode = response.point_of_interaction.transaction_data.qr_code;
-                                          
-                                          const container = document.getElementById("paymentBrick_container");
-                                          if (container) {
-                                              container.innerHTML = `
-                                                <div class="text-center p-6 bg-white dark:bg-[#18181B] rounded-xl border border-gray-200 dark:border-[#27272A] mt-4">
-                                                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Escaneie o QR Code para pagar</h3>
-                                                    <img src="data:image/jpeg;base64,${qrCodeBase64}" class="mx-auto w-48 h-48 mb-4 border rounded-lg p-2 bg-white" alt="QR Code Pix"/>
-                                                    <p class="text-sm text-gray-500 mb-2">Ou copie e cole o código abaixo:</p>
-                                                    <input type="text" readonly value="${qrCode}" class="w-full text-xs p-2 rounded bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] mb-4 text-center cursor-pointer dark:text-gray-300" onclick="this.select(); document.execCommand('copy'); window.dispatchEvent(new CustomEvent('show-toast', {detail: 'Código copiado!'}))"/>
-                                                    <p class="text-xs text-yellow-600 dark:text-yellow-500 mb-4 font-medium">Após pagar, o limite será liberado em instantes.</p>
-                                                    <button onclick="window.location.reload()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">Voltar</button>
-                                                </div>
-                                              `;
-                                              
-                                              // Add toast event listener for the inline script
-                                              window.addEventListener('show-toast', (e) => showToast(e.detail), { once: true });
-                                          }
-                                      } 
-                                      else if (response.payment_method_id === "bolbradesco" || response.payment_type_id === "ticket") {
-                                          const ticketUrl = response.transaction_details?.external_resource_url || response.point_of_interaction?.transaction_data?.ticket_url;
-                                          const container = document.getElementById("paymentBrick_container");
-                                          if (container && ticketUrl) {
-                                              container.innerHTML = `
-                                                <div class="text-center p-6 bg-white dark:bg-[#18181B] rounded-xl border border-gray-200 dark:border-[#27272A] mt-4">
-                                                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Boleto gerado com sucesso!</h3>
-                                                    <a href="${ticketUrl}" target="_blank" class="inline-block bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-bold mb-4 transition-colors">Imprimir Boleto</a>
-                                                    <p class="text-sm text-gray-500 dark:text-gray-400">Seu plano Premium será ativado após a compensação (1-3 dias úteis).</p>
-                                                    <button onclick="window.location.reload()" class="mt-4 text-purple-600 font-medium hover:underline">Voltar</button>
-                                                </div>
-                                              `;
-                                          } else {
-                                              setTimeout(() => window.location.reload(), 2000);
-                                          }
-                                      }
-                                      else {
-                                          setTimeout(() => window.location.reload(), 2000);
-                                      }
-                                  }
-                                })
-                                .catch((error) => {
-                                  showToast("Erro na comunicação com servidor.");
-                                  reject();
-                                });
-                              });
-                            });
-                          },
-                          onError: (error) => {
-                            console.error(error);
-                            showToast("Erro no componente de pagamento.");
-                          },
-                        },
-                      };
-                      window.paymentBrickController = await bricksBuilder.create(
-                        "payment",
-                        "paymentBrick_container",
-                        settings
-                      );
-                    };
-                    renderPaymentBrick(bricksBuilder);
-                };
-
-                // Load MP SDK script dynamically if not loaded
-                if (!window.MercadoPago) {
-                    const script = document.createElement('script');
-                    script.src = "https://sdk.mercadopago.com/js/v2";
-                    script.onload = initBrick;
-                    document.body.appendChild(script);
-                } else {
-                    initBrick();
+                try {
+                    const res = await fetch("/api/subscription");
+                    const data = await res.json();
+                    if (data.url) {
+                        const email = localStorage.getItem("user_email") || "";
+                        alert(`ATENÇÃO:\n\nPara que o seu Premium seja ativado automaticamente, você DEVE utilizar o e-mail: ${email} na hora de pagar no Mercado Pago!`);
+                        window.location.href = data.url;
+                    } else {
+                        showToast("Erro ao gerar link de assinatura.");
+                    }
+                } catch (e) {
+                    showToast("Erro na comunicação com o servidor.");
+                } finally {
+                    btnUpgrade.innerHTML = originalText;
+                    btnUpgrade.disabled = false;
                 }
             });
         }
