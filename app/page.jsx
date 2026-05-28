@@ -719,9 +719,9 @@ export default function Page() {
 
             // Load profile
             async function loadUserProfile() {
-                const name = localStorage.getItem("user_name") || "Pedro Miguel";
-                const email = localStorage.getItem("user_email") || "pedromlzaparoli@gmail.com";
-                const avatar = localStorage.getItem("user_avatar") || "https://ui-avatars.com/api/?name=Pedro+Miguel&background=7e22ce&color=fff&size=256&bold=true";
+                let name = localStorage.getItem("user_name") || "Carregando...";
+                let email = localStorage.getItem("user_email") || "";
+                let avatar = localStorage.getItem("user_avatar") || "";
                 let plan = localStorage.getItem("user_plan") || "Free";
 
                 const sidebarNameEl = document.getElementById("sidebar-name");
@@ -731,53 +731,71 @@ export default function Page() {
                 const sidebarWorkspaceTitle = document.getElementById("sidebar-workspace-title");
                 const sidebarWorkspaceSubtitle = document.getElementById("sidebar-workspace-subtitle");
 
-                if (sidebarNameEl) sidebarNameEl.innerText = name;
-                if (sidebarEmailEl) sidebarEmailEl.innerText = email;
-                
-                if (sidebarWorkspaceTitle) sidebarWorkspaceTitle.innerText = name.split(' ')[0] + "'s Works...";
-                if (sidebarWorkspaceSubtitle) sidebarWorkspaceSubtitle.innerText = "personal-" + name.toLowerCase().replace(/[^a-z0-9]/g, '-') + "-DM...";
+                function renderProfile(n, e, a, p) {
+                    if (sidebarNameEl) sidebarNameEl.innerText = n;
+                    if (sidebarEmailEl) sidebarEmailEl.innerText = e;
+                    
+                    if (sidebarWorkspaceTitle) sidebarWorkspaceTitle.innerText = n.split(' ')[0] + "'s Works...";
+                    if (sidebarWorkspaceSubtitle) sidebarWorkspaceSubtitle.innerText = "personal-" + n.toLowerCase().replace(/[^a-z0-9]/g, '-') + "-DM...";
 
-                if (sidebarAvatarEl) {
-                    if (avatar.startsWith("INITIALS:")) {
-                        const initials = avatar.split(":")[1];
-                        sidebarAvatarEl.style.display = "none";
-                        let initialsPlaceholder = document.getElementById("sidebar-avatar-initials");
-                        if (!initialsPlaceholder) {
-                            initialsPlaceholder = document.createElement("div");
-                            initialsPlaceholder.id = "sidebar-avatar-initials";
-                            initialsPlaceholder.className = "w-full h-full flex items-center justify-center bg-gradient-to-tr from-purple-750 to-pink-500 text-white font-bold text-xs";
-                            sidebarAvatarEl.parentNode.appendChild(initialsPlaceholder);
+                    if (sidebarAvatarEl) {
+                        if (a.startsWith("INITIALS:")) {
+                            const initials = a.split(":")[1];
+                            sidebarAvatarEl.style.display = "none";
+                            let initialsPlaceholder = document.getElementById("sidebar-avatar-initials");
+                            if (!initialsPlaceholder) {
+                                initialsPlaceholder = document.createElement("div");
+                                initialsPlaceholder.id = "sidebar-avatar-initials";
+                                initialsPlaceholder.className = "w-full h-full flex items-center justify-center bg-gradient-to-tr from-purple-750 to-pink-500 text-white font-bold text-xs";
+                                sidebarAvatarEl.parentNode.appendChild(initialsPlaceholder);
+                            }
+                            initialsPlaceholder.innerText = initials;
+                            initialsPlaceholder.style.display = "flex";
+                        } else {
+                            sidebarAvatarEl.src = a;
+                            sidebarAvatarEl.style.display = "block";
+                            const initialsPlaceholder = document.getElementById("sidebar-avatar-initials");
+                            if (initialsPlaceholder) initialsPlaceholder.style.display = "none";
                         }
-                        initialsPlaceholder.innerText = initials;
-                        initialsPlaceholder.style.display = "flex";
-                    } else {
-                        sidebarAvatarEl.src = avatar;
-                        sidebarAvatarEl.style.display = "block";
-                        const initialsPlaceholder = document.getElementById("sidebar-avatar-initials");
-                        if (initialsPlaceholder) initialsPlaceholder.style.display = "none";
+                    }
+
+                    if (sidebarPlanBadge) {
+                        if (p === "ultra" || p === "Ultra") {
+                            sidebarPlanBadge.innerText = "Ultra Plan";
+                            sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-blue-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(59,130,246,0.5)] border border-blue-400 dark:border-blue-500';
+                        } else if (p === "Premium" || p === "premium") {
+                            sidebarPlanBadge.innerText = "Premium Plan";
+                            sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-purple-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(147,51,234,0.5)] border border-purple-400 dark:border-purple-500';
+                        } else {
+                            sidebarPlanBadge.innerText = "Free Plan";
+                            sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs';
+                        }
                     }
                 }
 
-                function updatePlanBadge(p) {
-                    if (!sidebarPlanBadge) return;
-                    if (p === "ultra" || p === "Ultra") {
-                        sidebarPlanBadge.innerText = "Ultra Plan";
-                        sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-blue-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(59,130,246,0.5)] border border-blue-400 dark:border-blue-500';
-                    } else if (p === "Premium" || p === "premium") {
-                        sidebarPlanBadge.innerText = "Premium Plan";
-                        sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-purple-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(147,51,234,0.5)] border border-purple-400 dark:border-purple-500';
-                    } else {
-                        sidebarPlanBadge.innerText = "Free Plan";
-                        sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs';
-                    }
+                // Render cached data immediately
+                if (localStorage.getItem("user_name")) {
+                    renderProfile(name, email, avatar, plan);
                 }
 
-                updatePlanBadge(plan);
-
-                // Fetch real plan from Supabase to ensure synchronization
                 try {
                     const { data: { user } } = await supabase.auth.getUser();
                     if (user) {
+                        email = user.email;
+                        localStorage.setItem("user_email", email);
+
+                        const { data: profile } = await supabase
+                            .from('profiles')
+                            .select('full_name, avatar_url')
+                            .eq('id', user.id)
+                            .single();
+                        
+                        name = profile?.full_name || user.user_metadata?.full_name || email.split('@')[0];
+                        localStorage.setItem("user_name", name);
+
+                        avatar = profile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=7e22ce&color=fff&size=256&bold=true`;
+                        localStorage.setItem("user_avatar", avatar);
+
                         const { data: usageData } = await supabase
                             .from('user_usage')
                             .select('plan')
@@ -786,11 +804,12 @@ export default function Page() {
                         if (usageData && usageData.plan) {
                             plan = usageData.plan;
                             localStorage.setItem("user_plan", plan);
-                            updatePlanBadge(plan);
                         }
+
+                        renderProfile(name, email, avatar, plan);
                     }
                 } catch (e) {
-                    console.error("Error loading user plan from database:", e);
+                    console.error("Error loading user plan/profile from database:", e);
                 }
             }
             

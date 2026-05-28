@@ -168,13 +168,52 @@ export default function Page() {
       htmlEl.classList.remove('dark');
     }
 
-    // Load profile
-    const name = localStorage.getItem('user_name') || 'Pedro Miguel';
-    const email = localStorage.getItem('user_email') || 'pedromlzaparoli@gmail.com';
-    const avatar = localStorage.getItem('user_avatar') || 'https://ui-avatars.com/api/?name=Pedro+Miguel&background=7e22ce&color=fff&size=256&bold=true';
-    const plan = localStorage.getItem('user_plan') || 'Free';
+    // Load profile from cache first
+    let name = localStorage.getItem('user_name') || 'Carregando...';
+    let email = localStorage.getItem('user_email') || '';
+    let avatar = localStorage.getItem('user_avatar') || '';
+    let plan = localStorage.getItem('user_plan') || 'Free';
 
     setUserProfile({ name, email, avatar, plan });
+
+    async function fetchProfile() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          email = user.email;
+          localStorage.setItem('user_email', email);
+
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, avatar_url')
+            .eq('id', user.id)
+            .single();
+
+          name = profile?.full_name || user.user_metadata?.full_name || email.split('@')[0];
+          localStorage.setItem('user_name', name);
+
+          avatar = profile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=7e22ce&color=fff&size=256&bold=true`;
+          localStorage.setItem('user_avatar', avatar);
+
+          const { data: usageData } = await supabase
+            .from('user_usage')
+            .select('plan')
+            .eq('user_id', user.id)
+            .single();
+
+          if (usageData && usageData.plan) {
+            plan = usageData.plan;
+            localStorage.setItem('user_plan', plan);
+          }
+
+          setUserProfile({ name, email, avatar, plan });
+        }
+      } catch (e) {
+        console.error("Error loading user profile in blog page:", e);
+      }
+    }
+
+    fetchProfile();
   }, [loading]);
 
   const toggleTheme = () => {

@@ -152,20 +152,17 @@ export default function Page() {
             }, 3000);
         }
 
-        function loadUserProfile() {
-            const name = localStorage.getItem("user_name") || "Pedro Miguel";
-            const email = localStorage.getItem("user_email") || "pedromlzaparoli@gmail.com";
-            const avatar = localStorage.getItem("user_avatar") || "https://ui-avatars.com/api/?name=Pedro+Miguel&background=7e22ce&color=fff&size=256&bold=true";
+        async function loadUserProfile() {
+            let name = localStorage.getItem("user_name") || "Carregando...";
+            let email = localStorage.getItem("user_email") || "";
+            let avatar = localStorage.getItem("user_avatar") || "";
             
             const profileName = document.getElementById("profile-name");
             const profileEmail = document.getElementById("profile-email");
             const profileNameInput = document.getElementById("profile-name-input");
+            const userNameInput = document.getElementById("user-name-input");
+            const userEmailInput = document.getElementById("user-email-input");
             const userAvatarImage = document.getElementById("user-avatar-image");
-
-            if (profileName) profileName.innerText = name;
-            if (profileEmail) profileEmail.innerText = email;
-            if (profileNameInput) profileNameInput.value = name;
-            if (userAvatarImage) userAvatarImage.src = avatar;
 
             const sidebarAvatar = document.getElementById("sidebar-avatar");
             const sidebarNameEl = document.getElementById("sidebar-name");
@@ -173,15 +170,52 @@ export default function Page() {
             const sidebarWorkspaceTitle = document.getElementById("sidebar-workspace-title");
             const sidebarWorkspaceSubtitle = document.getElementById("sidebar-workspace-subtitle");
 
-            if (sidebarNameEl) sidebarNameEl.innerText = name;
-            if (sidebarEmailEl) sidebarEmailEl.innerText = email;
-            if (sidebarWorkspaceTitle) sidebarWorkspaceTitle.innerText = name.split(' ')[0] + "'s Works...";
-            if (sidebarWorkspaceSubtitle) {
-                const sanitizedName = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-                sidebarWorkspaceSubtitle.innerText = `personal-${sanitizedName}-DM...`;
+            function renderProfile(n, e, a) {
+                if (profileName) profileName.innerText = n;
+                if (profileEmail) profileEmail.innerText = e;
+                if (profileNameInput) profileNameInput.value = n;
+                if (userNameInput) userNameInput.value = n;
+                if (userEmailInput) userEmailInput.value = e;
+                if (userAvatarImage) userAvatarImage.src = a;
+
+                if (sidebarNameEl) sidebarNameEl.innerText = n;
+                if (sidebarEmailEl) sidebarEmailEl.innerText = e;
+                if (sidebarWorkspaceTitle) sidebarWorkspaceTitle.innerText = n.split(' ')[0] + "'s Works...";
+                if (sidebarWorkspaceSubtitle) {
+                    const sanitizedName = n.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                    sidebarWorkspaceSubtitle.innerText = `personal-${sanitizedName}-DM...`;
+                }
+
+                if (sidebarAvatar) sidebarAvatar.src = a;
             }
 
-            if (sidebarAvatar) sidebarAvatar.src = avatar;
+            if (localStorage.getItem("user_name")) {
+                renderProfile(name, email, avatar);
+            }
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    email = user.email;
+                    localStorage.setItem("user_email", email);
+
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('full_name, avatar_url')
+                        .eq('id', user.id)
+                        .single();
+                    
+                    name = profile?.full_name || user.user_metadata?.full_name || email.split('@')[0];
+                    localStorage.setItem("user_name", name);
+
+                    avatar = profile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=7e22ce&color=fff&size=256&bold=true`;
+                    localStorage.setItem("user_avatar", avatar);
+
+                    renderProfile(name, email, avatar);
+                }
+            } catch (e) {
+                console.error("Error loading user profile in config page:", e);
+            }
         }
 
         async function fetchUsageData() {
