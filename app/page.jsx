@@ -718,11 +718,11 @@ export default function Page() {
             }
 
             // Load profile
-            function loadUserProfile() {
+            async function loadUserProfile() {
                 const name = localStorage.getItem("user_name") || "Pedro Miguel";
                 const email = localStorage.getItem("user_email") || "pedromlzaparoli@gmail.com";
                 const avatar = localStorage.getItem("user_avatar") || "https://ui-avatars.com/api/?name=Pedro+Miguel&background=7e22ce&color=fff&size=256&bold=true";
-                const plan = localStorage.getItem("user_plan") || "Free";
+                let plan = localStorage.getItem("user_plan") || "Free";
 
                 const sidebarNameEl = document.getElementById("sidebar-name");
                 const sidebarEmailEl = document.getElementById("sidebar-email");
@@ -758,17 +758,39 @@ export default function Page() {
                     }
                 }
 
-                if (sidebarPlanBadge) {
-                    if (plan === "ultra" || plan === "Ultra") {
+                function updatePlanBadge(p) {
+                    if (!sidebarPlanBadge) return;
+                    if (p === "ultra" || p === "Ultra") {
                         sidebarPlanBadge.innerText = "Ultra Plan";
                         sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-blue-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(59,130,246,0.5)] border border-blue-400 dark:border-blue-500';
-                    } else if (plan === "Premium" || plan === "premium") {
+                    } else if (p === "Premium" || p === "premium") {
                         sidebarPlanBadge.innerText = "Premium Plan";
                         sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-purple-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(147,51,234,0.5)] border border-purple-400 dark:border-purple-500';
                     } else {
                         sidebarPlanBadge.innerText = "Free Plan";
                         sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs';
                     }
+                }
+
+                updatePlanBadge(plan);
+
+                // Fetch real plan from Supabase to ensure synchronization
+                try {
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (user) {
+                        const { data: usageData } = await supabase
+                            .from('user_usage')
+                            .select('plan')
+                            .eq('user_id', user.id)
+                            .single();
+                        if (usageData && usageData.plan) {
+                            plan = usageData.plan;
+                            localStorage.setItem("user_plan", plan);
+                            updatePlanBadge(plan);
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error loading user plan from database:", e);
                 }
             }
             
