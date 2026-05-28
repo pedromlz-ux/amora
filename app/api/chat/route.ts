@@ -32,7 +32,10 @@ export async function POST(req: Request) {
 
     const plan = usageData?.plan || 'free';
     const count = usageData?.questions_count || 0;
-    const limit = plan === 'premium' ? 300 : 30;
+    
+    let limit = 30;
+    if (plan === 'ultra') limit = Infinity;
+    else if (plan === 'premium') limit = 300;
 
     if (count >= limit) {
       return NextResponse.json({ 
@@ -41,9 +44,9 @@ export async function POST(req: Request) {
     }
 
     // Increment count before heavy processing
-    if (usageData) {
+    if (usageData && plan !== 'ultra') {
       await supabase.from('user_usage').update({ questions_count: count + 1 }).eq('user_id', user.id);
-    } else {
+    } else if (!usageData) {
       await supabase.from('user_usage').insert({ user_id: user.id, plan: 'free', questions_count: 1 });
     }
 

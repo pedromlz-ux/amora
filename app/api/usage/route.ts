@@ -28,13 +28,18 @@ export async function GET(req: Request) {
 
     const plan = usageData?.plan || 'free';
     const count = usageData?.questions_count || 0;
-    const limit = plan === 'premium' ? 300 : 30;
+    
+    let limit: number | string = 30;
+    if (plan === 'ultra') limit = 'Ilimitado';
+    else if (plan === 'premium') limit = 300;
+
+    const percentage = plan === 'ultra' ? 0 : Math.min(100, Math.round((count / (limit as number)) * 100));
 
     return NextResponse.json({
       plan: plan,
       questions_count: count,
       limit: limit,
-      percentage: Math.min(100, Math.round((count / limit) * 100))
+      percentage: percentage
     });
 
   } catch (error) {

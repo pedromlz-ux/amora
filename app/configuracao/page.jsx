@@ -80,8 +80,7 @@ export default function Page() {
         if (savedTheme) {
             setTheme(savedTheme);
         } else {
-            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-            setTheme(prefersDark ? "dark" : "light");
+            setTheme("light");
         }
 
         // Interactive button scales / clicks
@@ -204,19 +203,41 @@ export default function Page() {
                     const limitsBar = document.getElementById("billing-limits-bar");
                     const btnUpgrade = document.getElementById("btn-upgrade-plan");
 
-                    if (data.plan === 'premium') {
+                    if (data.plan === 'ultra') {
+                        if (planBadge) {
+                            planBadge.innerText = 'Plano Ultra (Dev)';
+                            planBadge.className = 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider border border-blue-100/50 dark:border-blue-950';
+                        }
+                        if (planTitle) planTitle.innerText = 'Você está usando o Amora Ultra';
+                        if (btnUpgrade) btnUpgrade.style.display = 'none';
+                        const sidebarPlanBadge = document.getElementById("sidebar-plan-badge");
+                        if (sidebarPlanBadge) {
+                            sidebarPlanBadge.innerText = 'Ultra Plan';
+                            sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-blue-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(59,130,246,0.5)] border border-blue-400 dark:border-blue-500';
+                        }
+                    } else if (data.plan === 'premium') {
                         if (planBadge) {
                             planBadge.innerText = 'Plano Premium';
                             planBadge.className = 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider border border-yellow-100/50 dark:border-yellow-950';
                         }
                         if (planTitle) planTitle.innerText = 'Você está usando o Amora Premium';
                         if (btnUpgrade) btnUpgrade.style.display = 'none';
+                        const sidebarPlanBadge = document.getElementById("sidebar-plan-badge");
+                        if (sidebarPlanBadge) {
+                            sidebarPlanBadge.innerText = 'Premium Plan';
+                            sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-purple-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(147,51,234,0.5)] border border-purple-400 dark:border-purple-500';
+                        }
                     } else {
                         if (planBadge) {
                             planBadge.innerText = 'Plano Gratuito';
                             planBadge.className = 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider border border-purple-100/50 dark:border-purple-950';
                         }
                         if (planTitle) planTitle.innerText = 'Você está usando o Amora Free';
+                        const sidebarPlanBadge = document.getElementById("sidebar-plan-badge");
+                        if (sidebarPlanBadge) {
+                            sidebarPlanBadge.innerText = 'Free Plan';
+                            sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs';
+                        }
                     }
 
                     if (limitsLabel) limitsLabel.innerText = `${data.questions_count} de ${data.limit} perguntas feitas`;
@@ -481,7 +502,7 @@ export default function Page() {
             }
         }
 
-        const currentTheme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        const currentTheme = localStorage.getItem("theme") || "light";
         updateThemeSelectionUI(currentTheme);
 
         if (btnSelectLight) {
@@ -776,46 +797,6 @@ export default function Page() {
                                         <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Suporte
                                             Prioritário</span>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Invoices Table -->
-                            <div
-                                class="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-2xl p-6 shadow-sm">
-                                <h4 class="font-display font-semibold text-base text-gray-900 dark:text-white mb-4">
-                                    Histórico de Faturamento</h4>
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-left border-collapse">
-                                        <thead>
-                                            <tr
-                                                class="border-b border-gray-100 dark:border-[#27272A] text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                                                <th class="py-3 px-4">Fatura</th>
-                                                <th class="py-3 px-4">Data</th>
-                                                <th class="py-3 px-4">Valor</th>
-                                                <th class="py-3 px-4">Status</th>
-                                                <th class="py-3 px-4 text-right">Recibo</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="invoice-table-body" class="text-sm">
-                                            <tr
-                                                class="border-b border-gray-50 dark:border-[#27272A]/50 text-gray-700 dark:text-gray-300">
-                                                <td class="py-3 px-4 font-mono font-medium">#FAT-9281</td>
-                                                <td class="py-3 px-4 font-light">22/05/2026</td>
-                                                <td class="py-3 px-4 font-medium">R$ 0,00</td>
-                                                <td class="py-3 px-4">
-                                                    <span
-                                                        class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400">Gratuito</span>
-                                                </td>
-                                                <td class="py-3 px-4 text-right">
-                                                    <button
-                                                        class="btn-invoice-download p-1.5 hover:bg-gray-50 dark:hover:bg-gray-800 rounded transition-colors text-gray-450 hover:text-purple-750 dark:hover:text-purple-400"
-                                                        data-invoice="#FAT-9281">
-                                                        <span class="material-symbols-outlined !text-sm">download</span>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
                                 </div>
                             </div>
                         </div>

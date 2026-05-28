@@ -80,8 +80,7 @@ export default function Page() {
     if (savedTheme) {
         setTheme(savedTheme);
     } else {
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        setTheme(prefersDark ? "dark" : "light");
+        setTheme("light");
     }
 
     // Toast Alert Notification System
@@ -145,14 +144,18 @@ export default function Page() {
             }
         }
         
-        if (sidebarPlanBadge) {
-            sidebarPlanBadge.innerText = plan === "Premium" ? "Premium Plan" : "Free Plan";
-            if (plan === "Premium") {
-                sidebarPlanBadge.className = "inline-block px-2 py-1 rounded bg-amber-500 text-black dark:bg-amber-400 font-label-sm text-xs font-bold shadow-sm animate-pulse";
-            } else {
-                sidebarPlanBadge.className = "inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs";
+            if (sidebarPlanBadge) {
+                if (plan === "ultra" || plan === "Ultra") {
+                    sidebarPlanBadge.innerText = "Ultra Plan";
+                    sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-blue-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(59,130,246,0.5)] border border-blue-400 dark:border-blue-500';
+                } else if (plan === "Premium" || plan === "premium") {
+                    sidebarPlanBadge.innerText = "Premium Plan";
+                    sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-purple-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(147,51,234,0.5)] border border-purple-400 dark:border-purple-500';
+                } else {
+                    sidebarPlanBadge.innerText = "Free Plan";
+                    sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs';
+                }
             }
-        }
         
         // Função de Sign Out global
         window.handleSignOut = function() {

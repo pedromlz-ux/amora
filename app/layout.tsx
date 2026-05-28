@@ -16,7 +16,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
         <script dangerouslySetInnerHTML={{
           __html: `
-            if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+            if (localStorage.getItem("theme") === "dark") {
                 document.documentElement.classList.add("dark");
             } else {
                 document.documentElement.classList.remove("dark");
