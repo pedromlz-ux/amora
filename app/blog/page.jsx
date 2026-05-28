@@ -310,14 +310,19 @@ export default function Page() {
         {/* Content Area */}
         <div className="px-6 py-8 max-w-5xl mx-auto w-full flex-1 flex flex-col">
           
-          {/* Mobile Menu Button */}
-          <button 
-            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)} 
-            className="md:hidden w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mb-4 self-start"
-            aria-label="Abrir Menu"
-          >
-            <span className="material-symbols-outlined">menu</span>
-          </button>
+        {/* Mobile Header / Hamburger Menu */}
+        <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#27272A] bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-md sticky top-0 z-30">
+            <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)} 
+                  className="p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  aria-label="Abrir Menu"
+                >
+                    <svg fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24"><path d="M4 12h16M4 6h16M4 18h16"></path></svg>
+                </button>
+                <img src="/logo-horizontal.svg" alt="Amora Logo" className="h-6 w-auto object-contain dark:invert" />
+            </div>
+        </div>
           
           {activeArticleId === null ? (
             // LIST VIEW

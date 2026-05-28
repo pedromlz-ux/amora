@@ -11,6 +11,42 @@ const ai = new GoogleGenAI({ apiKey: geminiApiKey });
 
 export async function POST(req: Request) {
   try {
+    const authHeader = req.headers.get('Authorization');
+    const token = authHeader?.split(' ')[1];
+
+    if (!token) {
+      return NextResponse.json({ error: "Não autorizado. Faça login." }, { status: 401 });
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) {
+      return NextResponse.json({ error: "Sessão inválida." }, { status: 401 });
+    }
+
+    // Rate Limit Enforcement
+    const { data: usageData } = await supabase
+      .from('user_usage')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    const plan = usageData?.plan || 'free';
+    const count = usageData?.questions_count || 0;
+    const limit = plan === 'premium' ? 300 : 30;
+
+    if (count >= limit) {
+      return NextResponse.json({ 
+        error: `Você atingiu o limite de ${limit} perguntas do plano ${plan}. Faça upgrade para continuar.` 
+      }, { status: 403 });
+    }
+
+    // Increment count before heavy processing
+    if (usageData) {
+      await supabase.from('user_usage').update({ questions_count: count + 1 }).eq('user_id', user.id);
+    } else {
+      await supabase.from('user_usage').insert({ user_id: user.id, plan: 'free', questions_count: 1 });
+    }
+
     const { messages } = await req.json();
     if (!messages || messages.length === 0) {
       return NextResponse.json({ error: "Mensagens inválidas" }, { status: 400 });
@@ -40,12 +76,7 @@ export async function POST(req: Request) {
     console.log("Documents found in Supabase:", documents?.length || 0);
     console.log("Supabase error (if any):", error);
     
-    const fs = require('fs');
-    fs.writeFileSync('/Users/pm/Novo Chat amora/supabase_debug.json', JSON.stringify({
-        documentsLength: documents?.length || 0,
-        error: error,
-        queryEmbeddingLength: queryEmbedding?.length
-    }, null, 2));
+
 
     // 3. Montar o contexto para a Amora
     let contextString = "";

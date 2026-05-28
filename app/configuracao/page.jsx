@@ -84,11 +84,48 @@ export default function Page() {
             setTheme(prefersDark ? "dark" : "light");
         }
 
-        // Micro-interactions and subtle effects
-        document.querySelectorAll('button, a').forEach(el => {
-            el.addEventListener('mousedown', () => el.style.transform = 'scale(0.98)');
-            el.addEventListener('mouseup', () => el.style.transform = 'scale(1)');
+        // Interactive button scales / clicks
+        document.querySelectorAll("button:not(#btn-hamburger), a").forEach(btn => {
+            btn.addEventListener("mousedown", () => btn.classList.add("scale-95"));
+            btn.addEventListener("mouseup", () => btn.classList.remove("scale-95"));
+            btn.addEventListener("mouseleave", () => btn.classList.remove("scale-95"));
         });
+
+        // Mobile Sidebar Toggle Logic
+        const btnHamburger = document.getElementById("btn-hamburger");
+        const sidebarNav = document.getElementById("sidebar-nav");
+        const mobileOverlay = document.getElementById("mobile-sidebar-overlay");
+
+        if (btnHamburger && sidebarNav && mobileOverlay) {
+            const toggleMenu = () => {
+                const isOpen = !sidebarNav.classList.contains("-translate-x-full");
+                if (isOpen) {
+                    sidebarNav.classList.add("-translate-x-full");
+                    mobileOverlay.classList.remove("opacity-100");
+                    mobileOverlay.classList.add("opacity-0");
+                    setTimeout(() => mobileOverlay.classList.add("hidden"), 300);
+                } else {
+                    sidebarNav.classList.remove("-translate-x-full");
+                    mobileOverlay.classList.remove("hidden");
+                    setTimeout(() => {
+                        mobileOverlay.classList.remove("opacity-0");
+                        mobileOverlay.classList.add("opacity-100");
+                    }, 10);
+                }
+            };
+
+            btnHamburger.addEventListener("click", toggleMenu);
+            mobileOverlay.addEventListener("click", toggleMenu);
+            
+            const navLinks = sidebarNav.querySelectorAll("a");
+            navLinks.forEach(link => {
+                link.addEventListener("click", () => {
+                    if (window.innerWidth < 768) {
+                        toggleMenu();
+                    }
+                });
+            });
+        }
 
         // Utility function for Toasts if it doesn't exist yet
         function showToast(message) {
@@ -121,6 +158,16 @@ export default function Page() {
             const email = localStorage.getItem("user_email") || "pedromlzaparoli@gmail.com";
             const avatar = localStorage.getItem("user_avatar") || "https://ui-avatars.com/api/?name=Pedro+Miguel&background=7e22ce&color=fff&size=256&bold=true";
             
+            const profileName = document.getElementById("profile-name");
+            const profileEmail = document.getElementById("profile-email");
+            const profileNameInput = document.getElementById("profile-name-input");
+            const userAvatarImage = document.getElementById("user-avatar-image");
+
+            if (profileName) profileName.innerText = name;
+            if (profileEmail) profileEmail.innerText = email;
+            if (profileNameInput) profileNameInput.value = name;
+            if (userAvatarImage) userAvatarImage.src = avatar;
+
             const sidebarAvatar = document.getElementById("sidebar-avatar");
             const sidebarNameEl = document.getElementById("sidebar-name");
             const sidebarEmailEl = document.getElementById("sidebar-email");
@@ -136,10 +183,53 @@ export default function Page() {
             }
 
             if (sidebarAvatar) sidebarAvatar.src = avatar;
-            const userAvatarImage = document.getElementById("user-avatar-image");
-            if (userAvatarImage) userAvatarImage.src = avatar;
         }
+
+        async function fetchUsageData() {
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+            if (!token) return;
+
+            try {
+                const res = await fetch('/api/usage', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    const planBadge = document.getElementById("plan-badge-main");
+                    const planTitle = document.getElementById("plan-title-main");
+                    const limitsLabel = document.getElementById("billing-limits-label");
+                    const limitsPercentage = document.getElementById("billing-limits-percentage");
+                    const limitsBar = document.getElementById("billing-limits-bar");
+                    const btnUpgrade = document.getElementById("btn-upgrade-plan");
+
+                    if (data.plan === 'premium') {
+                        if (planBadge) {
+                            planBadge.innerText = 'Plano Premium';
+                            planBadge.className = 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider border border-yellow-100/50 dark:border-yellow-950';
+                        }
+                        if (planTitle) planTitle.innerText = 'Você está usando o Amora Premium';
+                        if (btnUpgrade) btnUpgrade.style.display = 'none';
+                    } else {
+                        if (planBadge) {
+                            planBadge.innerText = 'Plano Gratuito';
+                            planBadge.className = 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider border border-purple-100/50 dark:border-purple-950';
+                        }
+                        if (planTitle) planTitle.innerText = 'Você está usando o Amora Free';
+                    }
+
+                    if (limitsLabel) limitsLabel.innerText = `${data.questions_count} de ${data.limit} perguntas feitas`;
+                    if (limitsPercentage) limitsPercentage.innerText = `${data.percentage}% do limite`;
+                    if (limitsBar) limitsBar.style.width = `${data.percentage}%`;
+                }
+            } catch (e) {
+                console.error("Erro ao carregar dados de uso", e);
+            }
+        }
+
         loadUserProfile();
+        fetchUsageData();
 
         // Tab Switching Logic
         const tabs = ["perfil", "cobranca", "preferencias", "seguranca"];
@@ -253,7 +343,7 @@ export default function Page() {
                     const renderPaymentBrick = async (bricksBuilder) => {
                       const settings = {
                         initialization: {
-                          amount: 49.9,
+                          amount: 19.9,
                           preferenceId: null,
                         },
                         customization: {
@@ -273,26 +363,73 @@ export default function Page() {
                           },
                           onSubmit: ({ selectedPaymentMethod, formData }) => {
                             return new Promise((resolve, reject) => {
-                              fetch("/api/payment", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(formData),
-                              })
-                                .then((response) => response.json())
+                              supabase.auth.getSession().then(({ data: { session } }) => {
+                                const token = session?.access_token;
+                                fetch("/api/payment", {
+                                  method: "POST",
+                                  headers: { 
+                                      "Content-Type": "application/json",
+                                      "Authorization": `Bearer ${token}`
+                                  },
+                                  body: JSON.stringify(formData),
+                                })
+                                  .then((response) => response.json())
                                 .then((response) => {
+                                  console.log("MP Response:", response);
                                   if (response.error) {
                                       showToast("Erro no pagamento: " + response.error);
                                       reject();
                                   } else {
                                       showToast("Pagamento processado com sucesso!");
                                       resolve();
-                                      setTimeout(() => window.location.reload(), 2000);
+
+                                      if (response.payment_method_id === "pix" && response.point_of_interaction?.transaction_data) {
+                                          const qrCodeBase64 = response.point_of_interaction.transaction_data.qr_code_base64;
+                                          const qrCode = response.point_of_interaction.transaction_data.qr_code;
+                                          
+                                          const container = document.getElementById("paymentBrick_container");
+                                          if (container) {
+                                              container.innerHTML = `
+                                                <div class="text-center p-6 bg-white dark:bg-[#18181B] rounded-xl border border-gray-200 dark:border-[#27272A] mt-4">
+                                                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Escaneie o QR Code para pagar</h3>
+                                                    <img src="data:image/jpeg;base64,${qrCodeBase64}" class="mx-auto w-48 h-48 mb-4 border rounded-lg p-2 bg-white" alt="QR Code Pix"/>
+                                                    <p class="text-sm text-gray-500 mb-2">Ou copie e cole o código abaixo:</p>
+                                                    <input type="text" readonly value="${qrCode}" class="w-full text-xs p-2 rounded bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] mb-4 text-center cursor-pointer dark:text-gray-300" onclick="this.select(); document.execCommand('copy'); window.dispatchEvent(new CustomEvent('show-toast', {detail: 'Código copiado!'}))"/>
+                                                    <p class="text-xs text-yellow-600 dark:text-yellow-500 mb-4 font-medium">Após pagar, o limite será liberado em instantes.</p>
+                                                    <button onclick="window.location.reload()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">Voltar</button>
+                                                </div>
+                                              `;
+                                              
+                                              // Add toast event listener for the inline script
+                                              window.addEventListener('show-toast', (e) => showToast(e.detail), { once: true });
+                                          }
+                                      } 
+                                      else if (response.payment_method_id === "bolbradesco" || response.payment_type_id === "ticket") {
+                                          const ticketUrl = response.transaction_details?.external_resource_url || response.point_of_interaction?.transaction_data?.ticket_url;
+                                          const container = document.getElementById("paymentBrick_container");
+                                          if (container && ticketUrl) {
+                                              container.innerHTML = `
+                                                <div class="text-center p-6 bg-white dark:bg-[#18181B] rounded-xl border border-gray-200 dark:border-[#27272A] mt-4">
+                                                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Boleto gerado com sucesso!</h3>
+                                                    <a href="${ticketUrl}" target="_blank" class="inline-block bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-bold mb-4 transition-colors">Imprimir Boleto</a>
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">Seu plano Premium será ativado após a compensação (1-3 dias úteis).</p>
+                                                    <button onclick="window.location.reload()" class="mt-4 text-purple-600 font-medium hover:underline">Voltar</button>
+                                                </div>
+                                              `;
+                                          } else {
+                                              setTimeout(() => window.location.reload(), 2000);
+                                          }
+                                      }
+                                      else {
+                                          setTimeout(() => window.location.reload(), 2000);
+                                      }
                                   }
                                 })
                                 .catch((error) => {
                                   showToast("Erro na comunicação com servidor.");
                                   reject();
                                 });
+                              });
                             });
                           },
                           onError: (error) => {
@@ -381,9 +518,12 @@ export default function Page() {
   return (
     <div suppressHydrationWarning className="bg-[#F9FAFB] dark:bg-[#0A0A0B] min-h-screen text-gray-900 dark:text-white" dangerouslySetInnerHTML={{ __html: `
 
+    <!-- Mobile Overlay (hidden by default) -->
+    <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-gray-900/60 dark:bg-black/60 backdrop-blur-sm z-40 hidden md:hidden transition-opacity duration-300 opacity-0"></div>
+
     <!-- SideNavBar Component -->
-    <nav
-        class="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50">
+    <nav id="sidebar-nav"
+        class="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
         <a href="/"
             class="px-6 py-4 mb-4 flex items-center justify-center cursor-pointer decoration-none">
             <img src="/logo-horizontal.svg" alt="Amora Logo" class="w-32 h-auto object-contain dark:invert" />
@@ -472,7 +612,17 @@ export default function Page() {
     </nav>
 
     <!-- Main Content Canvas -->
-    <main class="ml-64 flex-1 flex flex-col min-h-screen relative overflow-hidden bg-[#F9FAFB] dark:bg-[#0A0A0B]">
+    <main class="md:ml-64 flex-1 flex flex-col w-full md:w-auto min-h-screen relative overflow-x-hidden bg-[#F9FAFB] dark:bg-[#0A0A0B]">
+        <!-- Mobile Header / Hamburger Menu -->
+        <div class="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#27272A] bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-md sticky top-0 z-30">
+            <div class="flex items-center gap-2">
+                <button id="btn-hamburger" class="p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><path d="M4 12h16M4 6h16M4 18h16"></path></svg>
+                </button>
+                <img src="/logo-horizontal.svg" alt="Amora Logo" class="h-6 w-auto object-contain dark:invert" />
+            </div>
+        </div>
+
         <!-- Ambient Background Pattern -->
         <div class="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.02]"
             style="background-image: radial-gradient(var(--tw-colors-purple-500) 1px, transparent 1px); background-size: 24px 24px;">

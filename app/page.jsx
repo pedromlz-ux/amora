@@ -107,11 +107,48 @@ export default function Page() {
             }
 
             // Interactive button scales / clicks
-            document.querySelectorAll("button, a").forEach(btn => {
+            document.querySelectorAll("button:not(#btn-hamburger), a").forEach(btn => {
                 btn.addEventListener("mousedown", () => btn.classList.add("scale-95"));
                 btn.addEventListener("mouseup", () => btn.classList.remove("scale-95"));
                 btn.addEventListener("mouseleave", () => btn.classList.remove("scale-95"));
             });
+
+            // Mobile Sidebar Toggle Logic
+            const btnHamburger = document.getElementById("btn-hamburger");
+            const sidebarNav = document.getElementById("sidebar-nav");
+            const mobileOverlay = document.getElementById("mobile-sidebar-overlay");
+
+            if (btnHamburger && sidebarNav && mobileOverlay) {
+                const toggleMenu = () => {
+                    const isOpen = !sidebarNav.classList.contains("-translate-x-full");
+                    if (isOpen) {
+                        sidebarNav.classList.add("-translate-x-full");
+                        mobileOverlay.classList.remove("opacity-100");
+                        mobileOverlay.classList.add("opacity-0");
+                        setTimeout(() => mobileOverlay.classList.add("hidden"), 300); // Wait for transition
+                    } else {
+                        sidebarNav.classList.remove("-translate-x-full");
+                        mobileOverlay.classList.remove("hidden");
+                        setTimeout(() => {
+                            mobileOverlay.classList.remove("opacity-0");
+                            mobileOverlay.classList.add("opacity-100");
+                        }, 10);
+                    }
+                };
+
+                btnHamburger.addEventListener("click", toggleMenu);
+                mobileOverlay.addEventListener("click", toggleMenu);
+                
+                // Close menu when clicking links on mobile
+                const navLinks = sidebarNav.querySelectorAll("a");
+                navLinks.forEach(link => {
+                    link.addEventListener("click", () => {
+                        if (window.innerWidth < 768) { // md breakpoint
+                            toggleMenu();
+                        }
+                    });
+                });
+            }
 
             // Top Badge interaction
             const topBadge = document.querySelector("a[href='#']");
@@ -416,16 +453,25 @@ export default function Page() {
                 appendThinkingIndicator();
 
                 try {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    const token = session?.access_token || "";
+
                     const res = await fetch('/api/chat', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
                         body: JSON.stringify({ messages: chatHistory })
                     });
 
                     const indicator = document.getElementById("thinking-indicator");
                     if (indicator) indicator.remove();
 
-                    if (!res.ok) throw new Error("Erro na API de Chat");
+                    if (!res.ok) {
+                        const errData = await res.json().catch(() => ({}));
+                        throw new Error(errData.error || "Erro na API de Chat");
+                    }
 
                     const reader = res.body.getReader();
                     const decoder = new TextDecoder("utf-8");
@@ -465,7 +511,7 @@ export default function Page() {
                 } catch (error) {
                     const indicator = document.getElementById("thinking-indicator");
                     if (indicator) indicator.remove();
-                    showToast("Erro ao contatar a Amora. Tente novamente.");
+                    showToast(error.message || "Erro ao contatar a Amora. Tente novamente.");
                     console.error(error);
                 }
 
@@ -615,9 +661,12 @@ export default function Page() {
         <div suppressHydrationWarning className="bg-[#F9FAFB] dark:bg-[#0A0A0B] min-h-screen text-gray-900 dark:text-white" dangerouslySetInnerHTML={{
             __html: `
 
+<!-- Mobile Overlay (hidden by default) -->
+<div id="mobile-sidebar-overlay" class="fixed inset-0 bg-gray-900/60 dark:bg-black/60 backdrop-blur-sm z-40 hidden md:hidden transition-opacity duration-300 opacity-0"></div>
+
 <!-- SideNavBar Component -->
-<nav
-    class="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50">
+<nav id="sidebar-nav"
+    class="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
     <a href="/" class="px-6 py-4 mb-4 flex items-center justify-center cursor-pointer decoration-none">
         <img src="/logo-horizontal.svg" alt="Amora Logo" class="w-32 h-auto object-contain dark:invert" />
     </a>
@@ -705,11 +754,19 @@ export default function Page() {
 </nav>
 
 <!-- Main Content Canvas -->
-<main class="ml-64 flex-1 flex flex-col min-h-screen relative overflow-hidden bg-[#F9FAFB] dark:bg-[#0A0A0B]">
+<main class="md:ml-64 flex-1 flex flex-col w-full md:w-auto min-h-screen relative overflow-x-hidden bg-[#F9FAFB] dark:bg-[#0A0A0B]">
+    <!-- Mobile Header / Hamburger Menu -->
+    <div class="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#27272A] bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-md sticky top-0 z-30">
+        <div class="flex items-center gap-2">
+            <button id="btn-hamburger" class="p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><path d="M4 12h16M4 6h16M4 18h16"></path></svg>
+            </button>
+            <img src="/logo-horizontal.svg" alt="Amora Logo" class="h-6 w-auto object-contain dark:invert" />
+        </div>
+    </div>
+
     <!-- Ambient Background Pattern -->
     <div class="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.02]" style="background-image: radial-gradient(var(--tw-colors-purple-500) 1px, transparent 1px); background-size: 24px 24px;"></div>
-    
-
     
     <div class="flex-1 max-w-3xl mx-auto w-full px-8 pt-24 pb-12 relative z-10 flex flex-col">
         <!-- Header Section -->

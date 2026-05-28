@@ -274,8 +274,12 @@ export default function Recursos() {
   return (
     <div suppressHydrationWarning className="bg-[#F9FAFB] dark:bg-[#0A0A0B] min-h-screen text-gray-900 dark:text-white">
 
-      {/* SideNavBar Component */}
-      <nav className="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50">
+      {/* Mobile Overlay (hidden by default) */}
+<div id="mobile-sidebar-overlay" className="fixed inset-0 bg-gray-900/60 dark:bg-black/60 backdrop-blur-sm z-40 hidden md:hidden transition-opacity duration-300 opacity-0"></div>
+
+{/* SideNavBar Component */}
+<nav id="sidebar-nav"
+    className="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
           {/* Header */}
           <a href="/" className="px-6 py-4 mb-4 flex items-center justify-center cursor-pointer decoration-none">
               <img src="/logo-horizontal.svg" alt="Amora Logo" className="w-32 h-auto object-contain dark:invert" />
@@ -339,7 +343,21 @@ export default function Recursos() {
       </nav>
 
       {/* Main Content Canvas */}
-      <main className="ml-64 pt-8 pb-12 px-8 max-w-[1280px] mx-auto min-h-screen">
+<main className="md:ml-64 flex-1 flex flex-col w-full md:w-auto min-h-screen relative overflow-x-hidden bg-[#F9FAFB] dark:bg-[#0A0A0B]">
+    {/* Mobile Header / Hamburger Menu */}
+    <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#27272A] bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-md sticky top-0 z-30">
+        <div className="flex items-center gap-2">
+            <button id="btn-hamburger" className="p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <svg fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24"><path d="M4 12h16M4 6h16M4 18h16"></path></svg>
+            </button>
+            <img src="/logo-horizontal.svg" alt="Amora Logo" className="h-6 w-auto object-contain dark:invert" />
+        </div>
+    </div>
+
+    {/* Ambient Background Pattern */}
+    <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.02]" style={{ backgroundImage: "radial-gradient(var(--tw-colors-purple-500) 1px, transparent 1px)", backgroundSize: "24px 24px" }}></div>
+    
+    <div className="relative z-10 pt-8 pb-12 px-8 max-w-[1280px] mx-auto w-full">
         {/* Hero Header */}
         <div className="mb-10">
         <div className="flex items-center gap-2 mb-2">
@@ -648,7 +666,7 @@ export default function Recursos() {
         <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 shadow-sm relative overflow-hidden">
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-purple-500/10 blur-[60px] rounded-full pointer-events-none"></div>
         <div className="flex items-center gap-4 mb-6">
-        <div className="w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-900/20 flex items-center justify-center text-teal-600 dark:text-teal-400 relative">
+        <div className="w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-900/20 flex items-center justify-center text-teal-600 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 relative">
         <span className="material-symbols-outlined">clinical_notes</span>
         <span className="material-symbols-outlined absolute -top-1 -right-1 text-[12px] text-purple-700" style={{fontVariationSettings: "'FILL' 1"}}>auto_awesome</span>
         </div>
@@ -805,7 +823,7 @@ export default function Recursos() {
         </section>
 
         </div>
-
+        </div>
       </main>
     </div>
   );
