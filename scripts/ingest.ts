@@ -25,6 +25,8 @@ const ai = new GoogleGenAI({ apiKey: geminiApiKey });
 
 const DOCS_DIR = path.join(process.cwd(), 'documentos_treinamento');
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 // Helper to chunk text
 function chunkText(text: string, maxTokens = 1000) {
   const paragraphs = text.split(/\n\s*\n/);
@@ -75,12 +77,34 @@ async function processFile(filePath: string) {
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       
-      // Generate embedding using Gemini
-      const response = await ai.models.embedContent({
-        model: 'gemini-embedding-001',
-        contents: chunk,
-        config: { outputDimensionality: 768 }
-      });
+      // Generate embedding using Gemini with robust retry logic
+      let response;
+      let retries = 5;
+      let delay = 15000; // 15 seconds initial wait
+      while (retries > 0) {
+        try {
+          response = await ai.models.embedContent({
+            model: 'gemini-embedding-001',
+            contents: chunk,
+            config: { outputDimensionality: 768 }
+          });
+          break;
+        } catch (e: any) {
+          const errMsg = e.message || '';
+          if (errMsg.includes('429') || errMsg.includes('RESOURCE_EXHAUSTED') || JSON.stringify(e).includes('429')) {
+            console.log(`[Rate Limit] Atingido para ${fileName} chunk ${i+1}. Aguardando ${delay}ms e tentando novamente...`);
+            await sleep(delay);
+            retries--;
+            delay *= 2; // Exponential backoff
+          } else {
+            throw e;
+          }
+        }
+      }
+
+      if (!response) {
+        throw new Error(`Falha ao gerar embedding para chunk ${i+1} de ${fileName} após várias tentativas.`);
+      }
       
       const embedding = response.embeddings[0].values;
 
@@ -94,6 +118,9 @@ async function processFile(filePath: string) {
       if (error) {
         console.error(`Erro ao inserir chunk ${i} de ${fileName}:`, error.message);
       }
+
+      // Adicionar delay base de 4 segundos (15 RPM max)
+      await sleep(4000);
     }
     console.log(`✅ Concluído: ${fileName}`);
   } catch (err: any) {

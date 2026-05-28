@@ -426,7 +426,12 @@ export default function Page() {
                 const btnNewChat = document.getElementById("btn-new-chat");
                 if (btnNewChat) {
                     btnNewChat.addEventListener("click", () => {
-                        createNewChatSession();
+                        const plan = localStorage.getItem("user_plan") || "Free";
+                        if (plan.toLowerCase() === 'free' && chatsList.length >= 3) {
+                            showUpgradeModal();
+                        } else {
+                            createNewChatSession();
+                        }
                     });
                 }
             }, 100);
@@ -570,6 +575,15 @@ export default function Page() {
             async function handleSend() {
                 const text = textarea.value.trim();
                 if (!text && !attachedFile) return;
+
+                // Check saved chats limit for Free plan (max 3 chats)
+                if (!activeChatId && currentUser) {
+                    const plan = localStorage.getItem("user_plan") || "Free";
+                    if (plan.toLowerCase() === 'free' && chatsList.length >= 3) {
+                        showUpgradeModal();
+                        return;
+                    }
+                }
 
                 if (emptyState) emptyState.classList.add("hidden");
                 chatMessages.classList.remove("hidden");
@@ -820,6 +834,97 @@ export default function Page() {
                 localStorage.removeItem("user_avatar");
                 window.location.href = "/login";
             };
+
+            function showUpgradeModal() {
+                let modal = document.getElementById("upgrade-modal");
+                if (modal) {
+                    modal.classList.remove("hidden", "opacity-0");
+                    modal.classList.add("opacity-100");
+                    modal.querySelector("div").classList.remove("scale-95");
+                    return;
+                }
+
+                modal = document.createElement("div");
+                modal.id = "upgrade-modal";
+                modal.className = "fixed inset-0 bg-gray-900/60 dark:bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 transition-all duration-300 opacity-0";
+                
+                modal.innerHTML = `
+                    <div class="bg-white dark:bg-[#18181B] rounded-[24px] border border-gray-200 dark:border-[#27272A] shadow-2xl p-8 max-w-md w-full relative overflow-hidden transform scale-95 transition-transform duration-300">
+                        <div class="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+                        <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+                        
+                        <!-- Close button -->
+                        <button id="close-upgrade-modal" class="absolute top-4 right-4 p-2 rounded-lg text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-150 dark:hover:bg-gray-800 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                        
+                        <!-- Icon -->
+                        <div class="w-14 h-14 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 mb-6 shadow-sm">
+                            <span class="material-symbols-outlined text-3xl animate-bounce">workspace_premium</span>
+                        </div>
+                        
+                        <!-- Title & Subtitle -->
+                        <h3 class="font-display font-extrabold text-2xl text-gray-900 dark:text-white mb-2 leading-tight">
+                            Limite de Chats Atingido
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 font-light leading-relaxed">
+                            No <span class="font-semibold text-purple-700 dark:text-purple-400">Plano Gratuito</span>, você pode salvar até 3 chats simultâneos. Faça o upgrade agora para ter conversas ilimitadas e recursos avançados de IA!
+                        </p>
+                        
+                        <!-- Benefits list -->
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-purple-700 dark:text-purple-400 text-sm">check_circle</span>
+                                <span class="text-xs text-gray-600 dark:text-gray-300 font-medium">Conversas salvas ilimitadas</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-purple-700 dark:text-purple-400 text-sm">check_circle</span>
+                                <span class="text-xs text-gray-600 dark:text-gray-300 font-medium">Suporte prioritário e maior limite de IA</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-purple-700 dark:text-purple-400 text-sm">check_circle</span>
+                                <span class="text-xs text-gray-600 dark:text-gray-300 font-medium">Acesso a todos os recursos profissionais</span>
+                            </li>
+                        </ul>
+                        
+                        <!-- CTA buttons -->
+                        <div class="flex flex-col gap-3">
+                            <button id="modal-btn-upgrade" class="w-full bg-purple-700 hover:bg-purple-800 text-white dark:bg-purple-400 dark:text-gray-900 dark:hover:bg-purple-500 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2">
+                                <span>Fazer Upgrade para Premium</span>
+                                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                            </button>
+                            <button id="modal-btn-close" class="w-full py-3 text-center text-sm font-semibold text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+                                Continuar no plano básico
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // Animate entrance
+                requestAnimationFrame(() => {
+                    modal.classList.remove("opacity-0");
+                    modal.querySelector("div").classList.remove("scale-95");
+                });
+                
+                // Event Listeners
+                const closeModal = () => {
+                    modal.classList.add("opacity-0");
+                    modal.querySelector("div").classList.add("scale-95");
+                    setTimeout(() => modal.classList.add("hidden"), 300);
+                };
+                
+                document.getElementById("close-upgrade-modal").addEventListener("click", closeModal);
+                document.getElementById("modal-btn-close").addEventListener("click", closeModal);
+                
+                document.getElementById("modal-btn-upgrade").addEventListener("click", () => {
+                    closeModal();
+                    window.location.href = "/configuracao?tab=cobranca";
+                });
+            }
+
+            window.showUpgradeModal = showUpgradeModal;
 
             // Call on load
             loadUserProfile();
