@@ -75,12 +75,13 @@ export async function POST(request) {
         
         if (user) {
           if (status === 'authorized') {
+            const assignedPlan = subInfo.preapproval_plan_id === 'c45e35a99a5b46e18f3dc970c9d266ff' ? 'ultra' : 'premium';
             await supabaseAdmin.from('user_usage').update({ 
-              plan: 'premium', 
+              plan: assignedPlan, 
               subscription_id: id,
               subscription_status: status 
             }).eq('user_id', user.id);
-            console.log(`Assinatura ativa para ${payerEmail}`);
+            console.log(`Assinatura ativa (${assignedPlan}) para ${payerEmail}`);
           } else if (status === 'cancelled') {
             await supabaseAdmin.from('user_usage').update({ 
               plan: 'free', 
