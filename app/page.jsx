@@ -774,7 +774,10 @@ export default function Page() {
                     }
 
                     if (sidebarPlanBadge) {
-                        if (p === "ultra" || p === "Ultra") {
+                        if (p === "admin" || p === "Admin" || p === "ADM") {
+                            sidebarPlanBadge.innerText = "ADM";
+                            sidebarPlanBadge.className = 'inline-block px-2.5 py-1 rounded bg-amber-500 text-black font-label-sm text-xs shadow-[0_0_15px_rgba(245,158,11,0.6)] border border-amber-400 font-bold uppercase tracking-wider animate-pulse';
+                        } else if (p === "ultra" || p === "Ultra") {
                             sidebarPlanBadge.innerText = "Ultra Plan";
                             sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-blue-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(59,130,246,0.5)] border border-blue-400 dark:border-blue-500';
                         } else if (p === "Premium" || p === "premium") {

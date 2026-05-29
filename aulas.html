@@ -459,10 +459,18 @@
         }
         
         if (sidebarPlanBadge) {
-            sidebarPlanBadge.innerText = plan === "Premium" ? "Premium Plan" : "Free Plan";
-            if (plan === "Premium") {
-                sidebarPlanBadge.className = "inline-block px-2 py-1 rounded bg-amber-500 text-black dark:bg-amber-400 font-label-sm text-xs font-bold shadow-sm animate-pulse";
+            const p = plan.toLowerCase();
+            if (p === "admin" || p === "adm") {
+                sidebarPlanBadge.innerText = "ADM";
+                sidebarPlanBadge.className = "inline-block px-2.5 py-1 rounded bg-amber-500 text-black font-label-sm text-xs font-bold shadow-[0_0_15px_rgba(245,158,11,0.6)] border border-amber-400 uppercase tracking-wider animate-pulse";
+            } else if (p === "ultra") {
+                sidebarPlanBadge.innerText = "Ultra Plan";
+                sidebarPlanBadge.className = "inline-block px-2 py-1 rounded bg-blue-600 text-white font-label-sm text-xs border border-blue-400 dark:border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]";
+            } else if (p === "premium") {
+                sidebarPlanBadge.innerText = "Premium Plan";
+                sidebarPlanBadge.className = "inline-block px-2 py-1 rounded bg-purple-600 text-white font-label-sm text-xs border border-purple-400 dark:border-purple-500 shadow-[0_0_15px_rgba(147,51,234,0.5)]";
             } else {
+                sidebarPlanBadge.innerText = "Free Plan";
                 sidebarPlanBadge.className = "inline-block px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-label-sm text-xs";
             }
         }
