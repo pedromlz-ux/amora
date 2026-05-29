@@ -6,7 +6,7 @@ export default function Recursos() {
   const [loading, setLoading] = useState(true);
   
   // User Profile State
-  const [userProfile, setUserProfile] = useState({ name: '', email: '', avatar: '' });
+  const [userProfile, setUserProfile] = useState({ name: '', email: '', avatar: '', plan: 'Free' });
 
   // IMC State
   const [peso, setPeso] = useState('');
@@ -61,6 +61,10 @@ export default function Recursos() {
   const [gastoFormula, setGastoFormula] = useState('mifflin');
   const [gastoAtividade, setGastoAtividade] = useState('1.2');
   const [resultadoGasto, setResultadoGasto] = useState(null);
+
+  // Nutritional Therapy Simulator State
+  const [simPeso, setSimPeso] = useState(70);
+  const [simDiagnostico, setSimDiagnostico] = useState('renal');
 
   // Mobile Menu State
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -313,7 +317,29 @@ export default function Recursos() {
 
   if (loading) return null;
 
+  const isPremium = userProfile?.plan?.toLowerCase() === 'premium' || userProfile?.plan?.toLowerCase() === 'ultra';
+
   const workspaceSubtitle = `personal-${userProfile.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-DM...`;
+
+  // Calculate Terapia Nutricional Simulator values reactively
+  let simProteinaGramas = 0.8;
+  let simConduta = '';
+
+  if (simDiagnostico === 'renal') {
+    simProteinaGramas = 0.6;
+    simConduta = 'Restrição proteica severa (IRC Conservador - evitar sobrecarga renal)';
+  } else if (simDiagnostico === 'diabetes') {
+    simProteinaGramas = 1.0;
+    simConduta = 'Estabilização de glicemia (baixo índice glicêmico & fibras)';
+  } else if (simDiagnostico === 'hepática') {
+    simProteinaGramas = 1.2;
+    simConduta = 'Prevenção de catabolismo proteico em cirrose compensada';
+  } else if (simDiagnostico === 'esporte') {
+    simProteinaGramas = 2.0;
+    simConduta = 'Hipertrofia muscular e otimização do balanço de nitrogênio';
+  }
+
+  const simTotalProteina = (simPeso * simProteinaGramas).toFixed(1);
 
   return (
     <div suppressHydrationWarning className="bg-[#F9FAFB] dark:bg-[#0A0A0B] min-h-screen text-gray-900 dark:text-white">
@@ -423,7 +449,27 @@ export default function Recursos() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         {/* Card 1: Calculadora de IMC */}
-        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 group shadow-sm">
+        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 group shadow-sm relative overflow-hidden">
+          {!isPremium && (
+            <div className="absolute inset-0 bg-white/80 dark:bg-[#18181B]/95 backdrop-blur-[6px] z-20 flex flex-col items-center justify-center p-6 text-center transition-all duration-300">
+              <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 mb-3 shadow-[0_0_15px_rgba(147,51,234,0.3)] animate-pulse">
+                <span className="material-symbols-outlined font-bold text-2xl">lock</span>
+              </div>
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Calculadora de IMC</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[200px] mb-4">
+                Calcule o Índice de Massa Corporal de forma rápida e profissional.
+              </p>
+              <a 
+                href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=baaaf6620b4f42fb8847302ce0dc5cf2"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
+              >
+                <span>Desbloquear com Premium</span>
+                <span className="material-symbols-outlined text-xs">arrow_forward</span>
+              </a>
+            </div>
+          )}
           <div className="flex items-center gap-4 mb-6">
           <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center text-purple-700 dark:text-purple-400">
           <span className="material-symbols-outlined">calculate</span>
@@ -494,7 +540,27 @@ export default function Recursos() {
         </section>
 
         {/* Card 2: Tabela TACO */}
-        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 shadow-sm">
+        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 shadow-sm relative overflow-hidden">
+          {!isPremium && (
+            <div className="absolute inset-0 bg-white/80 dark:bg-[#18181B]/95 backdrop-blur-[6px] z-20 flex flex-col items-center justify-center p-6 text-center transition-all duration-300">
+              <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 mb-3 shadow-[0_0_15px_rgba(147,51,234,0.3)] animate-pulse">
+                <span className="material-symbols-outlined font-bold text-2xl">lock</span>
+              </div>
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Tabela TACO</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[200px] mb-4">
+                Consulte a composição oficial de mais de 2.000 alimentos reais.
+              </p>
+              <a 
+                href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=baaaf6620b4f42fb8847302ce0dc5cf2"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
+              >
+                <span>Desbloquear com Premium</span>
+                <span className="material-symbols-outlined text-xs">arrow_forward</span>
+              </a>
+            </div>
+          )}
         <div className="flex items-center gap-4 mb-6">
         <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center text-blue-700 dark:text-blue-400">
         <span className="material-symbols-outlined">nutrition</span>
@@ -555,7 +621,27 @@ export default function Recursos() {
         </section>
 
         {/* Card 3: Montador de Dietas */}
-        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 shadow-sm md:row-span-1 relative">
+        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 shadow-sm md:row-span-1 relative overflow-hidden">
+          {!isPremium && (
+            <div className="absolute inset-0 bg-white/80 dark:bg-[#18181B]/95 backdrop-blur-[6px] z-20 flex flex-col items-center justify-center p-6 text-center transition-all duration-300">
+              <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 mb-3 shadow-[0_0_15px_rgba(147,51,234,0.3)] animate-pulse">
+                <span className="material-symbols-outlined font-bold text-2xl">lock</span>
+              </div>
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Montador de Dietas</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[200px] mb-4">
+                Monte e estruture planos alimentares completos calculando macros e calorias em tempo real.
+              </p>
+              <a 
+                href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=baaaf6620b4f42fb8847302ce0dc5cf2"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
+              >
+                <span>Desbloquear com Premium</span>
+                <span className="material-symbols-outlined text-xs">arrow_forward</span>
+              </a>
+            </div>
+          )}
         <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
         <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 dark:text-orange-400">
@@ -714,6 +800,26 @@ export default function Recursos() {
 
         {/* Card 4: Análise de Exames (AI) */}
         <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 shadow-sm relative overflow-hidden">
+          {!isPremium && (
+            <div className="absolute inset-0 bg-white/80 dark:bg-[#18181B]/95 backdrop-blur-[6px] z-20 flex flex-col items-center justify-center p-6 text-center transition-all duration-300">
+              <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 mb-3 shadow-[0_0_15px_rgba(147,51,234,0.3)] animate-pulse">
+                <span className="material-symbols-outlined font-bold text-2xl">lock</span>
+              </div>
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Análise de Exames (IA)</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[200px] mb-4">
+                Envie laudos de exames laboratoriais e receba insights preditivos gerados por inteligência artificial.
+              </p>
+              <a 
+                href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=baaaf6620b4f42fb8847302ce0dc5cf2"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
+              >
+                <span>Desbloquear com Premium</span>
+                <span className="material-symbols-outlined text-xs">arrow_forward</span>
+              </a>
+            </div>
+          )}
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-purple-500/10 blur-[60px] rounded-full pointer-events-none"></div>
         <div className="flex items-center gap-4 mb-6">
         <div className="w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-900/20 flex items-center justify-center text-teal-600 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 relative">
@@ -780,7 +886,27 @@ export default function Recursos() {
         </section>
 
         {/* Card 5: Calculadora de Gasto Energético */}
-        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 group shadow-sm md:col-span-2">
+        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 group shadow-sm md:col-span-2 relative overflow-hidden">
+          {!isPremium && (
+            <div className="absolute inset-0 bg-white/80 dark:bg-[#18181B]/95 backdrop-blur-[6px] z-20 flex flex-col items-center justify-center p-6 text-center transition-all duration-300">
+              <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 mb-3 shadow-[0_0_15px_rgba(147,51,234,0.3)] animate-pulse">
+                <span className="material-symbols-outlined font-bold text-2xl">lock</span>
+              </div>
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Calculadora de Gasto Energético</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[300px] mb-4">
+                Calcule a Taxa Metabólica Basal (TMB) e o Gasto Energético Total Diário (TDEE) com as fórmulas Mifflin, Harris-Benedict e FAO/OMS.
+              </p>
+              <a 
+                href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=baaaf6620b4f42fb8847302ce0dc5cf2"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
+              >
+                <span>Desbloquear com Premium</span>
+                <span className="material-symbols-outlined text-xs">arrow_forward</span>
+              </a>
+            </div>
+          )}
            <div className="flex items-center gap-4 mb-6">
              <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center text-red-700 dark:text-red-400">
                <span className="material-symbols-outlined">local_fire_department</span>
@@ -870,6 +996,59 @@ export default function Recursos() {
              <span>Calcular Gasto Energético</span>
              <span className="material-symbols-outlined text-sm">arrow_forward</span>
            </button>
+        </section>
+
+        {/* Card 6: Simulador de Terapia Nutricional */}
+        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 group shadow-sm md:col-span-2 relative overflow-hidden">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center text-purple-700 dark:text-purple-400">
+              <span className="material-symbols-outlined">biotech</span>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold dark:text-white">Simulador de Terapia Nutricional</h3>
+              <p className="text-xs text-gray-500">Conduta Direcionada e Meta Proteica</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="bg-gray-50 dark:bg-[#0A0A0B] p-4 rounded-xl border border-gray-100 dark:border-[#27272A]">
+              <span className="text-[10px] font-bold text-gray-400 uppercase">Meta Proteica Recomendada</span>
+              <p className="text-base sm:text-lg font-black text-gray-900 dark:text-white mt-1">{simProteinaGramas} g/kg ({simTotalProteina}g total)</p>
+            </div>
+            <div className="bg-gray-50 dark:bg-[#0A0A0B] p-4 rounded-xl border border-gray-100 dark:border-[#27272A]">
+              <span className="text-[10px] font-bold text-gray-400 uppercase">Conduta Direcionada</span>
+              <p className="text-xs font-semibold text-purple-700 dark:text-purple-400 mt-1">{simConduta}</p>
+            </div>
+          </div>
+
+          <div className="space-y-4 mb-6">
+            <label className="block text-xs font-bold text-gray-500">Selecione o Diagnóstico / Patologia</label>
+            <select 
+              value={simDiagnostico} 
+              onChange={(e) => setSimDiagnostico(e.target.value)} 
+              className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 text-sm outline-none dark:text-white"
+            >
+              <option value="renal">Insuficiência Renal Crônica (Tratamento Conservador)</option>
+              <option value="diabetes">Diabetes Mellitus Tipo 2 (Glicemia Descompensada)</option>
+              <option value="hepática">Insuficiência Hepática Crônica / Cirrose Hepática</option>
+              <option value="esporte">Metabolismo Ativo / Hipertrofia & Ganho Muscular</option>
+            </select>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Peso Corporal Atual</span>
+              <span className="font-bold text-gray-800 dark:text-white">{simPeso} kg</span>
+            </div>
+            <input 
+              type="range" 
+              min="40" 
+              max="150" 
+              value={simPeso} 
+              onChange={(e) => setSimPeso(Number(e.target.value))} 
+              className="w-full accent-purple-700" 
+            />
+          </div>
         </section>
 
         </div>
