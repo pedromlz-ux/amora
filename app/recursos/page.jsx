@@ -337,6 +337,12 @@ export default function Recursos() {
   } else if (simDiagnostico === 'esporte') {
     simProteinaGramas = 2.0;
     simConduta = 'Hipertrofia muscular e otimização do balanço de nitrogênio';
+  } else if (simDiagnostico === 'obesidade') {
+    simProteinaGramas = 1.3;
+    simConduta = 'Déficit calórico estratégico com preservação de massa magra';
+  } else if (simDiagnostico === 'emagrecimento') {
+    simProteinaGramas = 1.6;
+    simConduta = 'Déficit controlado, saciedade aumentada e poupança muscular';
   }
 
   const simTotalProteina = (simPeso * simProteinaGramas).toFixed(1);
@@ -1022,6 +1028,8 @@ export default function Recursos() {
               <option value="diabetes">Diabetes Mellitus Tipo 2 (Glicemia Descompensada)</option>
               <option value="hepática">Insuficiência Hepática Crônica / Cirrose Hepática</option>
               <option value="esporte">Metabolismo Ativo / Hipertrofia & Ganho Muscular</option>
+              <option value="obesidade">Obesidade Clínico-Metabólica (Preservação de Massa Magra)</option>
+              <option value="emagrecimento">Emagrecimento Estético & Poupança Muscular</option>
             </select>
           </div>
 
