@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 
     // 1. Gerar o embedding da pergunta do usuário
     const embedResponse = await ai.models.embedContent({
-      model: 'gemini-embedding-001',
+      model: 'text-embedding-004',
       contents: lastMessage,
       config: { outputDimensionality: 768 }
     });

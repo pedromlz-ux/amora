@@ -84,7 +84,7 @@ async function processFile(filePath: string) {
       while (retries > 0) {
         try {
           response = await ai.models.embedContent({
-            model: 'gemini-embedding-001',
+            model: 'text-embedding-004',
             contents: chunk,
             config: { outputDimensionality: 768 }
           });
