@@ -998,6 +998,24 @@ export default function Recursos() {
 
         {/* Card 6: Simulador de Terapia Nutricional */}
         <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 group shadow-sm md:col-span-2 relative overflow-hidden">
+          {!isPremium && (
+            <div className="absolute inset-0 bg-white/80 dark:bg-[#18181B]/95 backdrop-blur-[6px] z-20 flex flex-col items-center justify-center p-6 text-center transition-all duration-300">
+              <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 mb-3 shadow-[0_0_15px_rgba(147,51,234,0.3)] animate-pulse">
+                <span className="material-symbols-outlined font-bold text-2xl">lock</span>
+              </div>
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Simulador de Terapia Nutricional</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[300px] mb-4">
+                Simule metas proteicas recomendadas e condutas direcionadas baseadas no diagnóstico e peso atual.
+              </p>
+              <a 
+                href="/configuracao"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
+              >
+                <span>Desbloquear com Plano Ultra</span>
+                <span className="material-symbols-outlined text-xs">arrow_forward</span>
+              </a>
+            </div>
+          )}
           <div className="flex items-center gap-4 mb-6">
             <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center text-purple-700 dark:text-purple-400">
               <span className="material-symbols-outlined">biotech</span>
