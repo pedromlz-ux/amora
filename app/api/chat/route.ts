@@ -34,7 +34,8 @@ export async function POST(req: Request) {
     const count = usageData?.questions_count || 0;
     
     let limit = 30;
-    if (plan === 'ultra') limit = 200;
+    if (plan === 'admin') limit = Infinity;
+    else if (plan === 'ultra') limit = 200;
     else if (plan === 'premium') limit = 300;
 
     if (count >= limit) {

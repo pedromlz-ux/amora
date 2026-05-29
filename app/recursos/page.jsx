@@ -317,7 +317,7 @@ export default function Recursos() {
 
   if (loading) return null;
 
-  const isPremium = userProfile?.plan?.toLowerCase() === 'ultra';
+  const isPremium = userProfile?.plan?.toLowerCase() === 'ultra' || userProfile?.plan?.toLowerCase() === 'admin';
 
   const workspaceSubtitle = `personal-${userProfile.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-DM...`;
 

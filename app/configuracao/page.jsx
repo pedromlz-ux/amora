@@ -240,9 +240,21 @@ export default function Page() {
                     const limitsBar = document.getElementById("billing-limits-bar");
                     const btnUpgrade = document.getElementById("btn-upgrade-plan");
 
-                    if (data.plan === 'ultra') {
+                    if (data.plan === 'admin') {
                         if (planBadge) {
-                            planBadge.innerText = 'Plano Ultra (Dev)';
+                            planBadge.innerText = 'Administrador';
+                            planBadge.className = 'bg-red-50 dark:bg-red-900/20 text-red-750 dark:text-red-400 text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider border border-red-100/50 dark:border-red-950';
+                        }
+                        if (planTitle) planTitle.innerText = 'Você está usando o Amora Administrador';
+                        if (btnUpgrade) btnUpgrade.style.display = 'none';
+                        const sidebarPlanBadge = document.getElementById("sidebar-plan-badge");
+                        if (sidebarPlanBadge) {
+                            sidebarPlanBadge.innerText = 'Admin Plan';
+                            sidebarPlanBadge.className = 'inline-block px-2 py-1 rounded bg-red-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(239,68,68,0.5)] border border-red-450 dark:border-red-500';
+                        }
+                    } else if (data.plan === 'ultra') {
+                        if (planBadge) {
+                            planBadge.innerText = 'Plano Ultra';
                             planBadge.className = 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider border border-blue-100/50 dark:border-blue-950';
                         }
                         if (planTitle) planTitle.innerText = 'Você está usando o Amora Ultra';

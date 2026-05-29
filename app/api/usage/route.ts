@@ -29,11 +29,12 @@ export async function GET(req: Request) {
     const plan = usageData?.plan || 'free';
     const count = usageData?.questions_count || 0;
     
-    let limit = 30;
-    if (plan === 'ultra') limit = 200;
+    let limit: number | string = 30;
+    if (plan === 'admin') limit = 'Ilimitado';
+    else if (plan === 'ultra') limit = 200;
     else if (plan === 'premium') limit = 300;
 
-    const percentage = Math.min(100, Math.round((count / limit) * 100));
+    const percentage = plan === 'admin' ? 0 : Math.min(100, Math.round((count / (limit as number)) * 100));
 
     return NextResponse.json({
       plan: plan,
