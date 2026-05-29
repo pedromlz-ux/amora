@@ -367,29 +367,62 @@ export default function Page() {
         }
 
         const btnUpgrade = document.getElementById("btn-upgrade-plan");
-        if (btnUpgrade) {
-            btnUpgrade.addEventListener("click", async () => {
-                const originalText = btnUpgrade.innerHTML;
-                btnUpgrade.innerHTML = `<span class="material-symbols-outlined animate-spin align-middle mr-2 text-sm">progress_activity</span> Redirecionando...`;
-                btnUpgrade.disabled = true;
-                
-                try {
-                    const res = await fetch("/api/subscription");
-                    const data = await res.json();
-                    if (data.url) {
-                        const email = localStorage.getItem("user_email") || "";
-                        alert(`ATENÇÃO:\n\nPara que o seu Premium seja ativado automaticamente, você DEVE utilizar o e-mail: ${email} na hora de pagar no Mercado Pago!`);
-                        window.location.href = data.url;
-                    } else {
-                        showToast("Erro ao gerar link de assinatura.");
-                    }
-                } catch (e) {
-                    showToast("Erro na comunicação com o servidor.");
-                } finally {
-                    btnUpgrade.innerHTML = originalText;
-                    btnUpgrade.disabled = false;
+        const upgradeModal = document.getElementById("upgrade-modal");
+        const btnCloseUpgrade = document.getElementById("btn-close-upgrade");
+        const btnSubscribePremium = document.getElementById("btn-subscribe-premium");
+        const btnSubscribeUltra = document.getElementById("btn-subscribe-ultra");
+
+        if (btnUpgrade && upgradeModal) {
+            btnUpgrade.addEventListener("click", () => {
+                upgradeModal.classList.remove("hidden");
+                setTimeout(() => upgradeModal.classList.remove("opacity-0"), 10);
+                const innerContainer = upgradeModal.querySelector("div");
+                if (innerContainer) {
+                    innerContainer.classList.remove("scale-95");
                 }
             });
+        }
+
+        if (btnCloseUpgrade && upgradeModal) {
+            btnCloseUpgrade.addEventListener("click", () => {
+                upgradeModal.classList.add("opacity-0");
+                const innerContainer = upgradeModal.querySelector("div");
+                if (innerContainer) {
+                    innerContainer.classList.add("scale-95");
+                }
+                setTimeout(() => upgradeModal.classList.add("hidden"), 300);
+            });
+        }
+
+        const handleSubscribe = async (planName, buttonEl) => {
+            const originalText = buttonEl.innerHTML;
+            buttonEl.innerHTML = `<span class="material-symbols-outlined animate-spin align-middle mr-2 text-sm">progress_activity</span> Redirecionando...`;
+            buttonEl.disabled = true;
+
+            try {
+                const res = await fetch(`/api/subscription?plan=${planName}`);
+                const data = await res.json();
+                if (data.url) {
+                    const email = localStorage.getItem("user_email") || "";
+                    alert(`ATENÇÃO:\n\nPara que o seu plano seja ativado automaticamente, você DEVE utilizar o e-mail: ${email} na hora de pagar no Mercado Pago!`);
+                    window.location.href = data.url;
+                } else {
+                    showToast("Erro ao gerar link de assinatura.");
+                }
+            } catch (e) {
+                showToast("Erro na comunicação com o servidor.");
+            } finally {
+                buttonEl.innerHTML = originalText;
+                buttonEl.disabled = false;
+            }
+        };
+
+        if (btnSubscribePremium) {
+            btnSubscribePremium.addEventListener("click", () => handleSubscribe("premium", btnSubscribePremium));
+        }
+
+        if (btnSubscribeUltra) {
+            btnSubscribeUltra.addEventListener("click", () => handleSubscribe("ultra", btnSubscribeUltra));
         }
 
         // Initialize Theme preference select buttons
@@ -892,13 +925,12 @@ export default function Page() {
         <div id="upgrade-modal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all duration-300 hidden opacity-0">
             <div
-                class="bg-white/95 dark:bg-[#18181B]/95 border border-purple-500/20 shadow-2xl rounded-3xl p-8 max-w-md w-full relative transform scale-95 transition-all duration-300">
-                <!-- Header Gold Ribbon -->
+                class="bg-white/95 dark:bg-[#18181B]/95 border border-purple-500/20 shadow-2xl rounded-3xl p-8 max-w-4xl w-full relative transform scale-95 transition-all duration-300 mx-4 overflow-y-auto max-h-[90vh]">
                 <div class="flex items-center justify-between mb-6">
                     <span
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-amber-500 text-black dark:bg-amber-400 font-display text-xs font-bold shadow-sm uppercase tracking-wider animate-pulse">
-                        <span class="material-symbols-outlined !text-xs">military_tech</span>
-                        Amora Pro
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-purple-700 text-white dark:bg-purple-400 dark:text-gray-905 font-display text-xs font-bold shadow-sm uppercase tracking-wider animate-pulse">
+                        <span class="material-symbols-outlined !text-xs">workspace_premium</span>
+                        Planos de Assinatura
                     </span>
                     <button id="btn-close-upgrade"
                         class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
@@ -906,61 +938,87 @@ export default function Page() {
                     </button>
                 </div>
 
-                <h3 class="font-display font-semibold text-2xl text-gray-900 dark:text-white mb-2 leading-tight">Faça
-                    Upgrade para o Premium</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 font-light mb-6">Desbloqueie todo o potencial da
-                    inteligência nutricional molecular da Amora e acelere seu aprendizado.</p>
+                <div class="text-center mb-8">
+                    <h3 class="font-display font-semibold text-3xl text-gray-900 dark:text-white mb-2 leading-tight">Escolha seu plano Amora</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-light">Selecione o plano ideal para a sua jornada profissional ou acadêmica.</p>
+                </div>
 
-                <!-- Perks list -->
-                <div class="space-y-3 mb-8">
-                    <div class="flex items-start gap-3">
-                        <span
-                            class="material-symbols-outlined text-purple-750 dark:text-purple-400 shrink-0">check_circle</span>
+                <!-- Two columns pricing grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                    <!-- Card 1: Premium (Student) -->
+                    <div class="bg-gray-50/50 dark:bg-[#202024]/50 border border-gray-200 dark:border-[#2d2d30] p-6 rounded-2xl flex flex-col justify-between hover:border-purple-500/30 transition-all relative">
                         <div>
-                            <p class="text-xs font-semibold text-gray-900 dark:text-white">Acesso Ilimitado aos Módulos
-                            </p>
-                            <p class="text-[10px] text-gray-400 dark:text-gray-500 font-light">Aulas avançadas de
-                                biotecnologia e nutrição clínica sem barreiras.</p>
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Estudante</span>
+                                <span class="text-2xl font-bold text-gray-900 dark:text-white">R$ 19,90<span class="text-xs text-gray-400 font-light">/mês</span></span>
+                            </div>
+                            <h4 class="font-display font-semibold text-lg text-gray-900 dark:text-white mb-1">Amora Premium</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 font-light mb-4">Perfeito para estudantes que buscam estender o uso da IA para seus estudos acadêmicos.</p>
+                            
+                            <ul class="space-y-2 mb-6">
+                                <li class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+                                    <span class="material-symbols-outlined text-purple-750 dark:text-purple-400 !text-sm">check_circle</span>
+                                    <span>300 conversas/ativações mensais do chat</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+                                    <span class="material-symbols-outlined text-purple-750 dark:text-purple-400 !text-sm">check_circle</span>
+                                    <span>Modelos baseados na tabela oficial TACO</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+                                    <span class="material-symbols-outlined text-purple-750 dark:text-purple-400 !text-sm">check_circle</span>
+                                    <span>Suporte prioritário via e-mail</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 line-through">
+                                    <span class="material-symbols-outlined !text-sm">block</span>
+                                    <span>Recursos Clínicos Profissionais</span>
+                                </li>
+                            </ul>
                         </div>
+                        <button id="btn-subscribe-premium" class="w-full bg-purple-700 hover:bg-purple-800 text-white dark:bg-purple-400 dark:text-gray-900 dark:hover:bg-purple-500 py-3 rounded-full font-semibold text-xs transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2">
+                            Assinar Premium (Estudante)
+                        </button>
                     </div>
-                    <div class="flex items-start gap-3">
-                        <span
-                            class="material-symbols-outlined text-purple-750 dark:text-purple-400 shrink-0">check_circle</span>
+
+                    <!-- Card 2: Ultra (Professional) -->
+                    <div class="bg-purple-50/20 dark:bg-[#2a1b40]/20 border-2 border-purple-500/40 p-6 rounded-2xl flex flex-col justify-between hover:border-purple-500/60 transition-all relative font-body-md">
+                        <div class="absolute -top-3 right-4 bg-purple-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Profissional</div>
                         <div>
-                            <p class="text-xs font-semibold text-gray-900 dark:text-white">Capacidade Ampliada</p>
-                            <p class="text-[10px] text-gray-400 dark:text-gray-500 font-light">Construa e gerencie até
-                                100 projetos simultâneos.</p>
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Nutricionista</span>
+                                <span class="text-2xl font-bold text-gray-900 dark:text-white">R$ 29,90<span class="text-xs text-gray-400 font-light">/mês</span></span>
+                            </div>
+                            <h4 class="font-display font-semibold text-lg text-gray-900 dark:text-white mb-1">Amora Ultra</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 font-light mb-4">Para profissionais da prática clínica que precisam de ferramentas avançadas e segurança.</p>
+                            
+                            <ul class="space-y-2 mb-6">
+                                <li class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+                                    <span class="material-symbols-outlined text-purple-750 dark:text-purple-400 !text-sm">check_circle</span>
+                                    <span>200 conversas/ativações do chat</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-xs text-purple-750 dark:text-purple-400 font-semibold">
+                                    <span class="material-symbols-outlined !text-sm">check_circle</span>
+                                    <span>Histórico de Chat Ilimitado</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-xs text-purple-750 dark:text-purple-400 font-semibold">
+                                    <span class="material-symbols-outlined !text-sm">check_circle</span>
+                                    <span>Acesso Completo aos Recursos Clínicos</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+                                    <span class="material-symbols-outlined text-purple-750 dark:text-purple-400 !text-sm">check_circle</span>
+                                    <span>Montador de Dietas e Tabela TACO</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-xs text-purple-750 dark:text-purple-400 font-semibold">
+                                    <span class="material-symbols-outlined !text-sm">check_circle</span>
+                                    <span>Simulador de Terapia Nutricional</span>
+                                </li>
+                            </ul>
                         </div>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span
-                            class="material-symbols-outlined text-purple-750 dark:text-purple-400 shrink-0">check_circle</span>
-                        <div>
-                            <p class="text-xs font-semibold text-gray-900 dark:text-white">IA Avançada de Bio-Análise
-                            </p>
-                            <p class="text-[10px] text-gray-400 dark:text-gray-500 font-light">Modelos preditivos de
-                                polimorfismos e absorção celular avançados.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span
-                            class="material-symbols-outlined text-purple-750 dark:text-purple-400 shrink-0">check_circle</span>
-                        <div>
-                            <p class="text-xs font-semibold text-gray-900 dark:text-white">Suporte Clínico 24/7</p>
-                            <p class="text-[10px] text-gray-400 dark:text-gray-500 font-light">Canal direto e
-                                prioritário com nosso time de especialistas.</p>
-                        </div>
+                        <button id="btn-subscribe-ultra" class="w-full bg-purple-700 hover:bg-purple-800 text-white dark:bg-purple-400 dark:text-gray-900 dark:hover:bg-purple-500 py-3 rounded-full font-semibold text-xs transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2">
+                            Assinar Ultra (Profissional)
+                        </button>
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-3">
-                    <button id="btn-confirm-upgrade"
-                        class="w-full bg-purple-700 hover:bg-purple-800 text-white dark:bg-purple-400 dark:text-gray-900 dark:hover:bg-purple-500 py-3 rounded-full font-semibold text-sm transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2">
-                        Confirmar Assinatura • R$ 49,90/mês
-                    </button>
-                    <p class="text-[10px] text-center text-gray-400 dark:text-gray-500">Cancele quando quiser. Cobrança
-                        recorrente no cartão cadastrado.</p>
-                </div>
             </div>
         </div>
 

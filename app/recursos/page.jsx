@@ -317,7 +317,7 @@ export default function Recursos() {
 
   if (loading) return null;
 
-  const isPremium = userProfile?.plan?.toLowerCase() === 'premium' || userProfile?.plan?.toLowerCase() === 'ultra';
+  const isPremium = userProfile?.plan?.toLowerCase() === 'ultra';
 
   const workspaceSubtitle = `personal-${userProfile.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-DM...`;
 
@@ -460,12 +460,10 @@ export default function Recursos() {
                 Calcule o Índice de Massa Corporal de forma rápida e profissional.
               </p>
               <a 
-                href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=baaaf6620b4f42fb8847302ce0dc5cf2"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/configuracao"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
               >
-                <span>Desbloquear com Premium</span>
+                <span>Desbloquear com Plano Ultra</span>
                 <span className="material-symbols-outlined text-xs">arrow_forward</span>
               </a>
             </div>
@@ -551,12 +549,10 @@ export default function Recursos() {
                 Consulte a composição oficial de mais de 2.000 alimentos reais.
               </p>
               <a 
-                href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=baaaf6620b4f42fb8847302ce0dc5cf2"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/configuracao"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
               >
-                <span>Desbloquear com Premium</span>
+                <span>Desbloquear com Plano Ultra</span>
                 <span className="material-symbols-outlined text-xs">arrow_forward</span>
               </a>
             </div>
@@ -632,12 +628,10 @@ export default function Recursos() {
                 Monte e estruture planos alimentares completos calculando macros e calorias em tempo real.
               </p>
               <a 
-                href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=baaaf6620b4f42fb8847302ce0dc5cf2"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/configuracao"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
               >
-                <span>Desbloquear com Premium</span>
+                <span>Desbloquear com Plano Ultra</span>
                 <span className="material-symbols-outlined text-xs">arrow_forward</span>
               </a>
             </div>
@@ -810,12 +804,10 @@ export default function Recursos() {
                 Envie laudos de exames laboratoriais e receba insights preditivos gerados por inteligência artificial.
               </p>
               <a 
-                href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=baaaf6620b4f42fb8847302ce0dc5cf2"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/configuracao"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
               >
-                <span>Desbloquear com Premium</span>
+                <span>Desbloquear com Plano Ultra</span>
                 <span className="material-symbols-outlined text-xs">arrow_forward</span>
               </a>
             </div>
@@ -897,12 +889,10 @@ export default function Recursos() {
                 Calcule a Taxa Metabólica Basal (TMB) e o Gasto Energético Total Diário (TDEE) com as fórmulas Mifflin, Harris-Benedict e FAO/OMS.
               </p>
               <a 
-                href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=baaaf6620b4f42fb8847302ce0dc5cf2"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/configuracao"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
               >
-                <span>Desbloquear com Premium</span>
+                <span>Desbloquear com Plano Ultra</span>
                 <span className="material-symbols-outlined text-xs">arrow_forward</span>
               </a>
             </div>

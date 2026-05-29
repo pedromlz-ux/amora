@@ -1,27 +1,29 @@
 ---
-page: recursos
+page: sobrenos
 ---
-A professional clinical resources dashboard containing 4 interactive nutrition and health tools in a clean grid layout.
+A stunning, high-converting "Sobre Nós" (About Us) landing page for Amora, showcasing the platform's vision, clinical clean-tech mission, values, and core pillars in a highly premium, aesthetic layout.
 
 **DESIGN SYSTEM (REQUIRED):**
 When generating pages for the Amora ecosystem:
 - Keep the sidebar navigation exactly matching the structure:
   - Header: Logo, title "Pedro Miguel's Works...", subtitle "personal-pedro-miguel-DM...".
-  - Section "Construir": Active link "Builder".
-  - Section "Aprender": Links "Eventos", "Aulas", "Comunidade".
+  - Section "Construir": Link "Builder"
+  - Section "Aprender": Links "Eventos", "Aulas", "Comunidade", and a link for "Sobre Nós" pointing to "sobrenos.html" or "sobrenos" with a high-contrast hover state.
   - Footer: Theme Toggle button, "Free Plan" badge, user profile card for Pedro Miguel.
 - Maintain the same color tokens (purple accents, slate borders, clean canvas backgrounds).
 - Generate a clean card layout for content, ensuring it looks spacious and matches the layout structure of index.html.
 - Platform: Web, Desktop-first
-- Theme: Light and Dark mode support, professional, minimal, clinical
+- Theme: Light and Dark mode support, professional, minimal, clinical, biotech
 - Background: Off-White/Soft Gray (#F9FAFB) for light, Near Black (#0A0A0B) for dark
 - Primary Accent: Royal Purple (#7C3AED) for active states and primary buttons
-- Cards: Soft rounded corners (12px to 24px), white/charcoal fill, subtle borders (#E5E7EB)
+- Secondary Accent: Vibrant Orange (#EA580C) for highlights
+- Typography: Geist/Inter sans-serif
 
 **Page Structure:**
-1. **Header:** Title "Recursos Profissionais", subtitle "Ferramentas clínicas e calculadoras nutricionais para o seu dia a dia."
-2. **Main Content Grid:** A 2x2 grid layout containing 4 distinct tool cards:
-   - **Card 1 (Calculadora de IMC):** Clean form with inputs for "Peso (kg)" and "Altura (cm)", and a primary purple button "Calcular IMC". Include a placeholder result area.
-   - **Card 2 (Tabela TACO):** Search input with a magnifying glass icon for "Buscar alimento...", a dropdown for portion size, and a small results table placeholder.
-   - **Card 3 (Montador de Dietas):** A mini drag-and-drop timeline or list interface representing meals (e.g., "Café da manhã", "Almoço") with "+ Adicionar item" buttons.
-   - **Card 4 (Análise de Exames):** A dashed-border drag-and-drop zone saying "Arraste exames laboratoriais ou bioimpedância (PDF)", with an AI sparkle icon suggesting intelligent interpretation.
+1. **Hero Section:** A breathtaking introduction to Amora. A bold, emotional headline about transforming clinical research, biotech exploration, and education. Glowing abstract illustration or layout with a central value proposition and smooth animations.
+2. **Pillars / Tech Stack Cards:** A gorgeous grid showing our three pillars:
+   - **Clínica de Precisão (Precision Clinical Care):** Precision tools like BMI, TDEE, and macro planning.
+   - **IA Preditiva (Predictive AI):** Cutting-edge biomass analysis and exams insights.
+   - **Educação e Comunidade (Education & Community):** Fostering collaboration, classes, and forums.
+3. **Mission, Vision, and Values Block:** A sophisticated layout with interactive tabs or cards explaining our commitment to LGPD, data safety, and medical-grade standards.
+4. **Call to Action (CTA):** A beautiful glowing banner inviting clinical professionals to join Amora and start building a better patient experience today.
