@@ -316,7 +316,9 @@ export default function Page() {
         {/* Footer */}
         <div className="px-4 pt-4 border-t border-gray-200 dark:border-[#27272A] space-y-4">
           <div className="px-2">
-            {userProfile?.plan?.toLowerCase() === 'ultra' ? (
+            {userProfile?.plan?.toLowerCase() === 'admin' ? (
+              <span className="inline-block px-2.5 py-1 rounded bg-amber-500 text-black font-label-sm text-xs shadow-[0_0_15px_rgba(245,158,11,0.6)] border border-amber-400 font-bold uppercase tracking-wider animate-pulse">ADM</span>
+            ) : userProfile?.plan?.toLowerCase() === 'ultra' ? (
               <span className="inline-block px-2 py-1 rounded bg-blue-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(59,130,246,0.5)] border border-blue-400 dark:border-blue-500">Ultra Plan</span>
             ) : userProfile?.plan?.toLowerCase() === 'premium' ? (
               <span className="inline-block px-2 py-1 rounded bg-purple-600 text-white font-label-sm text-xs shadow-[0_0_15px_rgba(147,51,234,0.5)] border border-purple-400 dark:border-purple-500">Premium Plan</span>

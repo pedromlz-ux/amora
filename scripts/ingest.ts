@@ -55,6 +55,20 @@ async function processFile(filePath: string) {
   if (fileName.startsWith('.') || fileName.startsWith('~$')) return;
 
   try {
+    // Verificar se o arquivo já foi processado no Supabase
+    const { data: existing, error: checkError } = await supabase
+      .from('documents')
+      .select('id')
+      .eq('metadata->>file', fileName)
+      .limit(1);
+
+    if (checkError) {
+      console.warn(`Aviso ao verificar duplicata para ${fileName}:`, checkError.message);
+    } else if (existing && existing.length > 0) {
+      console.log(`Pula ${fileName}: já está no banco de dados.`);
+      return;
+    }
+
     if (ext === '.pdf') {
       const dataBuffer = fs.readFileSync(filePath);
       const data = await pdfParse(dataBuffer);
@@ -76,6 +90,10 @@ async function processFile(filePath: string) {
 
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
+      if (!chunk || !chunk.trim()) {
+        console.log(`[Pulo] Chunk vazio em ${fileName} na posição ${i+1}`);
+        continue;
+      }
       
       // Generate embedding using Gemini with robust retry logic
       let response;
@@ -84,7 +102,7 @@ async function processFile(filePath: string) {
       while (retries > 0) {
         try {
           response = await ai.models.embedContent({
-            model: 'text-embedding-004',
+            model: 'gemini-embedding-2',
             contents: chunk,
             config: { outputDimensionality: 768 }
           });
@@ -119,8 +137,8 @@ async function processFile(filePath: string) {
         console.error(`Erro ao inserir chunk ${i} de ${fileName}:`, error.message);
       }
 
-      // Adicionar delay base de 4 segundos (15 RPM max)
-      await sleep(4000);
+      // Adicionar delay base de 500 milissegundos
+      await sleep(500);
     }
     console.log(`✅ Concluído: ${fileName}`);
   } catch (err: any) {
