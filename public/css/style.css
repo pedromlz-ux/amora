@@ -358,11 +358,16 @@ img {
 }
 
 /* ---------- Hero ---------- */
+.hero-wrapper {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
 .hero {
   padding-top: calc(var(--header-height) + var(--space-3xl));
   padding-bottom: var(--space-3xl);
   position: relative;
-  overflow: hidden;
 }
 
 .hero-grid {
