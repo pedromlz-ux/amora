@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amora — Nutrição Clínica de Precisão e Prática Baseada em Evidências</title>
+    <meta name="description" content="Plataforma de nutrição clínica com IA, tabelas TACO/IBGE/USDA, calculadoras científicas e condutas baseadas em evidências para nutricionistas e estudantes.">
+    <meta name="keywords" content="nutrição clínica, nutrição de precisão, tabela TACO, IBGE, USDA, IA nutrição, dietoterapia, biomarcadores nutricionais">
+    <link rel="canonical" href="https://lpamora.hublumi.com/">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Amora — Nutrição Clínica de Precisão">
+    <meta property="og:description" content="Plataforma de nutrição clínica com IA, tabelas TACO/IBGE/USDA e condutas baseadas em evidências científicas.">
+    <meta property="og:url" content="https://lpamora.hublumi.com/">
+    <meta property="og:site_name" content="Amora">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Fonts: Satoshi + General Sans from Fontshare -->
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,800,900&f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+    <!-- Material Symbols for icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Structured Data: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Amora",
+      "applicationCategory": "HealthApplication",
+      "description": "Plataforma de nutrição clínica de precisão baseada em evidências científicas, com IA integrada para condutas dietoterápicas.",
+      "url": "https://lpamora.hublumi.com",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "BRL"
+      }
+    }
+    </script>
+</head>
+<body>
+
+<!-- ============ Header ============ -->
+<header class="site-header" role="banner">
+    <a href="/" class="header-logo" aria-label="Amora - Página inicial">
+        <img src="logo-black.svg" alt="Amora" width="120" height="34">
+    </a>
+
+    <nav class="header-nav" aria-label="Navegação principal">
+        <a href="funcionalidades.html">Funcionalidades</a>
+        <a href="precos.html">Preços</a>
+        <a href="blog/">Blog</a>
+        <a href="sobre.html">Sobre</a>
+    </nav>
+
+    <div class="header-actions">
+        <a href="https://amora.hublumi.com/cadastro" class="btn btn--primary btn--sm" id="cta-header">
+            <span>Área do Usuário</span>
+            <span class="material-symbols-outlined icon">arrow_forward</span>
+        </a>
+        <button class="mobile-toggle" aria-label="Abrir menu" aria-expanded="false">
+            <span class="material-symbols-outlined" style="font-size:1.5rem">menu</span>
+        </button>
+    </div>
+</header>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" role="dialog" aria-label="Menu de navegação">
+    <button class="mobile-close" aria-label="Fechar menu">
+        <span class="material-symbols-outlined" style="font-size:1.5rem">close</span>
+    </button>
+    <a href="funcionalidades.html">Funcionalidades</a>
+    <a href="precos.html">Preços</a>
+    <a href="blog/">Blog</a>
+    <a href="sobre.html">Sobre</a>
+    <a href="contato.html">Contato</a>
+    <a href="https://amora.hublumi.com/cadastro" class="btn btn--primary">Área do Usuário</a>
+</div>
+
+<main>
+
+<!-- ============ Hero Section ============ -->
+<section class="hero section container">
+    <div class="hero-glow hero-glow--1"></div>
+    <div class="hero-glow hero-glow--2"></div>
+
+    <div class="hero-grid">
+        <!-- Left: copywriting -->
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="material-symbols-outlined icon">school</span>
+                Para estudantes e profissionais de nutrição clínica
+            </div>
+
+            <h1>Decisão clínica baseada em <span>evidências sólidas</span>, não em suposições.</h1>
+
+            <p class="hero-description">
+                O Amora integra as bases da <strong>Fisiologia</strong>, <strong>Patologia</strong>,
+                <strong>Morfologia</strong> e <strong>Terapia Nutricional</strong>. Uma ferramenta robusta
+                para embasar suas condutas dietoterápicas com o rigor científico exigido pela prática clínica moderna.
+            </p>
+
+            <div class="hero-ctas">
+                <a href="#lead-form" class="btn btn--primary" id="cta-hero-primary">
+                    <span>Experimentar Grátis</span>
+                    <span class="material-symbols-outlined icon">arrow_forward</span>
+                </a>
+                <a href="funcionalidades.html" class="btn btn--outline" id="cta-hero-secondary">
+                    <span>Ver Funcionalidades</span>
+                </a>
+            </div>
+
+            <div class="hero-seals">
+                <div class="hero-seal">
+                    <div class="hero-seal-icon">
+                        <span class="material-symbols-outlined icon">menu_book</span>
+                    </div>
+                    <span>Guidelines Internacionais</span>
+                </div>
+                <div class="hero-seal">
+                    <div class="hero-seal-icon">
+                        <span class="material-symbols-outlined icon">biotech</span>
+                    </div>
+                    <span>Rigor Científico</span>
+                </div>
+                <div class="hero-seal">
+                    <div class="hero-seal-icon">
+                        <span class="material-symbols-outlined icon">verified</span>
+                    </div>
+                    <span>Tabela TACO Oficial</span>
+                </div>
+                <div class="hero-seal">
+                    <div class="hero-seal-icon">
+                        <span class="material-symbols-outlined icon">auto_awesome</span>
+                    </div>
+                    <span>Assistente com IA</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Lead Capture Form -->
+        <div class="hero-form-card" id="lead-form">
+            <h3>Acesse a Plataforma</h3>
+            <p class="form-subtitle">Registre-se e receba acesso imediato para embasar suas condutas.</p>
+
+            <form id="lead-form-el">
+                <div class="form-group">
+                    <label class="form-label" for="input-name">Nome Completo</label>
+                    <div class="form-input-wrap">
+                        <span class="material-symbols-outlined icon">person</span>
+                        <input type="text" id="input-name" name="name" required placeholder="Ex: Dra. Maria Silva" class="form-input" autocomplete="name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="input-email">E-mail Profissional</label>
+                    <div class="form-input-wrap">
+                        <span class="material-symbols-outlined icon">mail</span>
+                        <input type="email" id="input-email" name="email" required placeholder="exemplo@clinica.com" class="form-input" autocomplete="email">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="input-phone">WhatsApp / Telefone</label>
+                    <div class="form-input-wrap">
+                        <span class="material-symbols-outlined icon">call</span>
+                        <input type="tel" id="input-phone" name="phone" required placeholder="(11) 99999-9999" class="form-input" autocomplete="tel">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn--primary" style="width:100%;justify-content:center;margin-top:var(--space-sm)" id="cta-form-submit">
+                    <span>Experimentar Amora Grátis</span>
+                    <span class="material-symbols-outlined icon">arrow_forward</span>
+                </button>
+            </form>
+
+            <p class="form-legal">
+                Seus dados estão protegidos em conformidade com a LGPD e nossas políticas de privacidade.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- ============ Scientific Focus Areas ============ -->
+<section class="section bg-white" id="ciencias" style="border-top:1px solid var(--neutral-100);border-bottom:1px solid var(--neutral-100)">
+    <div class="container">
+        <div class="section-header centered reveal">
+            <p class="kicker">Ciência da composição à conduta</p>
+            <h2>O alicerce científico para embasar sua prescrição</h2>
+            <p>Desenvolvido com foco nos pilares acadêmicos e teóricos da nutrição clínica avançada.</p>
+        </div>
+
+        <div class="card-grid card-grid--4">
+            <div class="card reveal reveal-delay-1">
+                <div class="card-icon card-icon--brand">
+                    <span class="material-symbols-outlined icon">biotech</span>
+                </div>
+                <h3>Foco em Patologia</h3>
+                <p>Interpretação e metas específicas para agravos metabólicos como Diabetes Mellitus, nefropatias, hepatopatias e oncologia clínica.</p>
+            </div>
+
+            <div class="card reveal reveal-delay-2">
+                <div class="card-icon card-icon--brand">
+                    <span class="material-symbols-outlined icon">pulse_alert</span>
+                </div>
+                <h3>Fisiologia Humana</h3>
+                <p>Integre fórmulas validadas de TDEE e gasto energético para ajustar o metabolismo energético do paciente de forma exata.</p>
+            </div>
+
+            <div class="card reveal reveal-delay-3">
+                <div class="card-icon card-icon--brand">
+                    <span class="material-symbols-outlined icon">boy</span>
+                </div>
+                <h3>Morfologia Aplicada</h3>
+                <p>Classificação da composição corporal, antropometria e monitoramento de compartimentos musculares e adiposos.</p>
+            </div>
+
+            <div class="card reveal reveal-delay-4">
+                <div class="card-icon card-icon--brand">
+                    <span class="material-symbols-outlined icon">clinical_notes</span>
+                </div>
+                <h3>Terapia Dietoterápica</h3>
+                <p>Prescrições baseadas nas recomendações mais atuais de consensos de terapia nutricional enteral e parenteral.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ Platform Features ============ -->
+<section class="section" id="recursos">
+    <div class="container">
+        <div class="section-header centered reveal">
+            <p class="kicker">Recursos integrais</p>
+            <h2>Menos operacional, mais ciência.</h2>
+            <p>Ferramentas que automatizam a burocracia e deixam você focado na análise do paciente.</p>
+        </div>
+
+        <div class="card-grid card-grid--3">
+            <div class="card reveal reveal-delay-1">
+                <div class="card-icon card-icon--brand">
+                    <span class="material-symbols-outlined icon">nutrition</span>
+                </div>
+                <h3>Tabelas TACO, IBGE e USDA</h3>
+                <p>Crie planos alimentares com dados nutricionais validados por universidades brasileiras de ponta. Cálculo preciso de micronutrientes, aminoácidos e fibras em segundos.</p>
+            </div>
+
+            <div class="card reveal reveal-delay-2">
+                <div class="card-icon card-icon--accent">
+                    <span class="material-symbols-outlined icon">insights</span>
+                </div>
+                <h3>Calculadora de IMC e TDEE</h3>
+                <p>Obtenha instantaneamente o gasto energético total diário de acordo com as equações mais robustas da nutrição e classifique o IMC segundo a OMS.</p>
+            </div>
+
+            <div class="card reveal reveal-delay-3">
+                <div class="card-icon card-icon--brand">
+                    <span class="material-symbols-outlined icon">auto_awesome</span>
+                </div>
+                <h3>Assistente de Laudos por IA</h3>
+                <p>Envie exames laboratoriais e receba um resumo preditivo com base em evidências clínicas, acelerando a interpretação diagnóstica inicial.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ Clinical Simulator ============ -->
+<section class="section bg-neutral" id="simulador" style="border-top:1px solid var(--neutral-100);border-bottom:1px solid var(--neutral-100)">
+    <div class="container">
+        <div class="simulator-grid">
+            <!-- Left: Interactive simulator -->
+            <div class="simulator-preview reveal">
+                <div class="simulator-bar">
+                    <div class="simulator-bar-left">
+                        <div class="simulator-dot"></div>
+                        <span>Simulador de Terapia Nutricional</span>
+                    </div>
+                    <span class="sim-badge">Fórmula Científica</span>
+                </div>
+
+                <div class="sim-metrics">
+                    <div class="sim-metric">
+                        <div class="sim-metric-label">Meta Proteica Recomendada</div>
+                        <div class="sim-metric-value" id="sim-proteina">0.8 g/kg</div>
+                    </div>
+                    <div class="sim-metric">
+                        <div class="sim-metric-label">Conduta Direcionada</div>
+                        <div class="sim-metric-value sim-metric-value--accent" id="sim-conduta">Doença Renal Crônica (Conservador)</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="sim-diagnostico">Selecione o Diagnóstico / Patologia</label>
+                    <select id="sim-diagnostico" class="sim-select">
+                        <option value="renal">Insuficiência Renal Crônica (Tratamento Conservador)</option>
+                        <option value="diabetes">Diabetes Mellitus Tipo 2 (Glicemia Descompensada)</option>
+                        <option value="hepatica">Insuficiência Hepática Crônica / Cirrose Hepática</option>
+                        <option value="esporte">Metabolismo Ativo / Hipertrofia & Ganho Muscular</option>
+                    </select>
+                </div>
+
+                <div class="sim-range-group">
+                    <div class="sim-range-label">
+                        <span>Peso Corporal Atual</span>
+                        <span id="label-peso">70 kg</span>
+                    </div>
+                    <input type="range" min="40" max="150" value="70" id="range-peso">
+                </div>
+            </div>
+
+            <!-- Right: Copywriting -->
+            <div class="reveal">
+                <p class="kicker">Condutas com base em evidência</p>
+                <h2 style="margin-bottom:var(--space-lg)">Alinhe diretrizes clínicas instantaneamente.</h2>
+                <p style="font-size:0.9375rem;line-height:1.8">
+                    Com o Amora, você não precisa ficar recorrendo a PDFs extensos de consensos a cada atendimento. Nossa interface ajusta as faixas terapêuticas ideais de macro e micronutrientes automaticamente, dependendo da fisiopatologia selecionada, garantindo total segurança no seu raciocínio clínico.
+                </p>
+                <div style="margin-top:var(--space-xl)">
+                    <a href="#lead-form" class="btn btn--primary" id="cta-simulator">
+                        <span>Garantir Meu Acesso</span>
+                        <span class="material-symbols-outlined icon">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ Testimonials ============ -->
+<section class="section" id="depoimentos">
+    <div class="container">
+        <div class="section-header centered reveal">
+            <p class="kicker">Compartilhado por quem vive a prática</p>
+            <h2>O que dizem os especialistas da área</h2>
+        </div>
+
+        <div class="card-grid card-grid--2">
+            <div class="testimonial reveal reveal-delay-1">
+                <blockquote>
+                    "O Amora mudou drasticamente a forma como oriento as condutas em minha residência médica em nutrição clínica. A integração direta dos macronutrientes recomendados com as patologias dos pacientes baseada nas diretrizes internacionais é fantástica!"
+                </blockquote>
+                <div class="testimonial-author">
+                    <img src="https://ui-avatars.com/api/?name=Leticia+Lima&background=7e22ce&color=fff&size=80&bold=true" alt="Dra. Letícia Lima" width="40" height="40" loading="lazy">
+                    <div>
+                        <h4>Dra. Letícia Lima</h4>
+                        <p>Nutricionista Clínica em Terapia Intensiva</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial reveal reveal-delay-2">
+                <blockquote>
+                    "Como estudante avançado, o Amora serve de base para meus estudos de caso e avaliações de antropometria. Usar as fontes de evidência oficiais integradas a um laudo clínico profissional facilitou demais a minha rotina prática."
+                </blockquote>
+                <div class="testimonial-author">
+                    <img src="https://ui-avatars.com/api/?name=Lucas+Ferrari&background=4f46e5&color=fff&size=80&bold=true" alt="Lucas Ferrari" width="40" height="40" loading="lazy">
+                    <div>
+                        <h4>Lucas Ferrari</h4>
+                        <p>Estudante de Nutrição Clínica & Pesquisador</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ Blog Preview ============ -->
+<section class="section bg-neutral" style="border-top:1px solid var(--neutral-100)">
+    <div class="container">
+        <div class="section-header centered reveal">
+            <p class="kicker">Blog Amora</p>
+            <h2>Artigos sobre Nutrição Clínica</h2>
+            <p>Conteúdos científicos produzidos pela equipe editorial para manter você atualizado.</p>
+        </div>
+
+        <div class="blog-grid">
+            <a href="blog/biomarcadores-nutricionais.html" class="blog-card reveal reveal-delay-1">
+                <img src="https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&w=800&q=80" alt="Biomarcadores nutricionais em análise laboratorial" class="blog-card-image" width="800" height="200" loading="lazy">
+                <div class="blog-card-body">
+                    <div class="blog-card-meta">
+                        <span class="blog-card-category">Nutrição Clínica</span>
+                        <span class="blog-card-time">18 Min Leitura</span>
+                    </div>
+                    <h3>Avanços em Biomarcadores Nutricionais para Terapias Personalizadas</h3>
+                    <p>Uma análise das metodologias emergentes de sequenciamento que estão redefinindo a precisão diagnóstica em intervenções dietéticas clínicas.</p>
+                </div>
+            </a>
+
+            <a href="blog/api-saude-clinica.html" class="blog-card reveal reveal-delay-2">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80" alt="Dashboard de integração de APIs de saúde clínica" class="blog-card-image" width="800" height="200" loading="lazy">
+                <div class="blog-card-body">
+                    <div class="blog-card-meta">
+                        <span class="blog-card-category">Health Tech</span>
+                        <span class="blog-card-time">14 Min Leitura</span>
+                    </div>
+                    <h3>Integração de APIs de Saúde em Protocolos Clínicos</h3>
+                    <p>Como a padronização de dados FHIR está acelerando a interoperabilidade entre plataformas de nutrição e registros eletrônicos.</p>
+                </div>
+            </a>
+        </div>
+
+        <div style="text-align:center;margin-top:var(--space-xl)" class="reveal">
+            <a href="blog/" class="btn btn--outline" id="cta-blog">
+                <span>Ver Todos os Artigos</span>
+                <span class="material-symbols-outlined icon">arrow_forward</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ============ CTA Banner ============ -->
+<section class="section--tight">
+    <div class="container">
+        <div class="cta-banner reveal">
+            <div class="cta-grid-overlay"></div>
+            <h2>Leve rigor científico de ponta para seus atendimentos.</h2>
+            <p>Junte-se a nutricionistas e estudantes que utilizam a precisão do Amora para embasar diagnósticos e planejamentos dietoterápicos diariamente.</p>
+            <a href="#lead-form" class="btn btn--white" id="cta-bottom">
+                <span>Começar de Graça Agora</span>
+                <span class="material-symbols-outlined icon">arrow_forward</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- ============ Footer ============ -->
+<footer class="site-footer" role="contentinfo">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <img src="logo-horizontal.svg" alt="Amora" width="160" height="44" loading="lazy">
+                <p>Nutrição clínica de precisão e prática baseada em evidências. Ferramenta para nutricionistas e estudantes que exigem rigor científico.</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Plataforma</h4>
+                <a href="funcionalidades.html">Funcionalidades</a>
+                <a href="precos.html">Preços</a>
+                <a href="blog/">Blog</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Empresa</h4>
+                <a href="sobre.html">Sobre Nós</a>
+                <a href="contato.html">Contato</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <a href="#">Termos de Uso</a>
+                <a href="#">Política de Privacidade</a>
+                <a href="#">LGPD</a>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <span>© 2026 Amora Inc. Todos os direitos reservados.</span>
+            <span>Nutrição e Biotecnologia Baseada em Evidências</span>
+        </div>
+    </div>
+</footer>
+
+<!-- ============ Success Modal ============ -->
+<div class="modal-overlay" id="success-modal" role="dialog" aria-label="Cadastro realizado com sucesso">
+    <div class="modal-card">
+        <div class="modal-icon">
+            <span class="material-symbols-outlined icon">check_circle</span>
+        </div>
+        <h3>Acesso Liberado!</h3>
+        <p style="font-size:0.8125rem;color:var(--neutral-400);margin-top:var(--space-sm)">
+            Parabéns! Suas credenciais foram validadas. Redirecionando você para a plataforma...
+        </p>
+        <div class="modal-redirect">
+            <div class="dot"></div>
+            <span>Redirecionando em instantes...</span>
+        </div>
+    </div>
+</div>
+
+<!-- Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Main JS -->
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursos Profissionais | Amora</title>
+    <meta name="description" content="Explore as calculadoras clínicas, Tabela TACO interativa, montador de dietas e simuladores nutricionais da Amora.">
+    <link rel="canonical" href="https://lpamora.hublumi.com/recursos.html">
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,800,900&f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Dedicated styling for Recursos page for stronger identity */
+        .recursos-hero {
+            background-color: var(--brand-900);
+            color: var(--neutral-50);
+            padding: var(--space-4xl) 0 var(--space-3xl);
+            position: relative;
+            overflow: hidden;
+            border-bottom-left-radius: 48px;
+            border-bottom-right-radius: 48px;
+        }
+        .recursos-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 80% 20%, oklch(0.60 0.20 280 / 0.4), transparent 50%);
+            pointer-events: none;
+        }
+        .recursos-hero h1 {
+            color: oklch(0.98 0.005 280);
+            max-width: 800px;
+        }
+        .recursos-hero p {
+            color: oklch(0.85 0.02 280);
+            font-size: 1.125rem;
+        }
+        .recursos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: var(--space-xl);
+            margin-top: calc(var(--space-3xl) * -0.5);
+            padding: 0 var(--space-lg);
+            position: relative;
+            z-index: 10;
+        }
+        .recurso-card {
+            background: oklch(0.995 0.002 280);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--neutral-200);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        .recurso-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 24px 48px oklch(0.20 0.005 280 / 0.12);
+            border-color: var(--brand-300);
+        }
+        .recurso-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: var(--brand-600);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        .recurso-card:hover::after {
+            transform: scaleX(1);
+        }
+        .recurso-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--brand-50);
+            color: var(--brand-700);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        .recurso-card h3 {
+            margin: 0;
+            color: var(--neutral-900);
+        }
+        .recurso-card p {
+            margin: 0;
+            font-size: 0.9375rem;
+            flex: 1;
+        }
+        .magnetic-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--brand-600);
+            font-weight: 700;
+            font-size: 0.875rem;
+            margin-top: var(--space-md);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .magnetic-btn:hover {
+            color: var(--brand-800);
+        }
+        .magnetic-btn .material-symbols-outlined {
+            transition: transform 0.2s;
+        }
+        .magnetic-btn:hover .material-symbols-outlined {
+            transform: translateX(4px);
+        }
+    </style>
+</head>
+<body>
+
+<header class="site-header" role="banner" style="background: oklch(0.995 0.002 280 / 0.1); border-color: oklch(1 0 0 / 0.1); backdrop-filter: blur(24px);">
+    <a href="index.html" class="header-logo" aria-label="Amora - Página inicial">
+        <img src="logo-white.svg" alt="Amora" width="120" height="34" id="nav-logo" style="filter: brightness(0) invert(1);">
+    </a>
+    <nav class="header-nav" aria-label="Navegação principal">
+        <a href="funcionalidades.html" style="color: white;">Funcionalidades</a>
+        <a href="precos.html" style="color: white;">Preços</a>
+        <a href="blog/" style="color: white;">Blog</a>
+        <a href="sobre.html" style="color: white;">Sobre</a>
+    </nav>
+    <div class="header-actions">
+        <a href="https://amora.hublumi.com/cadastro" class="btn btn--white btn--sm">
+            <span>Acessar Amora</span>
+            <span class="material-symbols-outlined icon">arrow_forward</span>
+        </a>
+        <button class="mobile-toggle" aria-label="Abrir menu" style="color: white;">
+            <span class="material-symbols-outlined" style="font-size:1.5rem">menu</span>
+        </button>
+    </div>
+</header>
+
+<main>
+    <section class="recursos-hero reveal">
+        <div class="container text-center" style="display:flex; flex-direction:column; align-items:center;">
+            <span style="background: oklch(1 0 0 / 0.1); padding: 4px 12px; border-radius: 99px; font-size: 0.875rem; font-weight: 600; margin-bottom: var(--space-md); border: 1px solid oklch(1 0 0 / 0.2);">Toolkit Nutricional Avançado</span>
+            <h1 style="margin-bottom: var(--space-md);">Recursos Profissionais</h1>
+            <p>Acesse ferramentas precisas de cálculo, prescrição e avaliação. O ecossistema completo para a prática clínica baseada em evidências, unificado em uma única plataforma.</p>
+        </div>
+    </section>
+
+    <div class="container" style="max-width: 1100px;">
+        <div class="recursos-grid">
+            
+            <div class="recurso-card reveal reveal-delay-1">
+                <div class="recurso-icon">
+                    <span class="material-symbols-outlined">monitor_weight</span>
+                </div>
+                <h3>Calculadora de IMC e TMB</h3>
+                <p>Avaliação antropométrica instantânea. Calcule IMC e Taxa Metabólica Basal com precisão, ajustado por faixa etária e fórmulas validadas (Mifflin, Harris-Benedict, FAO).</p>
+                <a href="https://amora.hublumi.com/cadastro" class="magnetic-btn">
+                    Experimentar <span class="material-symbols-outlined">arrow_right_alt</span>
+                </a>
+            </div>
+
+            <div class="recurso-card reveal reveal-delay-2">
+                <div class="recurso-icon">
+                    <span class="material-symbols-outlined">science</span>
+                </div>
+                <h3>Tabela TACO Integrada</h3>
+                <p>Busca rápida em toda a base da Tabela Brasileira de Composição de Alimentos. Macros e micronutrientes exatos sem precisar folhear PDFs gigantes.</p>
+                <a href="https://amora.hublumi.com/cadastro" class="magnetic-btn">
+                    Experimentar <span class="material-symbols-outlined">arrow_right_alt</span>
+                </a>
+            </div>
+
+            <div class="recurso-card reveal reveal-delay-3">
+                <div class="recurso-icon">
+                    <span class="material-symbols-outlined">restaurant_menu</span>
+                </div>
+                <h3>Montador de Dieta Inteligente</h3>
+                <p>Construa planos alimentares refeição por refeição. Acompanhamento visual de macros (Carb, Prot, Fat) e calorias preenchendo as metas em tempo real.</p>
+                <a href="https://amora.hublumi.com/cadastro" class="magnetic-btn">
+                    Experimentar <span class="material-symbols-outlined">arrow_right_alt</span>
+                </a>
+            </div>
+
+            <div class="recurso-card reveal reveal-delay-4">
+                <div class="recurso-icon">
+                    <span class="material-symbols-outlined">medical_information</span>
+                </div>
+                <h3>Simulador de Terapia Nutricional</h3>
+                <p>Cruze exames laboratoriais com diagnósticos complexos (ex: doença renal, diabetes). A IA sugere ajustes vitais no plano alimentar antes da prescrição.</p>
+                <a href="https://amora.hublumi.com/cadastro" class="magnetic-btn">
+                    Experimentar <span class="material-symbols-outlined">arrow_right_alt</span>
+                </a>
+            </div>
+
+            <div class="recurso-card reveal reveal-delay-5">
+                <div class="recurso-icon">
+                    <span class="material-symbols-outlined">water_drop</span>
+                </div>
+                <h3>Protocolo de Hidratação</h3>
+                <p>Prescrição hídrica automatizada baseada em peso, nível de atividade física e clima. Ajuste o balanço hídrico do seu paciente com um clique.</p>
+                <a href="https://amora.hublumi.com/cadastro" class="magnetic-btn">
+                    Experimentar <span class="material-symbols-outlined">arrow_right_alt</span>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+    
+    <section class="section--spacious reveal">
+        <div class="container text-center" style="background: var(--neutral-50); padding: var(--space-3xl); border-radius: var(--radius-xl); border: 1px solid var(--neutral-200);">
+            <h2 style="margin-bottom: var(--space-md);">Pronto para elevar o nível das suas consultas?</h2>
+            <p style="margin: 0 auto var(--space-xl); max-width: 500px;">Junte-se aos profissionais de saúde que estão automatizando cálculos manuais e focando na relação com o paciente.</p>
+            <a href="https://amora.hublumi.com/cadastro" class="btn btn--primary" style="font-size: 1.125rem; padding: 1rem 2rem;">Criar minha conta gratuita</a>
+        </div>
+    </section>
+
+</main>
+
+<footer class="site-footer" role="contentinfo">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <img src="logo-horizontal.svg" alt="Amora" width="160" height="44" loading="lazy">
+                <p>Nutrição clínica de precisão e prática baseada em evidências.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Plataforma</h4>
+                <a href="funcionalidades.html">Funcionalidades</a>
+                <a href="precos.html">Preços</a>
+                <a href="recursos.html">Recursos Profissionais</a>
+                <a href="blog/">Blog</a>
+            </div>
+            <div class="footer-col">
+                <h4>Empresa</h4>
+                <a href="sobre.html">Sobre Nós</a>
+                <a href="contato.html">Contato</a>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <a href="#">Termos de Uso</a>
+                <a href="#">Política de Privacidade</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 Amora Inc. Todos os direitos reservados.</span>
+            <span>Nutrição e Biotecnologia Baseada em Evidências</span>
+        </div>
+    </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+    // Adjust header on scroll for the dark hero
+    window.addEventListener('scroll', () => {
+        const header = document.querySelector('.site-header');
+        const logo = document.getElementById('nav-logo');
+        const links = document.querySelectorAll('.header-nav a, .mobile-toggle');
+        if (window.scrollY > 100) {
+            header.style.background = 'oklch(0.995 0.002 280 / 0.85)';
+            header.style.borderColor = 'var(--neutral-200)';
+            logo.style.filter = 'none';
+            links.forEach(l => l.style.color = 'var(--neutral-900)');
+        } else {
+            header.style.background = 'oklch(0.995 0.002 280 / 0.1)';
+            header.style.borderColor = 'oklch(1 0 0 / 0.1)';
+            logo.style.filter = 'brightness(0) invert(1)';
+            links.forEach(l => l.style.color = 'white');
+        }
+    });
+</script>
+</body>
+</html>

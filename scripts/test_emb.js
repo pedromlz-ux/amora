@@ -1,6 +1,7 @@
 const { GoogleGenAI } = require('@google/genai');
 
-const geminiApiKey = "AIzaSyAAWT1D0RLwjxoVnB4aar7EMrubHUBzKaI";
+require('dotenv').config({ path: '.env.local' });
+const geminiApiKey = process.env.GEMINI_API_KEY;
 const ai = new GoogleGenAI({ apiKey: geminiApiKey });
 
 async function testEmbedding() {

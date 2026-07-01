@@ -117,7 +117,7 @@ ${contextString || "Nenhuma informação relevante encontrada na memória local 
     // Inserimos a instrução de sistema na primeira mensagem (ou configuramos no modelo)
     // Usando Gemini 2.5 Flash apenas com a base local
     const responseStream = await ai.models.generateContentStream({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash-lite',
       contents: contents,
       config: {
         systemInstruction: { parts: [{ text: systemInstruction }] }

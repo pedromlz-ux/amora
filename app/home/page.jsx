@@ -278,6 +278,7 @@ export default function Page() {
             // Supabase Chat History state and logic
             let activeChatId = null;
             let chatsList = [];
+            let showAllChats = false;
             let currentUser = null;
 
             // Fetch current user and load their chats
@@ -315,7 +316,9 @@ export default function Page() {
                     return;
                 }
 
-                listContainer.innerHTML = chatsList.map(chat => {
+                const visibleChats = showAllChats ? chatsList : chatsList.slice(0, 3);
+
+                let html = visibleChats.map(chat => {
                     const isActive = chat.id === activeChatId;
                     const activeClass = isActive 
                         ? "bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 font-medium" 
@@ -335,6 +338,17 @@ export default function Page() {
                     `;
                 }).join('');
 
+                if (chatsList.length > 3) {
+                    html += `
+                        <button type="button" id="btn-toggle-chats" class="w-full text-center py-2 text-xs font-semibold text-purple-700 dark:text-purple-400 hover:underline transition-colors mt-1 select-none flex items-center justify-center gap-1 cursor-pointer">
+                            <span>${showAllChats ? "Ver menos" : "Ver mais"}</span>
+                            <svg class="transition-transform duration-200 ${showAllChats ? "rotate-180" : ""}" fill="none" height="12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="12" xmlns="http://www.w3.org/2000/svg"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                    `;
+                }
+
+                listContainer.innerHTML = html;
+
                 // Attach click listeners to loaded chat items and delete buttons
                 listContainer.querySelectorAll('[data-chat-id]').forEach(item => {
                     item.addEventListener("click", () => {
@@ -346,10 +360,21 @@ export default function Page() {
                 listContainer.querySelectorAll('.btn-delete-chat').forEach(btn => {
                     btn.addEventListener("click", (e) => {
                         e.stopPropagation();
+                        e.preventDefault();
                         const chatId = btn.getAttribute("data-id");
                         deleteChatSession(chatId);
                     });
                 });
+
+                const toggleBtn = document.getElementById("btn-toggle-chats");
+                if (toggleBtn) {
+                    toggleBtn.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        showAllChats = !showAllChats;
+                        renderChatsList();
+                    });
+                }
             }
 
             async function selectChatSession(chatId) {
@@ -368,6 +393,95 @@ export default function Page() {
                 renderChatsList();
             }
 
+            function appendStaticAIMessage(responseText, isLastInHistory = false) {
+                const aiMsg = document.createElement("div");
+                aiMsg.className = "flex items-start gap-4";
+                const logoSrc = htmlEl.classList.contains("dark") ? ASSETS.dark.sidebarLogo : ASSETS.light.sidebarLogo;
+
+                let styled = responseText.replace(/\n/g, '<br/>');
+                styled = styled.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-purple-700 dark:text-purple-400">$1</strong>');
+
+                const subChatId = 'sub-chat-hist-' + Math.random().toString(36).substring(2, 9);
+
+                aiMsg.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-sm">
+                        <img class="w-full h-full object-contain" src="${logoSrc}"/>
+                    </div>
+                    <div class="flex-grow flex flex-col gap-4">
+                        <div class="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-[20px] rounded-tl-[4px] p-5 text-sm leading-relaxed shadow-sm font-light text-gray-800 dark:text-gray-200 space-y-4">
+                            <p class="typing-text-block">${styled}</p>
+                        </div>
+                        
+                        <!-- Sub-chat box under the response (only shown if it is the last message or part of history setup) -->
+                        <div class="w-full bg-white dark:bg-[#18181B] rounded-[16px] border border-gray-200 dark:border-[#27272A] shadow-sm overflow-hidden transition-all duration-300 focus-within:ring-1 focus-within:ring-purple-700 dark:focus-within:ring-purple-400 focus-within:border-purple-700 dark:focus-within:border-purple-400 relative ${isLastInHistory ? '' : 'hidden'}">
+                            <input type="file" id="uploader-${subChatId}" class="hidden" accept="image/*,application/pdf" />
+                            <div id="badge-${subChatId}" class="px-4 pt-3 hidden flex flex-wrap gap-2"></div>
+                            <div class="flex items-center px-4 py-2 gap-2">
+                                <input type="text" id="input-${subChatId}" class="flex-1 bg-transparent border-none p-2 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-0 font-light" placeholder="Responder à Amora..." />
+                                <button id="attach-${subChatId}" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-pointer" title="Anexar arquivo">
+                                    <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                                </button>
+                                <button id="send-${subChatId}" class="w-8 h-8 rounded-full flex items-center justify-center bg-purple-700 dark:bg-purple-400 text-white dark:text-gray-900 hover:opacity-90 transition-all active:scale-95 shadow-sm shrink-0">
+                                    <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(aiMsg);
+
+                if (isLastInHistory) {
+                    // Set up event listeners for this historical chat input box
+                    setTimeout(() => {
+                        const subInput = document.getElementById(`input-${subChatId}`);
+                        const subSend = document.getElementById(`send-${subChatId}`);
+                        const subAttach = document.getElementById(`attach-${subChatId}`);
+                        const subUploader = document.getElementById(`uploader-${subChatId}`);
+                        const subBadge = document.getElementById(`badge-${subChatId}`);
+                        let subAttachedFile = null;
+
+                        if (subAttach && subUploader) {
+                            subAttach.addEventListener("click", () => subUploader.click());
+                            subUploader.addEventListener("change", (e) => {
+                                if (e.target.files.length > 0) {
+                                    subAttachedFile = e.target.files[0];
+                                    subBadge.innerHTML = `
+                                        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800 text-[10px] font-medium">
+                                            ${subAttachedFile.name}
+                                            <button id="remove-${subChatId}" class="ml-1 text-purple-400 hover:text-purple-600 dark:hover:text-purple-200 font-bold">×</button>
+                                        </div>
+                                    `;
+                                    subBadge.classList.remove("hidden");
+                                    document.getElementById(`remove-${subChatId}`).addEventListener("click", () => {
+                                        subAttachedFile = null;
+                                        subBadge.classList.add("hidden");
+                                        subBadge.innerHTML = "";
+                                        subUploader.value = "";
+                                    });
+                                }
+                            });
+                        }
+
+                        const triggerSubSend = () => {
+                            const val = subInput.value.trim();
+                            if (!val && !subAttachedFile) return;
+                            subInput.closest('.w-full').classList.add('hidden');
+                            handleSend(val, subAttachedFile, subBadge, subUploader);
+                        };
+
+                        if (subSend && subInput) {
+                            subSend.addEventListener("click", triggerSubSend);
+                            subInput.addEventListener("keydown", (e) => {
+                                if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    triggerSubSend();
+                                }
+                            });
+                        }
+                    }, 50);
+                }
+            }
+
             function renderChatHistory() {
                 if (!chatMessages) return;
                 
@@ -381,11 +495,12 @@ export default function Page() {
                 if (emptyState) emptyState.classList.add("hidden");
                 chatMessages.classList.remove("hidden");
 
-                chatHistory.forEach(msg => {
+                chatHistory.forEach((msg, idx) => {
                     if (msg.role === 'user') {
                         appendUserMessage(msg.content, null);
                     } else if (msg.role === 'model') {
-                        appendStaticAIMessage(msg.content);
+                        const isLast = idx === chatHistory.length - 1;
+                        appendStaticAIMessage(msg.content, isLast);
                     }
                 });
             }
@@ -489,24 +604,7 @@ export default function Page() {
                 userMsg.scrollIntoView({ behavior: "smooth" });
             }
 
-            function appendStaticAIMessage(responseText) {
-                const aiMsg = document.createElement("div");
-                aiMsg.className = "flex items-start gap-4";
-                const logoSrc = htmlEl.classList.contains("dark") ? ASSETS.dark.sidebarLogo : ASSETS.light.sidebarLogo;
 
-                let styled = responseText.replace(/\n/g, '<br/>');
-                styled = styled.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-purple-700 dark:text-purple-400">$1</strong>');
-
-                aiMsg.innerHTML = `
-                    <div class="w-8 h-8 rounded-full bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-sm">
-                        <img class="w-full h-full object-contain" src="${logoSrc}"/>
-                    </div>
-                    <div class="flex-1 bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-[20px] rounded-tl-[4px] p-5 text-sm leading-relaxed shadow-sm font-light text-gray-800 dark:text-gray-200 space-y-4">
-                        <p class="typing-text-block">${styled}</p>
-                    </div>
-                `;
-                chatMessages.appendChild(aiMsg);
-            }
 
             function appendAIMessageWithTyping(responseText) {
                 const aiMsg = document.createElement("div");
@@ -572,9 +670,14 @@ export default function Page() {
                 thinkingMsg.scrollIntoView({ behavior: "smooth" });
             }
 
-            async function handleSend() {
-                const text = textarea.value.trim();
-                if (!text && !attachedFile) return;
+
+
+            // Function to handle send actions from either the main chat box or the response-nested chat inputs
+            async function handleSend(customText = null, customFile = null, customBadgeContainer = null, customFileUploader = null) {
+                const text = customText !== null ? customText.trim() : textarea.value.trim();
+                const currentAttachedFile = customFile !== null ? customFile : attachedFile;
+                
+                if (!text && !currentAttachedFile) return;
 
                 // Check saved chats limit for Free plan (max 3 chats)
                 if (!activeChatId && currentUser) {
@@ -588,15 +691,18 @@ export default function Page() {
                 if (emptyState) emptyState.classList.add("hidden");
                 chatMessages.classList.remove("hidden");
 
-                const currentAttachedFile = attachedFile;
-                const msgContent = text || (currentAttachedFile ? `[Arquivo Anexado: ${currentAttachedFile.name}]` : "");
                 appendUserMessage(text || "Arquivo enviado", currentAttachedFile);
 
-                textarea.value = "";
-                attachedFile = null;
-                badgeContainer.classList.add("hidden");
-                badgeContainer.innerHTML = "";
-                fileUploader.value = "";
+                // Reset inputs
+                if (customText !== null) {
+                    // It's a nested input, we don't clear the main one
+                } else {
+                    textarea.value = "";
+                    attachedFile = null;
+                    badgeContainer.classList.add("hidden");
+                    badgeContainer.innerHTML = "";
+                    fileUploader.value = "";
+                }
 
                 let inlineData = null;
                 if (currentAttachedFile) {
@@ -615,7 +721,7 @@ export default function Page() {
                     });
                 }
 
-                const newMessage = { role: 'user', content: msgContent };
+                const newMessage = { role: 'user', content: text || (currentAttachedFile ? `[Arquivo Anexado: ${currentAttachedFile.name}]` : "") };
                 if (inlineData) {
                     newMessage.inlineData = inlineData;
                 }
@@ -678,12 +784,32 @@ export default function Page() {
                     aiMsg.className = "flex items-start gap-4";
                     const logoSrc = htmlEl.classList.contains("dark") ? ASSETS.dark.sidebarLogo : ASSETS.light.sidebarLogo;
 
+                    // Generate a unique ID for the sub-chat input
+                    const subChatId = 'sub-chat-' + Date.now();
+
                     aiMsg.innerHTML = `
                 <div class="w-8 h-8 rounded-full bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-sm">
                     <img class="w-full h-full object-contain" src="${logoSrc}"/>
                 </div>
-                <div class="flex-1 bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-[20px] rounded-tl-[4px] p-5 text-sm leading-relaxed shadow-sm font-light text-gray-800 dark:text-gray-200 space-y-4">
-                    <p class="typing-text-block"></p>
+                <div class="flex-grow flex flex-col gap-4">
+                    <div class="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-[20px] rounded-tl-[4px] p-5 text-sm leading-relaxed shadow-sm font-light text-gray-800 dark:text-gray-200 space-y-4">
+                        <p class="typing-text-block"></p>
+                    </div>
+                    
+                    <!-- Sub-chat box under the response -->
+                    <div class="w-full bg-white dark:bg-[#18181B] rounded-[16px] border border-gray-200 dark:border-[#27272A] shadow-sm overflow-hidden transition-all duration-300 focus-within:ring-1 focus-within:ring-purple-700 dark:focus-within:ring-purple-400 focus-within:border-purple-700 dark:focus-within:border-purple-400 relative">
+                        <input type="file" id="uploader-${subChatId}" class="hidden" accept="image/*,application/pdf" />
+                        <div id="badge-${subChatId}" class="px-4 pt-3 hidden flex flex-wrap gap-2"></div>
+                        <div class="flex items-center px-4 py-2 gap-2">
+                            <input type="text" id="input-${subChatId}" class="flex-1 bg-transparent border-none p-2 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-0 font-light" placeholder="Responder à Amora..." />
+                            <button id="attach-${subChatId}" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-pointer" title="Anexar arquivo">
+                                <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                            </button>
+                            <button id="send-${subChatId}" class="w-8 h-8 rounded-full flex items-center justify-center bg-purple-700 dark:bg-purple-400 text-white dark:text-gray-900 hover:opacity-90 transition-all active:scale-95 shadow-sm shrink-0">
+                                <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             `;
                     chatMessages.appendChild(aiMsg);
@@ -712,6 +838,56 @@ export default function Page() {
                             .eq('id', activeChatId);
                     }
 
+                    // Attach logic to the sub-chat inputs dynamically
+                    const subInput = document.getElementById(`input-${subChatId}`);
+                    const subSend = document.getElementById(`send-${subChatId}`);
+                    const subAttach = document.getElementById(`attach-${subChatId}`);
+                    const subUploader = document.getElementById(`uploader-${subChatId}`);
+                    const subBadge = document.getElementById(`badge-${subChatId}`);
+                    let subAttachedFile = null;
+
+                    if (subAttach && subUploader) {
+                        subAttach.addEventListener("click", () => subUploader.click());
+                        subUploader.addEventListener("change", (e) => {
+                            if (e.target.files.length > 0) {
+                                subAttachedFile = e.target.files[0];
+                                subBadge.innerHTML = `
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800 text-[10px] font-medium">
+                                        ${subAttachedFile.name}
+                                        <button id="remove-${subChatId}" class="ml-1 text-purple-400 hover:text-purple-600 dark:hover:text-purple-200 font-bold">×</button>
+                                    </div>
+                                `;
+                                subBadge.classList.remove("hidden");
+                                document.getElementById(`remove-${subChatId}`).addEventListener("click", () => {
+                                    subAttachedFile = null;
+                                    subBadge.classList.add("hidden");
+                                    subBadge.innerHTML = "";
+                                    subUploader.value = "";
+                                });
+                            }
+                        });
+                    }
+
+                    const triggerSubSend = () => {
+                        const val = subInput.value.trim();
+                        if (!val && !subAttachedFile) return;
+                        
+                        // Hide this sub-chat box since we are submitting
+                        subInput.closest('.w-full').classList.add('hidden');
+                        
+                        handleSend(val, subAttachedFile, subBadge, subUploader);
+                    };
+
+                    if (subSend && subInput) {
+                        subSend.addEventListener("click", triggerSubSend);
+                        subInput.addEventListener("keydown", (e) => {
+                            if (e.key === "Enter") {
+                                e.preventDefault();
+                                triggerSubSend();
+                            }
+                        });
+                    }
+
                 } catch (error) {
                     const indicator = document.getElementById("thinking-indicator");
                     if (indicator) indicator.remove();
@@ -721,7 +897,7 @@ export default function Page() {
             }
 
             if (btnSend && textarea) {
-                btnSend.addEventListener("click", handleSend);
+                btnSend.addEventListener("click", () => handleSend());
 
                 textarea.addEventListener("keydown", (e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
@@ -955,7 +1131,7 @@ export default function Page() {
 <!-- SideNavBar Component -->
 <nav id="sidebar-nav"
     class="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
-    <a href="/" class="px-6 py-4 mb-4 flex items-center justify-center cursor-pointer decoration-none">
+    <a href="/home" class="px-6 py-4 mb-4 flex items-center justify-center cursor-pointer decoration-none">
         <img src="/logo-horizontal.svg" alt="Amora Logo" class="w-32 h-auto object-contain dark:invert" />
     </a>
 
@@ -967,7 +1143,7 @@ export default function Page() {
                 Aprender</p>
             <div class="space-y-1">
                 <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-purple-700 dark:text-purple-400 font-medium bg-purple-50 dark:bg-purple-900/20 transition-colors"
-                    href="/">
+                    href="/home">
                     <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round"
                         stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18"
                         xmlns="http://www.w3.org/2000/svg">

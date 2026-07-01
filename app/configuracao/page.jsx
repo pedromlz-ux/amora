@@ -502,7 +502,7 @@ export default function Page() {
     <!-- SideNavBar Component -->
     <nav id="sidebar-nav"
         class="h-screen w-64 fixed left-0 top-0 bg-white dark:bg-[#18181B] border-r border-gray-200 dark:border-[#27272A] flex flex-col py-6 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
-        <a href="/"
+        <a href="/home"
             class="px-6 py-4 mb-4 flex items-center justify-center cursor-pointer decoration-none">
             <img src="/logo-horizontal.svg" alt="Amora Logo" class="w-32 h-auto object-contain dark:invert" />
         </a>
@@ -515,7 +515,7 @@ export default function Page() {
                     Aprender</p>
                 <div class="space-y-1">
                     <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                        href="/">
+                        href="/home">
                         <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round"
                             stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18"
                             xmlns="http://www.w3.org/2000/svg">
