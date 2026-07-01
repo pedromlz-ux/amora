@@ -33,7 +33,7 @@ export default function Cadastro() {
       setLoading(false);
     } else {
       // Automaticamente o usuário já fica logado se o e-mail confirmation estiver desativado no supabase
-      router.push("/");
+      router.push("/home");
     }
   };
 
