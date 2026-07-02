@@ -216,6 +216,21 @@ export default function Page() {
             } catch (e) {
                 console.error("Error loading user profile in config page:", e);
             }
+
+            // Load preference checkboxes from localStorage
+            const prefEmailCheck = document.getElementById("pref-email");
+            const prefPushCheck = document.getElementById("pref-push");
+            const prefClinicalCheck = document.getElementById("pref-clinical");
+
+            if (prefEmailCheck) {
+                prefEmailCheck.checked = localStorage.getItem("pref-email") !== "false";
+            }
+            if (prefPushCheck) {
+                prefPushCheck.checked = localStorage.getItem("pref-push") === "true";
+            }
+            if (prefClinicalCheck) {
+                prefClinicalCheck.checked = localStorage.getItem("pref-clinical") !== "false";
+            }
         }
 
         async function fetchUsageData() {
@@ -363,18 +378,52 @@ export default function Page() {
         const btnDiscard = document.getElementById("btn-discard-settings");
         if (btnDiscard) {
             btnDiscard.addEventListener("click", () => {
+                loadUserProfile();
                 showToast("Alterações descartadas.");
             });
         }
 
         const btnSave = document.getElementById("btn-save-settings");
         if (btnSave) {
-            btnSave.addEventListener("click", () => {
+            btnSave.addEventListener("click", async () => {
                 btnSave.innerHTML = `<span class="material-symbols-outlined animate-spin !text-sm">progress_activity</span> Salvando...`;
-                setTimeout(() => {
-                    btnSave.innerHTML = `Salvar Alterações`;
+                
+                try {
+                    const nameVal = document.getElementById("user-name-input")?.value;
+                    const prefEmail = document.getElementById("pref-email")?.checked;
+                    const prefPush = document.getElementById("pref-push")?.checked;
+                    const prefClinical = document.getElementById("pref-clinical")?.checked;
+
+                    // Save to localStorage
+                    if (nameVal) localStorage.setItem("user_name", nameVal);
+                    if (prefEmail !== undefined) localStorage.setItem("pref-email", prefEmail ? "true" : "false");
+                    if (prefPush !== undefined) localStorage.setItem("pref-push", prefPush ? "true" : "false");
+                    if (prefClinical !== undefined) localStorage.setItem("pref-clinical", prefClinical ? "true" : "false");
+
+                    // Save name to Supabase profiles
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (user && nameVal) {
+                        await supabase
+                            .from('profiles')
+                            .update({ full_name: nameVal })
+                            .eq('id', user.id);
+                    }
+
+                    // Update UI
+                    if (nameVal) {
+                        const profileName = document.getElementById("profile-name");
+                        const sidebarNameEl = document.getElementById("sidebar-name");
+                        if (profileName) profileName.innerText = nameVal;
+                        if (sidebarNameEl) sidebarNameEl.innerText = nameVal;
+                    }
+
                     showToast("Configurações salvas com sucesso!");
-                }, 1500);
+                } catch (e) {
+                    console.error("Erro ao salvar configurações:", e);
+                    showToast("Erro ao salvar algumas configurações.");
+                } finally {
+                    btnSave.innerHTML = `Salvar Alterações`;
+                }
             });
         }
 
@@ -527,12 +576,8 @@ export default function Page() {
                         <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14h6"></path><path d="M9 18h6"></path><path d="M12 11v-4"></path></svg>
                         <span class="font-label-md text-sm">Recursos Profissionais</span>
                     </a>
-                    <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="/blog">
-                        <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                        <span class="font-label-md text-sm">Blog</span>
-                    </a>
-                </div>
             </div>
+              </div>
 
             <!-- Section 3 -->
             <div>
