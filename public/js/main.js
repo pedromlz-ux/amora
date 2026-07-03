@@ -202,4 +202,37 @@
     });
   }
 
+  /* ---------- FAQ Accordion ---------- */
+  const faqTriggers = document.querySelectorAll('.faq-trigger');
+  faqTriggers.forEach(function (trigger) {
+    trigger.addEventListener('click', function () {
+      const parent = this.parentElement;
+      const content = this.nextElementSibling;
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+
+      // Close all other FAQ items (accordion behavior)
+      document.querySelectorAll('.faq-item').forEach(function (item) {
+        if (item !== parent) {
+          item.classList.remove('active');
+          const otherTrigger = item.querySelector('.faq-trigger');
+          if (otherTrigger) otherTrigger.setAttribute('aria-expanded', 'false');
+          const otherContent = item.querySelector('.faq-content');
+          if (otherContent) otherContent.style.maxHeight = null;
+        }
+      });
+
+      // Toggle current
+      if (isExpanded) {
+        this.setAttribute('aria-expanded', 'false');
+        parent.classList.remove('active');
+        content.style.maxHeight = null;
+      } else {
+        this.setAttribute('aria-expanded', 'true');
+        parent.classList.add('active');
+        content.style.maxHeight = content.scrollHeight + 'px';
+      }
+    });
+  });
+
 })();
+

@@ -87,102 +87,43 @@
     <div class="hero-glow hero-glow--1"></div>
     <div class="hero-glow hero-glow--2"></div>
     <section class="hero section container">
-        <div class="hero-grid">
-        <!-- Left: copywriting -->
-        <div class="hero-content">
+        <div class="hero-content--centered reveal">
             <div class="hero-badge">
                 <span class="material-symbols-outlined icon">school</span>
                 Para estudantes e profissionais de nutrição clínica
             </div>
 
-            <h1>Decisão clínica baseada em <span>evidências sólidas</span>, não em suposições.</h1>
+            <h1 style="font-size: clamp(2rem, 5vw, 3.25rem); line-height: 1.15; margin-bottom: var(--space-md); text-align: center;">A única plataforma de nutrição de precisão baseada em <span>evidências sólidas</span> e inteligência artificial.</h1>
 
-            <p class="hero-description">
-                O Amora integra as bases da <strong>Fisiologia</strong>, <strong>Patologia</strong>,
-                <strong>Morfologia</strong> e <strong>Terapia Nutricional</strong>. Uma ferramenta robusta
-                para embasar suas condutas dietoterápicas com o rigor científico exigido pela prática clínica moderna.
+            <p class="hero-description" style="max-width: 680px; margin-top: 0; text-align: center; color: var(--neutral-500);">
+                O Amora integra as bases da Fisiologia, Patologia, Morfologia e Terapia Nutricional. Uma ferramenta robusta para embasar suas condutas dietoterápicas com o rigor científico exigido pela prática clínica moderna.
             </p>
 
-            <div class="hero-ctas">
-                <a href="#lead-form" class="btn btn--primary" id="cta-hero-primary">
+            <div class="hero-avatars">
+                <div class="avatar-stack">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&h=80&q=80" alt="Avatar" width="36" height="36" loading="lazy">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&h=80&q=80" alt="Avatar" width="36" height="36" loading="lazy">
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=80&h=80&q=80" alt="Avatar" width="36" height="36" loading="lazy">
+                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=80&h=80&q=80" alt="Avatar" width="36" height="36" loading="lazy">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=80&h=80&q=80" alt="Avatar" width="36" height="36" loading="lazy">
+                </div>
+                <span class="avatar-text"><strong>+5.000</strong> nutricionistas e estudantes ativos</span>
+            </div>
+
+            <div class="hero-ctas" style="margin-top: var(--space-md); justify-content: center; flex-direction: column; align-items: center; gap: var(--space-xs);">
+                <a href="https://amora.hublumi.com/cadastro" class="btn btn--primary" id="cta-hero-primary">
                     <span>Experimentar Grátis</span>
                     <span class="material-symbols-outlined icon">arrow_forward</span>
                 </a>
-                <a href="funcionalidades.html" class="btn btn--outline" id="cta-hero-secondary">
-                    <span>Ver Funcionalidades</span>
-                </a>
-            </div>
-
-            <div class="hero-seals">
-                <div class="hero-seal">
-                    <div class="hero-seal-icon">
-                        <span class="material-symbols-outlined icon">menu_book</span>
-                    </div>
-                    <span>Guidelines Internacionais</span>
-                </div>
-                <div class="hero-seal">
-                    <div class="hero-seal-icon">
-                        <span class="material-symbols-outlined icon">biotech</span>
-                    </div>
-                    <span>Rigor Científico</span>
-                </div>
-                <div class="hero-seal">
-                    <div class="hero-seal-icon">
-                        <span class="material-symbols-outlined icon">verified</span>
-                    </div>
-                    <span>Tabela TACO Oficial</span>
-                </div>
-                <div class="hero-seal">
-                    <div class="hero-seal-icon">
-                        <span class="material-symbols-outlined icon">auto_awesome</span>
-                    </div>
-                    <span>Assistente com IA</span>
-                </div>
+                <span class="hero-helper-text">Experimente o Amora grátis (sem cartão de crédito exigido).</span>
             </div>
         </div>
 
-        <!-- Right: Lead Capture Form -->
-        <div class="hero-form-card" id="lead-form">
-            <h3>Acesse a Plataforma</h3>
-            <p class="form-subtitle">Registre-se e receba acesso imediato para embasar suas condutas.</p>
+        <div class="hero-video-container reveal reveal-delay-2" style="margin-top: var(--space-2xl); max-width: 1040px; margin-inline: auto; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.2), 0 0 0 1px var(--neutral-100); position: relative; background: #000;">
 
-            <form id="lead-form-el">
-                <div class="form-group">
-                    <label class="form-label" for="input-name">Nome Completo</label>
-                    <div class="form-input-wrap">
-                        <span class="material-symbols-outlined icon">person</span>
-                        <input type="text" id="input-name" name="name" required placeholder="Ex: Dra. Maria Silva" class="form-input" autocomplete="name">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="input-email">E-mail Profissional</label>
-                    <div class="form-input-wrap">
-                        <span class="material-symbols-outlined icon">mail</span>
-                        <input type="email" id="input-email" name="email" required placeholder="exemplo@clinica.com" class="form-input" autocomplete="email">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="input-phone">WhatsApp / Telefone</label>
-                    <div class="form-input-wrap">
-                        <span class="material-symbols-outlined icon">call</span>
-                        <input type="tel" id="input-phone" name="phone" required placeholder="(11) 99999-9999" class="form-input" autocomplete="tel">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn--primary" style="width:100%;justify-content:center;margin-top:var(--space-sm)" id="cta-form-submit">
-                    <span>Experimentar Amora Grátis</span>
-                    <span class="material-symbols-outlined icon">arrow_forward</span>
-                </button>
-            </form>
-
-            <p class="form-legal">
-                Seus dados estão protegidos em conformidade com a LGPD e nossas políticas de privacidade.
-            </p>
+            <video src="videos/demo.mov" autoplay loop muted playsinline style="width: 100%; display: block; border-radius: 0 0 24px 24px; outline: none;"></video>
         </div>
-    </div>
-</section>
+    </section>
 </div>
 
 <!-- ============ Scientific Focus Areas ============ -->
@@ -268,59 +209,133 @@
 </section>
 
 <!-- ============ Clinical Simulator ============ -->
-<section class="section bg-neutral" id="simulador" style="border-top:1px solid var(--neutral-100);border-bottom:1px solid var(--neutral-100)">
+<section class="section section-brand-showcase bg-neutral" id="montador">
     <div class="container">
-        <div class="simulator-grid">
-            <!-- Left: Interactive simulator -->
-            <div class="simulator-preview reveal">
-                <div class="simulator-bar">
-                    <div class="simulator-bar-left">
-                        <div class="simulator-dot"></div>
-                        <span>Simulador de Terapia Nutricional</span>
+        <div class="brand-showcase-grid">
+            <!-- Left: Mock window -->
+            <div class="mock-window reveal">
+                <div class="mock-window-body">
+                    <!-- Diet Builder Header -->
+                    <div class="db-header">
+                        <div class="db-header-left">
+                            <div class="db-icon">
+                                <span class="material-symbols-outlined icon">restaurant</span>
+                            </div>
+                            <div class="db-titles">
+                                <h3>Montador de Dietas</h3>
+                                <p>Planejamento alimentar</p>
+                            </div>
+                        </div>
+                        <div class="db-action">
+                            <span class="material-symbols-outlined icon">settings</span>
+                        </div>
                     </div>
-                    <span class="sim-badge">Fórmula Científica</span>
-                </div>
 
-                <div class="sim-metrics">
-                    <div class="sim-metric">
-                        <div class="sim-metric-label">Meta Proteica Recomendada</div>
-                        <div class="sim-metric-value" id="sim-proteina">0.8 g/kg</div>
+                    <!-- Balance Card -->
+                    <div class="db-balance-card">
+                        <div class="db-balance-header">
+                            <span class="db-balance-title">Balanço Total da Dieta</span>
+                            <span class="db-balance-total">498 kcal</span>
+                        </div>
+                        <div class="db-progress-bar">
+                            <div class="db-progress-segment db-prog-c"></div>
+                            <div class="db-progress-segment db-prog-p"></div>
+                            <div class="db-progress-segment db-prog-f"></div>
+                        </div>
+                        <div class="db-macros">
+                            <div class="db-macro db-macro--c">
+                                <div class="db-macro-name">Carboidratos</div>
+                                <div class="db-macro-val">61% <span>/ 50%</span></div>
+                                <div class="db-macro-g">75g</div>
+                            </div>
+                            <div class="db-macro db-macro--p">
+                                <div class="db-macro-name">Proteínas</div>
+                                <div class="db-macro-val">17% <span>/ 30%</span></div>
+                                <div class="db-macro-g">21g</div>
+                            </div>
+                            <div class="db-macro db-macro--f">
+                                <div class="db-macro-name">Gorduras</div>
+                                <div class="db-macro-val">22% <span>/ 20%</span></div>
+                                <div class="db-macro-g">12g</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="sim-metric">
-                        <div class="sim-metric-label">Conduta Direcionada</div>
-                        <div class="sim-metric-value sim-metric-value--accent" id="sim-conduta">Doença Renal Crônica (Conservador)</div>
-                    </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="sim-diagnostico">Selecione o Diagnóstico / Patologia</label>
-                    <select id="sim-diagnostico" class="sim-select">
-                        <option value="renal">Insuficiência Renal Crônica (Tratamento Conservador)</option>
-                        <option value="diabetes">Diabetes Mellitus Tipo 2 (Glicemia Descompensada)</option>
-                        <option value="hepatica">Insuficiência Hepática Crônica / Cirrose Hepática</option>
-                        <option value="esporte">Metabolismo Ativo / Hipertrofia & Ganho Muscular</option>
-                    </select>
-                </div>
+                    <!-- Meal Section -->
+                    <div class="db-meal-section">
+                        <div class="db-meal-header">
+                            <div class="db-meal-title">CAFÉ DA MANHÃ</div>
+                            <div class="db-meal-time">
+                                <span>08:00</span>
+                                <span class="material-symbols-outlined icon">schedule</span>
+                            </div>
+                        </div>
+                        <div class="db-meal-totals">
+                            <strong>498 kcal</strong> &nbsp; C: 75g &nbsp; P: 21g &nbsp; G: 12g
+                        </div>
+                        
+                        <div class="db-food-item">
+                            <div class="db-food-info">
+                                <h4>Ovo, de galinha, inteiro, cru</h4>
+                                <div class="db-food-macros">143 kcal | C: 1.6g P: 13.0g G: 8.9g</div>
+                            </div>
+                            <div class="db-food-actions">
+                                <div class="db-food-qty">1 <span>un</span></div>
+                                <div class="db-food-del material-symbols-outlined icon">delete</div>
+                            </div>
+                        </div>
 
-                <div class="sim-range-group">
-                    <div class="sim-range-label">
-                        <span>Peso Corporal Atual</span>
-                        <span id="label-peso">70 kg</span>
+                        <div class="db-food-item">
+                            <div class="db-food-info">
+                                <h4>Pão, trigo, francês</h4>
+                                <div class="db-food-macros">300 kcal | C: 58.6g P: 8.0g G: 3.1g</div>
+                            </div>
+                            <div class="db-food-actions">
+                                <div class="db-food-qty">1 <span>un</span></div>
+                                <div class="db-food-del material-symbols-outlined icon">delete</div>
+                            </div>
+                        </div>
+
+                        <div class="db-food-item">
+                            <div class="db-food-info">
+                                <h4>Maçã, Fuji, com casca, crua</h4>
+                                <div class="db-food-macros">56 kcal | C: 15.2g P: 0.3g G: 0.0g</div>
+                            </div>
+                            <div class="db-food-actions">
+                                <div class="db-food-qty">1 <span>un</span></div>
+                                <div class="db-food-del material-symbols-outlined icon">delete</div>
+                            </div>
+                        </div>
+
+                        <div class="db-food-item">
+                            <div class="db-food-info">
+                                <h4>Leite, de vaca, desnatado, UHT</h4>
+                                <div class="db-food-macros">0 kcal | C: 0.0g P: 0.0g G: 0.0g</div>
+                            </div>
+                            <div class="db-food-actions">
+                                <div class="db-food-qty">250 <span>ml</span></div>
+                                <div class="db-food-del material-symbols-outlined icon">delete</div>
+                            </div>
+                        </div>
+
+                        <button class="db-add-item">
+                            <span class="material-symbols-outlined icon">add</span>
+                            Adicionar item
+                        </button>
                     </div>
-                    <input type="range" min="40" max="150" value="70" id="range-peso">
                 </div>
             </div>
 
-            <!-- Right: Copywriting -->
-            <div class="reveal">
-                <p class="kicker">Condutas com base em evidência</p>
-                <h2 style="margin-bottom:var(--space-lg)">Alinhe diretrizes clínicas instantaneamente.</h2>
-                <p style="font-size:0.9375rem;line-height:1.8">
-                    Com o Amora, você não precisa ficar recorrendo a PDFs extensos de consensos a cada atendimento. Nossa interface ajusta as faixas terapêuticas ideais de macro e micronutrientes automaticamente, dependendo da fisiopatologia selecionada, garantindo total segurança no seu raciocínio clínico.
+            <!-- Right: Copywriting (Image 1 style) -->
+            <div class="brand-showcase-copy reveal">
+                <p class="kicker">PLANEJAMENTO ALIMENTAR</p>
+                <h2>Toda semana, uma prescrição mais eficiente.</h2>
+                <p>
+                    Monte planos alimentares com precisão cirúrgica. Nosso sistema acompanha suas metas de macronutrientes em tempo real, alertando sobre deficiências ou excessos antes mesmo da consulta acabar.
                 </p>
                 <div style="margin-top:var(--space-xl)">
-                    <a href="#lead-form" class="btn btn--primary" id="cta-simulator">
-                        <span>Garantir Meu Acesso</span>
+                    <a href="https://amora.hublumi.com/cadastro" class="btn btn--primary">
+                        <span>Experimentar o Montador</span>
                         <span class="material-symbols-outlined icon">arrow_forward</span>
                     </a>
                 </div>
@@ -329,43 +344,7 @@
     </div>
 </section>
 
-<!-- ============ Testimonials ============ -->
-<section class="section" id="depoimentos">
-    <div class="container">
-        <div class="section-header centered reveal">
-            <p class="kicker">Compartilhado por quem vive a prática</p>
-            <h2>O que dizem os especialistas da área</h2>
-        </div>
 
-        <div class="card-grid card-grid--2">
-            <div class="testimonial reveal reveal-delay-1">
-                <blockquote>
-                    "O Amora mudou drasticamente a forma como oriento as condutas em minha residência médica em nutrição clínica. A integração direta dos macronutrientes recomendados com as patologias dos pacientes baseada nas diretrizes internacionais é fantástica!"
-                </blockquote>
-                <div class="testimonial-author">
-                    <img src="https://ui-avatars.com/api/?name=Leticia+Lima&background=7e22ce&color=fff&size=80&bold=true" alt="Dra. Letícia Lima" width="40" height="40" loading="lazy">
-                    <div>
-                        <h4>Dra. Letícia Lima</h4>
-                        <p>Nutricionista Clínica em Terapia Intensiva</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="testimonial reveal reveal-delay-2">
-                <blockquote>
-                    "Como estudante avançado, o Amora serve de base para meus estudos de caso e avaliações de antropometria. Usar as fontes de evidência oficiais integradas a um laudo clínico profissional facilitou demais a minha rotina prática."
-                </blockquote>
-                <div class="testimonial-author">
-                    <img src="https://ui-avatars.com/api/?name=Lucas+Ferrari&background=4f46e5&color=fff&size=80&bold=true" alt="Lucas Ferrari" width="40" height="40" loading="lazy">
-                    <div>
-                        <h4>Lucas Ferrari</h4>
-                        <p>Estudante de Nutrição Clínica & Pesquisador</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- ============ Blog Preview ============ -->
 <section class="section bg-neutral" style="border-top:1px solid var(--neutral-100)">
@@ -411,6 +390,591 @@
     </div>
 </section>
 
+<!-- ============ AI Lab Assistant Showcase ============ -->
+<section class="section section-brand-showcase bg-white" id="assistente-ia">
+    <div class="container">
+        <div class="brand-showcase-grid">
+            
+            <!-- Left: Copywriting -->
+            <div class="brand-showcase-copy reveal">
+                <p class="kicker">ASSISTENTE DE LAUDOS</p>
+                <h2>Análise laboratorial com Inteligência Artificial.</h2>
+                <p>
+                    Envie os exames de sangue do paciente e receba um relatório inicial com as principais alterações metabólicas e sugestões de conduta nutricional em segundos.
+                </p>
+                <div style="margin-top:var(--space-xl)">
+                    <a href="https://amora.hublumi.com/cadastro" class="btn btn--primary">
+                        <span>Testar a Inteligência Artificial</span>
+                        <span class="material-symbols-outlined icon">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right: Mock UI -->
+            <div class="mock-window reveal">
+                <div class="mock-window-body" style="padding: 2.5rem 2rem;">
+                    
+                    <!-- File Uploaded Row -->
+                    <div class="ai-file-row">
+                        <div class="ai-file-left">
+                            <div class="ai-file-icon">
+                                <span class="material-symbols-outlined">check_circle</span>
+                            </div>
+                            <div class="ai-file-info">
+                                <strong>PHOTO-2026-07-02-13-17-24.jpg</strong>
+                                <span>Lido com Sucesso &bull; 02/07/2026</span>
+                            </div>
+                        </div>
+                        <div class="ai-file-action">
+                            <button type="button">Remover</button>
+                        </div>
+                    </div>
+
+                    <hr class="ai-divider">
+
+                    <!-- Insight Card -->
+                    <div class="ai-insight-card">
+                        <div class="ai-insight-header">
+                            <span class="material-symbols-outlined icon">smart_toy</span>
+                            <span>Insight Gerado</span>
+                        </div>
+                        <h4 class="ai-insight-title">Massa muscular elevada e gordura corporal muito baixa com excelente InBody Score.</h4>
+                        <p class="ai-insight-text">
+                            O exame de bioimpedância InBody revela um perfil de composição corporal excepcional, com uma pontuação total de 91 em 100 pontos. O peso corporal de 68.4 kg e o Índice de Massa Corporal (IMC) de 23.9 kg/m&sup2; estão ambos dentro da faixa considerada normal e saudável para o indivíduo. A necessidade de controle de peso, gordura e massa muscular é nula, indicando um equilíbrio ideal. A principal característica deste perfil é a elevada massa muscular esquelética, que atinge 37.7 kg, significativamente acima da faixa de referência (27.0~33.0 kg). Essa superioridade muscular é consistente em todos os segmentos corporais, com o braço direito apresentando 124.4%, o braço esquerdo 127.0%, o tronco 118.3%, a perna direita 112.2% e a perna esquerda 106.7% da massa muscular ideal para cada segmento. Consequentemente, a massa livre de gordura é de 64.7 kg, também acima do ideal. Em contraste, a massa de gordura corporal é notavelmente baixa, com apenas 3.7 kg (referência 7.6~15.1 kg), classificando-se como "abaixo". O percentual de gordura corporal (PGC) é de 5.3%, bem abaixo da faixa normal (10.0~20.0%). Além disso, a área de gordura visceral é extremamente baixa, registrando 5.0 cm&sup2;, um indicador de saúde metabólica exemplar. A avaliação do balanceamento corporal indica que todas as proporções estão equilibradas ("Balanceado"). A Taxa Metabólica Basal (TMB) é de 1768 kcal, ligeiramente acima da referência (1500~1751 kcal), o que é esperado devido à maior massa muscular. A ingestão calórica recomendada é de 2726 kcal. Os níveis de água corporal total (47.3 L), proteína (13.1 kg), e minerais (4.27 kg) também se encontram acima das faixas de referência, refletindo a constituição muscular robusta. A relação cintura-quadril é de 0.75, um valor saudável. A Taxa de AEC (Extracellular Water / Total Body Water) é de 0.357, que está ligeiramente abaixo da faixa de referência (0.360-0.390), indicando um bom equilíbrio hídrico. O Ângulo de Fase de corpo inteiro de 8.3&deg; a 50 kHz é elevado, o que geralmente indica integridade celular e boa saúde geral.
+                        </p>
+                        <div class="ai-pill-wrapper">
+                            <div class="ai-pill">
+                                <span class="material-symbols-outlined icon">auto_awesome</span>
+                                <span>Análise IA Ativada</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ============ Tabela TACO Showcase ============ -->
+<section class="section section-brand-showcase bg-neutral" id="tabela-taco">
+    <div class="container">
+        <div class="brand-showcase-grid desktop-reverse">
+            
+            <!-- Left on Desktop (Text is 1st child, becomes 2nd visually due to order) -->
+            <div class="brand-showcase-copy reveal">
+                <p class="kicker">BASE DE DADOS OFICIAL</p>
+                <h2>Tabelas TACO, IBGE e USDA integradas</h2>
+                <p style="margin-bottom: 2rem;">
+                    Acesse a composição nutricional de milhares de alimentos brasileiros e internacionais validados por universidades de referência. Obtenha valores precisos de macronutrientes, micronutrientes, aminoácidos e fibras em tempo real durante a prescrição.
+                </p>
+                <ul class="feature-list" style="margin-bottom: 2.5rem; list-style: none; padding: 0;">
+                    <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; color: var(--neutral-600);">
+                        <span class="material-symbols-outlined" style="color: #22c55e;">check_circle</span>
+                        Tabela TACO atualizada com 597 alimentos
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; color: var(--neutral-600);">
+                        <span class="material-symbols-outlined" style="color: #22c55e;">check_circle</span>
+                        Dados IBGE de consumo alimentar
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; color: var(--neutral-600);">
+                        <span class="material-symbols-outlined" style="color: #22c55e;">check_circle</span>
+                        USDA FoodData Central integrado
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; color: var(--neutral-600);">
+                        <span class="material-symbols-outlined" style="color: #22c55e;">check_circle</span>
+                        Busca inteligente por nome ou grupo alimentar
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Right on Desktop (Functional UI matching IBGE Table Image) -->
+            <div class="mock-window reveal" style="background: #ffffff; border: 1px solid var(--purple-200); box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 2rem; border-radius: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; height: 100%; min-height: 480px;">
+                
+                <!-- Header -->
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: #eff6ff; display: flex; align-items: center; justify-content: center;">
+                            <span class="material-symbols-outlined" style="color: #3b82f6; font-size: 1.5rem;">nutrition</span>
+                        </div>
+                        <div>
+                            <h4 id="tableTitle" style="font-size: 1.125rem; font-weight: 700; color: var(--neutral-900); margin: 0; line-height: 1.2;">Tabela TACO</h4>
+                            <p id="tableSubtitle" style="font-size: 0.875rem; color: var(--neutral-500); margin: 0;">Composição de Alimentos (Real)</p>
+                        </div>
+                    </div>
+                    <!-- Database Selection Tabs -->
+                    <div style="display: flex; background: #f3f4f6; border-radius: 0.75rem; padding: 0.25rem; gap: 0.25rem; border: 1px solid var(--neutral-200);">
+                        <button id="btnSelectTaco" style="padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; background: #ffffff; color: var(--neutral-800); box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                            TACO
+                        </button>
+                        <button id="btnSelectTbca" style="padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--neutral-500);">
+                            TBCA
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search and 100g indicator -->
+                <div style="display: flex; gap: 0.75rem;">
+                    <div class="form-group" style="position: relative; flex: 1; margin: 0;">
+                        <input type="text" id="foodSearchInput" class="form-control" placeholder="Buscar alimento..." style="padding-left: 2.5rem; background: #f9fafb; border-color: #e5e7eb; border-radius: 0.75rem;">
+                        <span class="material-symbols-outlined" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--neutral-400); pointer-events: none; font-size: 1.1rem;">search</span>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; padding: 0 1rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; font-size: 0.875rem; color: var(--neutral-700); font-weight: 500;">
+                        100g
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div style="border: 1px solid var(--neutral-200); border-radius: 0.75rem; display: flex; flex-direction: column; overflow: hidden; flex: 1;">
+                    <!-- Table Header -->
+                    <div style="display: grid; grid-template-columns: 1fr 60px 60px 60px; gap: 1rem; padding: 0.75rem 1rem; background: #f9fafb; border-bottom: 1px solid var(--neutral-100); font-size: 0.8125rem; color: var(--neutral-500); font-weight: 500;">
+                        <div>Alimento</div>
+                        <div style="text-align: right;">Kcal</div>
+                        <div style="text-align: right;">Prot</div>
+                        <div style="text-align: right;">Carb</div>
+                    </div>
+                    
+                    <!-- Table Body (Scrollable) -->
+                    <div id="foodSearchResults" style="flex: 1; overflow-y: auto; max-height: 280px; display: flex; flex-direction: column;">
+                        <!-- Initial Mock Data -->
+                        <div class="table-row" style="display: grid; grid-template-columns: 1fr 60px 60px 60px; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--neutral-100); font-size: 0.875rem; align-items: center;">
+                            <div style="color: var(--neutral-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Arroz, integral, cozido</div>
+                            <div style="font-weight: 700; color: var(--neutral-900); text-align: right;">124</div>
+                            <div style="color: var(--neutral-500); text-align: right;">2.6g</div>
+                            <div style="color: var(--neutral-500); text-align: right;">25.8g</div>
+                        </div>
+                        <div class="table-row" style="display: grid; grid-template-columns: 1fr 60px 60px 60px; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--neutral-100); font-size: 0.875rem; align-items: center;">
+                            <div style="color: var(--neutral-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Arroz, integral, cru</div>
+                            <div style="font-weight: 700; color: var(--neutral-900); text-align: right;">360</div>
+                            <div style="color: var(--neutral-500); text-align: right;">7.3g</div>
+                            <div style="color: var(--neutral-500); text-align: right;">77.5g</div>
+                        </div>
+                        <div class="table-row" style="display: grid; grid-template-columns: 1fr 60px 60px 60px; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--neutral-100); font-size: 0.875rem; align-items: center;">
+                            <div style="color: var(--neutral-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Arroz, tipo 1, cozido</div>
+                            <div style="font-weight: 700; color: var(--neutral-900); text-align: right;">128</div>
+                            <div style="color: var(--neutral-500); text-align: right;">2.5g</div>
+                            <div style="color: var(--neutral-500); text-align: right;">28.1g</div>
+                        </div>
+                        <div class="table-row" style="display: grid; grid-template-columns: 1fr 60px 60px 60px; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--neutral-100); font-size: 0.875rem; align-items: center;">
+                            <div style="color: var(--neutral-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Arroz, tipo 1, cru</div>
+                            <div style="font-weight: 700; color: var(--neutral-900); text-align: right;">358</div>
+                            <div style="color: var(--neutral-500); text-align: right;">7.2g</div>
+                            <div style="color: var(--neutral-500); text-align: right;">78.8g</div>
+                        </div>
+                        <div class="table-row" style="display: grid; grid-template-columns: 1fr 60px 60px 60px; gap: 1rem; padding: 1rem; font-size: 0.875rem; align-items: center;">
+                            <div style="color: var(--neutral-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Arroz, tipo 2, cozido</div>
+                            <div style="font-weight: 700; color: var(--neutral-900); text-align: right;">130</div>
+                            <div style="color: var(--neutral-500); text-align: right;">2.6g</div>
+                            <div style="color: var(--neutral-500); text-align: right;">28.2g</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const searchInput = document.getElementById('foodSearchInput');
+                    const resultsContainer = document.getElementById('foodSearchResults');
+                    const btnSelectTaco = document.getElementById('btnSelectTaco');
+                    const btnSelectTbca = document.getElementById('btnSelectTbca');
+                    const tableTitle = document.getElementById('tableTitle');
+                    const tableSubtitle = document.getElementById('tableSubtitle');
+                    
+                    let activeDb = 'taco';
+                    let timeoutId;
+
+                    const mockTaco = resultsContainer.innerHTML;
+                    const mockTbca = `
+                        <div class="table-row" style="display: grid; grid-template-columns: 1fr 60px 60px 60px; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--neutral-100); font-size: 0.875rem; align-items: center;">
+                            <div style="color: var(--neutral-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Feijão, comum, preto, cozido</div>
+                            <div style="font-weight: 700; color: var(--neutral-900); text-align: right;">77</div>
+                            <div style="color: var(--neutral-500); text-align: right;">4.5g</div>
+                            <div style="color: var(--neutral-500); text-align: right;">14.0g</div>
+                        </div>
+                        <div class="table-row" style="display: grid; grid-template-columns: 1fr 60px 60px 60px; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--neutral-100); font-size: 0.875rem; align-items: center;">
+                            <div style="color: var(--neutral-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Feijão, comum, preto, cru</div>
+                            <div style="font-weight: 700; color: var(--neutral-900); text-align: right;">324</div>
+                            <div style="color: var(--neutral-500); text-align: right;">21.7g</div>
+                            <div style="color: var(--neutral-500); text-align: right;">59.0g</div>
+                        </div>
+                        <div class="table-row" style="display: grid; grid-template-columns: 1fr 60px 60px 60px; gap: 1rem; padding: 1rem; font-size: 0.875rem; align-items: center;">
+                            <div style="color: var(--neutral-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Farofa, farinha de milho e cenoura</div>
+                            <div style="font-weight: 700; color: var(--neutral-900); text-align: right;">147</div>
+                            <div style="color: var(--neutral-500); text-align: right;">1.6g</div>
+                            <div style="color: var(--neutral-500); text-align: right;">13.5g</div>
+                        </div>
+                    `;
+
+                    function triggerSearch() {
+                        const query = searchInput.value.trim();
+                        if (query.length < 2) {
+                            if (query.length === 0) {
+                                resultsContainer.innerHTML = activeDb === 'taco' ? mockTaco : mockTbca;
+                            } else {
+                                resultsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--neutral-400); font-size: 0.875rem;">Digite pelo menos 2 caracteres...</div>';
+                            }
+                            return;
+                        }
+
+                        resultsContainer.innerHTML = '<div style="padding: 2rem; display: flex; justify-content: center; color: #3b82f6;"><span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">autorenew</span></div>';
+
+                        fetch(`http://localhost:8080/api/alimentos/busca?q=${encodeURIComponent(query)}&db=${activeDb}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.length === 0) {
+                                    resultsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--neutral-500); font-size: 0.875rem;">Nenhum alimento encontrado.</div>';
+                                    return;
+                                }
+
+                                resultsContainer.innerHTML = '';
+                                data.slice(0, 15).forEach((food, index) => {
+                                    const kcal = food.energy_kcal !== "NA" && food.energy_kcal ? Number(food.energy_kcal).toFixed(0) : "-";
+                                    const prot = food.protein_g !== "NA" && food.protein_g ? Number(food.protein_g).toFixed(1) + 'g' : "-";
+                                    const carb = food.carbohydrate_g !== "NA" && food.carbohydrate_g ? Number(food.carbohydrate_g).toFixed(1) + 'g' : "-";
+                                    const borderBottom = index < Math.min(data.length, 15) - 1 ? 'border-bottom: 1px solid var(--neutral-100);' : '';
+
+                                    const itemHtml = `
+                                        <div style="display: grid; grid-template-columns: 1fr 60px 60px 60px; gap: 1rem; padding: 1rem; ${borderBottom} font-size: 0.875rem; align-items: center; cursor: pointer; transition: background 0.1s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='transparent'">
+                                            <div style="color: var(--neutral-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${food.description}">${food.description}</div>
+                                            <div style="font-weight: 700; color: var(--neutral-900); text-align: right;">${kcal}</div>
+                                            <div style="color: var(--neutral-500); text-align: right;">${prot}</div>
+                                            <div style="color: var(--neutral-500); text-align: right;">${carb}</div>
+                                        </div>
+                                    `;
+                                    resultsContainer.insertAdjacentHTML('beforeend', itemHtml);
+                                });
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                resultsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: #ef4444; font-size: 0.875rem;">Erro ao conectar com o backend local (Quarkus porta 8080).</div>';
+                            });
+                    }
+
+                    btnSelectTaco.addEventListener('click', () => {
+                        if (activeDb === 'taco') return;
+                        activeDb = 'taco';
+                        tableTitle.innerText = 'Tabela TACO';
+                        tableSubtitle.innerText = 'Composição de Alimentos (Real)';
+                        
+                        btnSelectTaco.style.background = '#ffffff';
+                        btnSelectTaco.style.color = 'var(--neutral-800)';
+                        btnSelectTaco.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+                        
+                        btnSelectTbca.style.background = 'transparent';
+                        btnSelectTbca.style.color = 'var(--neutral-500)';
+                        btnSelectTbca.style.boxShadow = 'none';
+                        
+                        triggerSearch();
+                    });
+
+                    btnSelectTbca.addEventListener('click', () => {
+                        if (activeDb === 'tbca') return;
+                        activeDb = 'tbca';
+                        tableTitle.innerText = 'Tabela TBCA';
+                        tableSubtitle.innerText = 'Tabela Brasileira de Composição de Alimentos';
+                        
+                        btnSelectTbca.style.background = '#ffffff';
+                        btnSelectTbca.style.color = 'var(--neutral-800)';
+                        btnSelectTbca.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+                        
+                        btnSelectTaco.style.background = 'transparent';
+                        btnSelectTaco.style.color = 'var(--neutral-500)';
+                        btnSelectTaco.style.boxShadow = 'none';
+                        
+                        triggerSearch();
+                    });
+
+                    searchInput.addEventListener('input', () => {
+                        clearTimeout(timeoutId);
+                        timeoutId = setTimeout(triggerSearch, 300);
+                    });
+                });
+            </script>
+
+        </div>
+    </div>
+</section>
+
+<!-- ============ Calculadoras Showcase ============ -->
+<section class="section section-brand-showcase bg-white" id="calculadoras">
+    <div class="container">
+        <div class="brand-showcase-grid">
+            
+            <!-- Left on Desktop (Mock is 1st child) -->
+            <div class="mock-window reveal" style="border: none; background: transparent; box-shadow: none;">
+                <img src="/images/calculadora-imc.png" alt="Calculadora de IMC e TDEE" style="width: 100%; border-radius: 1.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.04); border: 1px solid var(--purple-200);">
+            </div>
+            
+            <!-- Right on Desktop (Text is 2nd child) -->
+            <div class="brand-showcase-copy reveal" style="padding-left: 2rem;">
+                <p class="kicker">CÁLCULOS CIENTÍFICOS</p>
+                <h2>Calculadoras de IMC, TMB e TDEE</h2>
+                <p style="margin-bottom: 2rem;">
+                    Determine instantaneamente o gasto energético total diário utilizando as equações mais validadas da ciência nutricional: Harris-Benedict, Mifflin-St Jeor, e FAO/OMS. Classifique o IMC segundo as diretrizes atualizadas da Organização Mundial da Saúde.
+                </p>
+                <ul class="feature-list" style="margin-bottom: 2.5rem; list-style: none; padding: 0;">
+                    <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; color: var(--neutral-600);">
+                        <span class="material-symbols-outlined" style="color: #22c55e;">check_circle</span>
+                        Múltiplas equações validadas cientificamente
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; color: var(--neutral-600);">
+                        <span class="material-symbols-outlined" style="color: #22c55e;">check_circle</span>
+                        Fator de atividade por nível de exercício
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; color: var(--neutral-600);">
+                        <span class="material-symbols-outlined" style="color: #22c55e;">check_circle</span>
+                        Classificação IMC por faixa etária
+                    </li>
+                </ul>
+                <div>
+                    <a href="https://amora.hublumi.com/cadastro" class="btn btn--primary">
+                        <span>Fazer Cálculos Nutricionais</span>
+                        <span class="material-symbols-outlined icon">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ============ Gasto Energético Showcase ============ -->
+<section class="section section-brand-showcase bg-neutral" id="gasto-energetico">
+    <div class="container">
+        <div class="brand-showcase-grid brand-showcase-grid--uneven desktop-reverse">
+            
+            <!-- Left on Desktop (Text is 1st child, becomes 2nd visually due to order) -->
+            <div class="brand-showcase-copy reveal">
+                <p class="kicker">PLANEJAMENTO PRECISO</p>
+                <h2>Gasto Energético Total (TDEE)</h2>
+                <p style="margin-bottom: 2rem;">
+                    Calcule com precisão a Taxa Metabólica Basal (TMB) e o Gasto Energético Total (TDEE) do seu paciente. Personalize o nível de atividade física e escolha a fórmula mais adequada (como Mifflin-St Jeor, Harris-Benedict ou FAO/OMS) para planejar intervenções dietéticas eficientes e baseadas em evidências. Nossa ferramenta foi desenvolvida com foco na agilidade clínica, permitindo que você obtenha os resultados necessários em poucos segundos, sem precisar recorrer a planilhas ou cálculos manuais.
+                </p>
+                <div style="margin-top:var(--space-xl)">
+                    <a href="https://amora.hublumi.com/cadastro" class="btn btn--primary">
+                        <span>Acessar Calculadora</span>
+                        <span class="material-symbols-outlined icon">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right on Desktop (Mock is 2nd child, becomes 1st visually due to order) -->
+            <div class="mock-window reveal" style="background: #ffffff; border: 1px solid var(--purple-200); box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 2rem; border-radius: 1.5rem;">
+                
+                <!-- Mock Header -->
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center;">
+                        <span class="material-symbols-outlined">local_fire_department</span>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.1rem; color: var(--neutral-800); font-weight: 600;">Calculadora de Gasto Energético</h4>
+                        <span style="font-size: 0.875rem; color: var(--neutral-500);">TMB e Gasto Total (TDEE)</span>
+                    </div>
+                </div>
+
+                <!-- Mock Form Grid -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.75rem; color: var(--neutral-500); margin-bottom: 0.35rem; font-weight: 500;">Idade</label>
+                        <div style="background: var(--neutral-50); border: 1px solid var(--neutral-200); border-radius: 8px; height: 40px;"></div>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.75rem; color: var(--neutral-500); margin-bottom: 0.35rem; font-weight: 500;">Sexo biológico</label>
+                        <div style="background: var(--neutral-50); border: 1px solid var(--neutral-200); border-radius: 8px; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem;">
+                            <span style="font-size: 0.875rem; color: var(--neutral-800);">Feminino</span>
+                            <span class="material-symbols-outlined" style="font-size: 1.1rem; color: var(--neutral-400);">expand_more</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.75rem; color: var(--neutral-500); margin-bottom: 0.35rem; font-weight: 500;">Peso (kg)</label>
+                        <div style="background: var(--neutral-50); border: 1px solid var(--neutral-200); border-radius: 8px; height: 40px;"></div>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.75rem; color: var(--neutral-500); margin-bottom: 0.35rem; font-weight: 500;">Altura (cm)</label>
+                        <div style="background: var(--neutral-50); border: 1px solid var(--neutral-200); border-radius: 8px; height: 40px;"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <label style="display: block; font-size: 0.75rem; color: var(--neutral-500); margin-bottom: 0.35rem; font-weight: 500;">Fórmula</label>
+                    <div style="background: var(--neutral-50); border: 1px solid var(--neutral-200); border-radius: 8px; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem;">
+                        <span style="font-size: 0.875rem; color: var(--neutral-800);">Mifflin-St Jeor (Mais precisa)</span>
+                        <span class="material-symbols-outlined" style="font-size: 1.1rem; color: var(--neutral-400);">expand_more</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <label style="display: block; font-size: 0.75rem; color: var(--neutral-500); margin-bottom: 0.35rem; font-weight: 500;">Nível de Atividade</label>
+                    <div style="background: var(--neutral-50); border: 1px solid var(--neutral-200); border-radius: 8px; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem;">
+                        <span style="font-size: 0.875rem; color: var(--neutral-800);">Sedentário (pouco/nenhum exercício)</span>
+                        <span class="material-symbols-outlined" style="font-size: 1.1rem; color: var(--neutral-400);">expand_more</span>
+                    </div>
+                </div>
+
+                <!-- Mock Button -->
+                <button style="width: 100%; background: #dc2626; color: #ffffff; border: none; border-radius: 8px; height: 48px; font-weight: 600; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: default;">
+                    Calcular Gasto Energético
+                    <span class="material-symbols-outlined" style="font-size: 1.1rem;">arrow_forward</span>
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ============ Terapia Nutricional Showcase ============ -->
+<section class="section section-brand-showcase bg-white" id="terapia-nutricional">
+    <div class="container">
+        <div class="brand-showcase-grid">
+            
+            <!-- Left on Desktop (Text is 1st child) -->
+            <div class="brand-showcase-copy reveal">
+                <p class="kicker">PRESCRIÇÃO CLÍNICA</p>
+                <h2>Simulador de Terapia Nutricional</h2>
+                <p style="margin-bottom: 2rem;">
+                    Receba condutas direcionadas e metas de macronutrientes adaptadas a diversas patologias. Ao selecionar um diagnóstico, como a Insuficiência Renal Crônica, a Amora simula automaticamente as recomendações científicas em tempo real, ajustando as metas (como restrição proteica) ao peso e perfil do seu paciente para um tratamento seguro e eficiente.
+                </p>
+                <div style="margin-top:var(--space-xl)">
+                    <a href="https://amora.hublumi.com/cadastro" class="btn btn--primary">
+                        <span>Acessar Simulador</span>
+                        <span class="material-symbols-outlined icon">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right on Desktop (Mock is 2nd child) -->
+            <div class="mock-window reveal" style="background: #ffffff; border: 1px solid var(--purple-200); box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 2rem; border-radius: 1.5rem;">
+                
+                <!-- Mock Header -->
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #f3e8ff; color: #9333ea; display: flex; align-items: center; justify-content: center;">
+                        <span class="material-symbols-outlined">biotech</span>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.1rem; color: var(--neutral-800); font-weight: 600;">Simulador de Terapia Nutricional</h4>
+                        <span style="font-size: 0.875rem; color: var(--neutral-500);">Conduta Direcionada e Meta Proteica</span>
+                    </div>
+                </div>
+
+                <!-- Mock Cards (Stacked to make it square) -->
+                <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="background: var(--neutral-50); border: 1px solid var(--neutral-200); border-radius: 12px; padding: 1.25rem;">
+                        <p style="font-size: 0.7rem; color: var(--neutral-500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 600;">Meta Proteica Recomendada</p>
+                        <p style="font-size: 1.25rem; font-weight: 700; color: var(--neutral-800); margin: 0;">0.6 g/kg (42.0g total)</p>
+                    </div>
+                    <div style="background: var(--neutral-50); border: 1px solid var(--neutral-200); border-radius: 12px; padding: 1.25rem;">
+                        <p style="font-size: 0.7rem; color: var(--neutral-500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 600;">Conduta Direcionada</p>
+                        <p style="font-size: 0.95rem; font-weight: 600; color: #9333ea; margin: 0;">Restrição proteica severa (IRC Conservador - evitar sobrecarga renal)</p>
+                    </div>
+                </div>
+
+                <!-- Dropdown -->
+                <div style="margin-bottom: 1.75rem;">
+                    <label style="display: block; font-size: 0.75rem; color: var(--neutral-500); margin-bottom: 0.35rem; font-weight: 500;">Selecione o Diagnóstico / Patologia</label>
+                    <div style="background: var(--neutral-50); border: 1px solid var(--neutral-200); border-radius: 8px; height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem;">
+                        <span style="font-size: 0.875rem; color: var(--neutral-800);">Insuficiência Renal Crônica (Tratamento Conservador)</span>
+                        <span class="material-symbols-outlined" style="font-size: 1.1rem; color: var(--neutral-400);">expand_more</span>
+                    </div>
+                </div>
+
+                <!-- Slider -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.75rem; color: var(--neutral-500); font-weight: 500; margin: 0;">Peso Corporal Atual</label>
+                        <span style="font-size: 0.875rem; font-weight: 700; color: var(--neutral-800);">70 kg</span>
+                    </div>
+                    <div style="width: 100%; height: 6px; background: var(--neutral-200); border-radius: 4px; position: relative;">
+                        <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 30%; background: #9333ea; border-radius: 4px;"></div>
+                        <div style="position: absolute; left: 30%; top: 50%; transform: translate(-50%, -50%); width: 16px; height: 16px; background: #9333ea; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ============ FAQ Section ============ -->
+<section class="section bg-white" id="faq" style="border-top:1px solid var(--neutral-100)">
+    <div class="container">
+        <div class="faq-grid">
+            <div class="faq-info reveal">
+                <p class="kicker">PERGUNTAS FREQUENTES</p>
+                <h2>Tudo o que você precisa saber sobre a Amora</h2>
+                <p>Caso tenha alguma dúvida que não esteja listada aqui, sinta-se à vontade para entrar em contato com o nosso suporte.</p>
+            </div>
+            
+            <div class="faq-list reveal">
+                <div class="faq-item">
+                    <button class="faq-trigger" aria-expanded="false">
+                        <span>O que é a Amora?</span>
+                        <span class="material-symbols-outlined faq-icon">add</span>
+                    </button>
+                    <div class="faq-content">
+                        <div class="faq-content-inner">
+                            <p>A Amora é uma plataforma inteligente voltada para nutricionistas e estudantes de nutrição. Ela auxilia no planejamento dietético de precisão, análise laboratorial através de inteligência artificial e centraliza a gestão de condutas baseadas em evidências clínicas.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-trigger" aria-expanded="false">
+                        <span>Como funciona o Montador de Dietas?</span>
+                        <span class="material-symbols-outlined faq-icon">add</span>
+                    </button>
+                    <div class="faq-content">
+                        <div class="faq-content-inner">
+                            <p>Nosso montador calcula em tempo real os macronutrientes (carboidratos, proteínas e gorduras) e calorias totais à medida que você adiciona alimentos da tabela de referência. Ele avisa instantaneamente se o plano está de acordo com as metas estipuladas.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-trigger" aria-expanded="false">
+                        <span>A plataforma possui base de dados de alimentos confiável?</span>
+                        <span class="material-symbols-outlined faq-icon">add</span>
+                    </button>
+                    <div class="faq-content">
+                        <div class="faq-content-inner">
+                            <p>Sim. Utilizamos tabelas de referência consolidadas de composição de alimentos (como a TACO e TBCA), garantindo total exatidão científica na composição nutricional de cada refeição prescrita.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-trigger" aria-expanded="false">
+                        <span>Estudantes de nutrição podem utilizar a plataforma?</span>
+                        <span class="material-symbols-outlined faq-icon">add</span>
+                    </button>
+                    <div class="faq-content">
+                        <div class="faq-content-inner">
+                            <p>Com certeza! A Amora foi desenvolvida tanto para profissionais experientes quanto para estudantes que buscam aplicar conceitos práticos de dietoterapia e laudos laboratoriais durante a sua formação.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-trigger" aria-expanded="false">
+                        <span>Como funciona o assistente de laudos por IA?</span>
+                        <span class="material-symbols-outlined faq-icon">add</span>
+                    </button>
+                    <div class="faq-content">
+                        <div class="faq-content-inner">
+                            <p>O assistente de laudos lê exames de sangue e gera um relatório inicial preditivo com possíveis deficiências e sugestões baseadas nas diretrizes clínicas mais recentes, poupando tempo na interpretação diagnóstica inicial.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- ============ CTA Banner ============ -->
 <section class="section--tight">
     <div class="container">
@@ -452,9 +1016,9 @@
 
             <div class="footer-col">
                 <h4>Legal</h4>
-                <a href="#">Termos de Uso</a>
-                <a href="#">Política de Privacidade</a>
-                <a href="#">LGPD</a>
+                <a href="termos.html">Termos de Uso</a>
+                <a href="privacidade.html">Política de Privacidade</a>
+                <a href="lgpd.html">LGPD</a>
             </div>
         </div>
 

@@ -19,6 +19,7 @@ export default function Recursos() {
   const [tacoData, setTacoData] = useState([]);
   const [termoBusca, setTermoBusca] = useState('');
   const [tacoPorcao, setTacoPorcao] = useState('100g'); // 100g, 50g, Porção
+  const [activeDb, setActiveDb] = useState('taco'); // 'taco' or 'tbca'
 
   // Meals State
   const [meals, setMeals] = useState([
@@ -115,15 +116,28 @@ export default function Recursos() {
     }
 
     loadProfile();
-
-    // Load TACO
-    fetch('/TACO.json')
-      .then(res => res.json())
-      .then(data => setTacoData(data))
-      .catch(err => console.error("Erro ao carregar TACO", err));
-
     setLoading(false);
   }, []);
+
+  // Fetch from Quarkus backend based on active database & query
+  useEffect(() => {
+    const q = termoBusca.trim();
+    if (q.length < 2) {
+      // Fetch default list
+      fetch(`http://localhost:8080/api/alimentos?db=${activeDb}`)
+        .then(res => res.json())
+        .then(data => setTacoData(data))
+        .catch(err => console.error("Erro ao carregar alimentos base", err));
+    } else {
+      const handler = setTimeout(() => {
+        fetch(`http://localhost:8080/api/alimentos/busca?q=${encodeURIComponent(q)}&db=${activeDb}`)
+          .then(res => res.json())
+          .then(data => setTacoData(data))
+          .catch(err => console.error("Erro ao buscar alimentos", err));
+      }, 300);
+      return () => clearTimeout(handler);
+    }
+  }, [termoBusca, activeDb]);
 
   const handleSignOut = () => {
     localStorage.removeItem("user_name");
@@ -196,20 +210,48 @@ export default function Recursos() {
 
   const handleFileUpload = (e) => {
     if (e.target.files && e.target.files.length > 0) {
-      const fileName = e.target.files[0].name;
+      const file = e.target.files[0];
+      const fileName = file.name;
       setExameNome(fileName);
       setExameStatus('analyzing');
       setExameResultado(null);
       
-      // Simulate AI processing
-      setTimeout(() => {
-        setExameStatus('done');
-        setExameResultado({
-          summary: "Identificamos alterações no Perfil Lipídico.",
-          details: "O LDL-C está em 145 mg/dL (acima da meta ideal para o paciente). Recomenda-se focar na redução de saturadas no Plano Alimentar.",
-          date: new Date().toLocaleDateString('pt-BR')
-        });
-      }, 3500); // 3.5s reading simulation
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Data = reader.result;
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          const response = await fetch('/api/analise-exame', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session?.access_token || ''}`
+            },
+            body: JSON.stringify({
+              fileData: base64Data,
+              fileName: fileName,
+              fileType: file.type
+            })
+          });
+          
+          const result = await response.json();
+          if (response.ok) {
+            setExameStatus('done');
+            setExameResultado({
+              summary: result.summary,
+              details: result.details,
+              date: new Date().toLocaleDateString('pt-BR')
+            });
+          } else {
+            throw new Error(result.error || 'Erro na análise');
+          }
+        } catch (error) {
+          console.error("Erro ao analisar exame:", error);
+          setExameStatus('idle');
+          alert("Erro ao analisar o exame: " + error.message);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -219,24 +261,23 @@ export default function Recursos() {
     }
   };
 
-  // TACO Filter
-  const alimentosFiltrados = termoBusca 
-    ? tacoData.filter(item => item.description.toLowerCase().includes(termoBusca.toLowerCase())).slice(0, 15)
-    : tacoData.slice(0, 5); // Show first 5 initially
+  // TACO / TBCA Filtered results (already filtered by backend)
+  const alimentosFiltrados = tacoData.slice(0, 15);
     
   // Meal Filter
   const mealAlimentosFiltrados = mealSearchTerm
-    ? tacoData.filter(item => item.description.toLowerCase().includes(mealSearchTerm.toLowerCase())).slice(0, 5)
+    ? tacoData.slice(0, 5)
     : [];
 
   const handleAddToMeal = (item, mealId) => {
     const newItem = {
       description: item.description,
-      base_kcal: typeof item.energy_kcal === 'number' ? item.energy_kcal : 0,
-      base_carb: typeof item.carbohydrate_g === 'number' ? item.carbohydrate_g : 0,
-      base_prot: typeof item.protein_g === 'number' ? item.protein_g : 0,
-      base_fat: typeof item.lipid_g === 'number' ? item.lipid_g : 0,
-      amount_g: 100 // default 100g
+      base_kcal: item.energy_kcal !== "NA" ? parseFloat(item.energy_kcal) : 0,
+      base_carb: item.carbohydrate_g !== "NA" ? parseFloat(item.carbohydrate_g) : 0,
+      base_prot: item.protein_g !== "NA" ? parseFloat(item.protein_g) : 0,
+      base_fat: item.lipid_g !== "NA" ? parseFloat(item.lipid_g) : 0,
+      amount_g: 100, // default 100g
+      unit: 'g'
     };
     setMeals(meals.map(m => m.id === mealId ? { ...m, items: [...m.items, newItem] } : m));
     setAddingToMealId(null);
@@ -248,6 +289,23 @@ export default function Recursos() {
       if (m.id === mealId) {
         const newItems = [...m.items];
         newItems[itemIndex] = { ...newItems[itemIndex], amount_g: Number(newAmount) || 0 };
+        return { ...m, items: newItems };
+      }
+      return m;
+    }));
+  };
+
+  const handleUpdateItemUnit = (mealId, itemIndex, newUnit) => {
+    setMeals(meals.map(m => {
+      if (m.id === mealId) {
+        const newItems = [...m.items];
+        let amount = newItems[itemIndex].amount_g;
+        if (newUnit === 'un' && newItems[itemIndex].unit !== 'un') {
+          amount = Math.round(amount / 100) || 1;
+        } else if (newUnit !== 'un' && newItems[itemIndex].unit === 'un') {
+          amount = amount * 100;
+        }
+        newItems[itemIndex] = { ...newItems[itemIndex], unit: newUnit, amount_g: amount };
         return { ...m, items: newItems };
       }
       return m;
@@ -290,7 +348,7 @@ export default function Recursos() {
 
   const calculateMealTotals = (meal) => {
     return meal.items.reduce((acc, item) => {
-      const mult = (item.amount_g || 0) / 100;
+      const mult = item.unit === 'un' ? (item.amount_g || 0) : ((item.amount_g || 0) / 100);
       acc.kcal += (item.base_kcal || item.kcal || 0) * mult;
       acc.carb += (item.base_carb || item.carb || 0) * mult;
       acc.prot += (item.base_prot || item.prot || 0) * mult;
@@ -561,14 +619,33 @@ export default function Recursos() {
               </a>
             </div>
           )}
-        <div className="flex items-center gap-4 mb-6">
-        <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center text-blue-700 dark:text-blue-400">
-        <span className="material-symbols-outlined">nutrition</span>
-        </div>
-        <div>
-        <h3 className="text-sm font-bold dark:text-white">Tabela TACO</h3>
-        <p className="text-xs text-gray-500">Composição de Alimentos (Real)</p>
-        </div>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center text-blue-700 dark:text-blue-400">
+              <span className="material-symbols-outlined">nutrition</span>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold dark:text-white">Tabela {activeDb.toUpperCase()}</h3>
+              <p className="text-xs text-gray-500">
+                {activeDb === 'taco' ? 'Composição de Alimentos (Real)' : 'Tabela Brasileira de Composição de Alimentos'}
+              </p>
+            </div>
+          </div>
+          {/* Tabs */}
+          <div className="flex bg-gray-100 dark:bg-[#27272A] rounded-lg p-0.5 border border-gray-200 dark:border-gray-800">
+            <button 
+              onClick={() => setActiveDb('taco')} 
+              className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${activeDb === 'taco' ? 'bg-white dark:bg-black text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+            >
+              TACO
+            </button>
+            <button 
+              onClick={() => setActiveDb('tbca')} 
+              className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${activeDb === 'tbca' ? 'bg-white dark:bg-black text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+            >
+              TBCA
+            </button>
+          </div>
         </div>
         <div className="flex gap-2 mb-4">
         <div className="flex-1 relative">
@@ -737,32 +814,47 @@ export default function Recursos() {
             <span className="material-symbols-outlined text-xs text-red-500 cursor-pointer opacity-50 hover:opacity-100" onClick={() => setMeals(meals.filter(m => m.id !== meal.id))}>close</span>
           </div>
           </div>
-          {meal.items.map((item, idx) => (
+          {meal.items.map((item, idx) => {
+            const mult = item.unit === 'un' ? (item.amount_g || 0) : ((item.amount_g || 0) / 100);
+            return (
             <div key={idx} className="bg-white dark:bg-[#18181B] px-3 py-2 rounded-md mb-2 text-sm border border-gray-200 dark:border-[#27272A] flex flex-col justify-between">
               <div className="flex justify-between items-start mb-1 gap-2">
                  <span className="truncate flex-1 font-medium text-gray-900 dark:text-white" title={item.description}>{item.description}</span>
                  <div className="flex gap-2 items-center shrink-0">
-                    <div className="flex items-center gap-1 bg-gray-100 dark:bg-[#27272A] rounded px-2 py-0.5 border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-1 bg-gray-100 dark:bg-[#27272A] rounded px-1.5 py-0.5 border border-gray-200 dark:border-gray-700">
                        <input 
-                          type="number" 
-                          value={item.amount_g || ''} 
-                          onChange={(e) => handleUpdateItemAmount(meal.id, idx, e.target.value)} 
-                          className="w-10 text-xs bg-transparent text-right outline-none dark:text-white"
+                          type="text" 
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={item.amount_g === 0 ? '' : item.amount_g} 
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            handleUpdateItemAmount(meal.id, idx, val);
+                          }} 
+                          className="w-10 text-xs bg-transparent text-right border-none outline-none focus:ring-0 p-0 dark:text-white"
                        />
-                       <span className="text-[10px] text-gray-500">g</span>
+                       <select
+                          value={item.unit || 'g'}
+                          onChange={(e) => handleUpdateItemUnit(meal.id, idx, e.target.value)}
+                          className="text-[10px] text-gray-500 font-medium bg-transparent border-none outline-none focus:ring-0 p-0 cursor-pointer ml-0.5"
+                       >
+                          <option value="g">g</option>
+                          <option value="un">un</option>
+                          <option value="ml">ml</option>
+                       </select>
                     </div>
                     <span className="material-symbols-outlined text-xs text-red-500 cursor-pointer" onClick={() => handleRemoveFromMeal(meal.id, idx)}>delete</span>
                  </div>
               </div>
               <div className="flex gap-2 text-[10px] text-gray-500">
-                 <span>{((item.base_kcal || item.kcal || 0) * ((item.amount_g||0)/100)).toFixed(0)} kcal</span>
+                 <span>{((item.base_kcal || item.kcal || 0) * mult).toFixed(0)} kcal</span>
                  <span className="text-gray-300 dark:text-gray-600">|</span>
-                 <span>C: {((item.base_carb || item.carb || 0) * ((item.amount_g||0)/100)).toFixed(1)}g</span>
-                 <span>P: {((item.base_prot || item.prot || 0) * ((item.amount_g||0)/100)).toFixed(1)}g</span>
-                 <span>G: {((item.base_fat || item.fat || 0) * ((item.amount_g||0)/100)).toFixed(1)}g</span>
+                 <span>C: {((item.base_carb || item.carb || 0) * mult).toFixed(1)}g</span>
+                 <span>P: {((item.base_prot || item.prot || 0) * mult).toFixed(1)}g</span>
+                 <span>G: {((item.base_fat || item.fat || 0) * mult).toFixed(1)}g</span>
               </div>
             </div>
-          ))}
+          )})}
           {addingToMealId === meal.id ? (
              <div className="bg-gray-100 dark:bg-[#18181B] p-2 rounded-lg border border-purple-200 dark:border-purple-900/30">
                 <input 
