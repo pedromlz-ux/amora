@@ -50,29 +50,32 @@ public class FoodService {
                         line = line.trim();
                         if (line.isEmpty()) continue;
                         try {
+                            @SuppressWarnings("null")
                             RawTbcaFood raw = mapper.readValue(line, RawTbcaFood.class);
-                            Food food = new Food();
-                            food.id = idCounter++;
-                            food.description = raw.descricao;
-                            food.category = raw.classe;
-                            
-                            // Map nutritional values to standard fields
-                            if (raw.nutrientes != null) {
-                                for (RawTbcaFood.Nutriente n : raw.nutrientes) {
-                                    String val = n.ValorPor100g != null ? n.ValorPor100g.replace(",", ".") : "NA";
-                                    if ("Energia".equalsIgnoreCase(n.Componente) && "kcal".equalsIgnoreCase(n.Unidades)) {
-                                        food.setNutritionData("energy_kcal", val);
-                                    } else if ("Proteína".equalsIgnoreCase(n.Componente)) {
-                                        food.setNutritionData("protein_g", val);
-                                    } else if ("Carboidrato total".equalsIgnoreCase(n.Componente) || "Carboidrato disponível".equalsIgnoreCase(n.Componente)) {
-                                        // Prefer total or available, we can just save it under carbohydrate_g
-                                        food.setNutritionData("carbohydrate_g", val);
-                                    } else if ("Lipídios".equalsIgnoreCase(n.Componente)) {
-                                        food.setNutritionData("lipid_g", val);
+                            if (raw != null) {
+                                Food food = new Food();
+                                food.id = idCounter++;
+                                food.description = raw.descricao;
+                                food.category = raw.classe;
+                                
+                                // Map nutritional values to standard fields
+                                if (raw.nutrientes != null) {
+                                    for (RawTbcaFood.Nutriente n : raw.nutrientes) {
+                                        String val = n.ValorPor100g != null ? n.ValorPor100g.replace(",", ".") : "NA";
+                                        if ("Energia".equalsIgnoreCase(n.Componente) && "kcal".equalsIgnoreCase(n.Unidades)) {
+                                            food.setNutritionData("energy_kcal", val);
+                                        } else if ("Proteína".equalsIgnoreCase(n.Componente)) {
+                                            food.setNutritionData("protein_g", val);
+                                        } else if ("Carboidrato total".equalsIgnoreCase(n.Componente) || "Carboidrato disponível".equalsIgnoreCase(n.Componente)) {
+                                            // Prefer total or available, we can just save it under carbohydrate_g
+                                            food.setNutritionData("carbohydrate_g", val);
+                                        } else if ("Lipídios".equalsIgnoreCase(n.Componente)) {
+                                            food.setNutritionData("lipid_g", val);
+                                        }
                                     }
                                 }
+                                temp.add(food);
                             }
-                            temp.add(food);
                         } catch (Exception e) {
                             // Skip malformed lines if any
                         }

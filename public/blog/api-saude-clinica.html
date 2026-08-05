@@ -20,10 +20,6 @@
         <img src="../logo-black.svg" alt="Amora" width="120" height="34">
     </a>
     <nav class="header-nav" aria-label="Navegação principal">
-        <a href="../funcionalidades.html">Funcionalidades</a>
-        <a href="../precos.html">Preços</a>
-        <a href="../blog/" style="color:var(--brand-600)">Blog</a>
-        <a href="../sobre.html">Sobre</a>
     </nav>
     <div class="header-actions">
         <a href="https://amora.hublumi.com/cadastro" class="btn btn--primary btn--sm">
@@ -49,21 +45,53 @@
     </header>
 
     <div class="article-content reveal reveal-delay-1">
-        <p>A fragmentação de dados é um dos maiores gargalos na prática clínica moderna. Com o aumento exponencial de dispositivos vestíveis (wearables), aplicativos de monitoramento contínuo de glicose (CGM) e prontuários eletrônicos de pacientes (PEP), o volume de dados gerados tornou-se impossível de ser analisado manualmente pelo profissional de saúde.</p>
+        <p>A medicina e a nutrição clínica estão passando por uma transição histórica: a mudança de um modelo reativo e episódico para um acompanhamento contínuo, preditivo e de precisão. O avanço acelerado da tecnologia aplicada à saúde trouxe uma quantidade sem precedentes de dados biométricos e metabólicos diretamente para as mãos dos pacientes, desafiando a forma tradicional como as condutas terapêuticas são prescritas.</p>
+
+        <p>Até recentemente, o acompanhamento nutricional baseava-se em registros estáticos — como recordatórios alimentares de 24 horas preenchidos de memória e exames de sangue laboratoriais realizados poucas vezes ao ano. Esse formato limitava a percepção do profissional às médias históricas, muitas vezes mascarando oscilações metabólicas agudas ocorridas no dia a dia do paciente sob diferentes níveis de estresse, sono e atividade física.</p>
+
+        <p>No entanto, a fragmentação de dados gerados por novos sensores vestíveis (wearables), balanças de bioimpedância inteligentes e prontuários eletrônicos (PEP) tornou-se um grande obstáculo. Analisar manualmente gigabytes de registros de sono, variabilidade da frequência cardíaca (HRV) e curvas glicêmicas contínuas (CGM) durante uma consulta de 60 minutos é uma tarefa humanamente impossível e ineficiente para o profissional de saúde.</p>
 
         <h2>1. O Papel das APIs na Saúde</h2>
-        <p>APIs (Interfaces de Programação de Aplicações) funcionam como pontes de comunicação seguras entre sistemas distintos. Na saúde clínica, elas permitem que os dados de um smartwatch ou exame laboratorial sejam instantaneamente integrados ao prontuário do paciente, oferecendo ao nutricionista uma visão holística e em tempo real do metabolismo e hábitos de vida do indivíduo.</p>
+        <p>É nesse cenário complexo que as APIs (Interfaces de Programação de Aplicações) emergem como a infraestrutura essencial da saúde digital. APIs funcionam como pontes de comunicação seguras e automatizadas que interconectam softwares médicos, dispositivos de monitoramento contínuo e bases de dados clínicas, permitindo o fluxo dinâmico de informações estruturadas em tempo real.</p>
 
-        <h2>2. Interoperabilidade e Segurança</h2>
-        <p>Garantir que sistemas falem a mesma linguagem é o conceito central da interoperabilidade, suportado por protocolos globais como o FHIR (Fast Healthcare Interoperability Resources). Além da padronização, a segurança na troca de dados sensíveis (criptografia de ponta a ponta, anonimização e conformidade com LGPD/HIPAA) é essencial para a adoção massiva dessas tecnologias em clínicas e hospitais.</p>
+        <p>Em termos práticos, uma API atua como um tradutor universal. Quando um paciente realiza um exame de sangue em um laboratório parceiro ou sincroniza seu smartwatch pela manhã, a API transmite esses dados brutos instantaneamente para o sistema de gestão do nutricionista. Isso elimina a necessidade de digitação manual de exames ou o envio de prints de tela desorganizados por aplicativos de mensagens.</p>
 
+        <p>Para que essa comunicação ocorra sem atritos entre diferentes desenvolvedores e fabricantes, a indústria global de saúde adota padrões unificados como o HL7 (Health Level Seven) e o FHIR (Fast Healthcare Interoperability Resources). Esses protocolos determinam exatamente como dados de alergias, medicamentos, composição corporal e macronutrientes devem ser estruturados e transmitidos com segurança.</p>
+
+        <p>A grande vantagem da arquitetura baseada em APIs FHIR é a modularidade: em vez de carregar documentos clínicos pesados e inteiros, os sistemas podem requisitar apenas a informação necessária — como a variação da glicose pós-prandial do dia anterior ou o nível atual de ferro sérico —, otimizando o processamento de dados.</p>
+
+        <h2>2. Interoperabilidade e a Linha de Cuidado Contínuo</h2>
+        <p>A verdadeira mágica clínica acontece quando conectamos a interoperabilidade de dados ao ecossistema de atendimento ao paciente. A integração contínua permite desenhar uma linha de cuidado dinâmica, onde o nutricionista deixa de ser um planejador passivo de cardápios para se tornar um piloto ativo de estratégias metabólicas personalizadas em tempo real.</p>
+
+        <p>Imagine um paciente com resistência à insulina utilizando um sensor CGM. Através de APIs conectadas, a plataforma clínica do nutricionista recebe as curvas de glicemia em tempo real. Se o paciente apresentar um pico glicêmico acentuado após o almoço, o sistema armazena a informação e correlaciona o evento com o recordatório alimentar digital cadastrado no mesmo instante.</p>
+
+        <p>Sem essa interoperabilidade, o profissional só saberia desse pico na consulta seguinte, semanas depois, quando a memória do paciente sobre o que comeu e como se sentiu já estaria totalmente comprometida. A conexão contínua permite intervenções educativas imediatas e ajustes finos na próxima refeição ou no fracionamento dietético.</p>
+
+        <h2>3. A Inteligência Amora: Decodificando Complexidade</h2>
         <div style="background:var(--brand-50);padding:var(--space-xl);border-radius:var(--radius-lg);border-left:4px solid var(--brand-600);margin-block:var(--space-xl)">
-            <h4 style="color:var(--brand-700);margin-bottom:var(--space-sm)">A Inteligência Amora</h4>
-            <p style="font-size:0.875rem;margin:0">A Amora foi construída pensando num ecossistema conectado. Utilizando nossa API, profissionais conseguem cruzar dados de diferentes bases e permitir que a Inteligência Artificial faça o trabalho pesado de correlacionar variáveis de sono, estresse, exames e ingestão alimentar, acelerando a conduta nutricional.</p>
+            <h4 style="color:var(--brand-700);margin-bottom:var(--space-sm)">Insights da Inteligência Artificial</h4>
+            <p style="font-size:0.875rem;margin:0">A Amora foi construída sob a premissa de que dados sem contexto são apenas ruído. Nossa Inteligência Artificial atua como um copiloto analítico do profissional: ela ingere os fluxos de dados das APIs, cruza as tabelas de referência TACO e TBCA, e gera insights preditivos sobre a resposta metabólica do paciente, permitindo que a conduta clínica seja verdadeiramente baseada em evidências em tempo recorde.</p>
         </div>
 
-        <h2>3. Conclusão</h2>
-        <p>A tecnologia não substitui a relação entre profissional e paciente. Pelo contrário: ao automatizar a coleta e organização de dados através de APIs, o nutricionista ganha mais tempo para focar no que realmente importa: a escuta ativa, a empatia e a personalização da estratégia comportamental do paciente.</p>
+        <p>A IA da Amora foi projetada especificamente para resolver a sobrecarga de informação (information overload) vivida pelos clínicos. Ao processar dados agregados, a inteligência analisa automaticamente padrões ocultos de comportamento do paciente — como correlações complexas entre a privação de sono detectada pelo wearable e episódios de compulsão alimentar relatados no diário.</p>
+
+        <p>O mecanismo calcula em segundos a ingestão total de micronutrientes, aminoácidos e fibras em relação às metas estabelecidas, consultando instantaneamente as tabelas brasileiras oficiais (TACO e TBCA). Se a IA detecta uma tendência de déficit de magnésio ou de baixa ingestão proteica crônica, ela sinaliza o profissional com alertas visuais e sugere opções de substituição de alimentos adaptadas às preferências do paciente.</p>
+
+        <p>Além disso, o motor de IA correlaciona a resposta glicêmica ao tipo de carboidrato prescrito. Ao entender quais preparações causam maior ou menor impacto na curva de glicose de um indivíduo específico, a plataforma auxilia no desenho de estratégias de crononutrição hiper-personalizadas, melhorando sensivelmente a adesão ao tratamento.</p>
+
+        <p>Isso transforma o prontuário clínico em um painel dinâmico e inteligente. Em vez de relatórios complexos em PDF, o profissional conta com visualizações gráficas de alta fidelidade que cruzam exames laboratoriais, bioimpedância, e o histórico comportamental em uma única linha do tempo interativa.</p>
+
+        <h2>4. Governança de Dados, LGPD e Segurança</h2>
+        <p>Por lidar com dados de saúde (classificados como dados sensíveis pela Lei Geral de Proteção de Dados - LGPD), a segurança e a governança nas integrações por API são a prioridade máxima absoluta no desenvolvimento da arquitetura de software da plataforma Amora.</p>
+
+        <p>A Amora utiliza criptografia de ponta a ponta tanto para os dados em repouso quanto para os dados em trânsito (utilizando protocolos HTTPS/TLS avançados). O acesso dos pacientes e profissionais é validado por tokens OAuth 2.0 altamente seguros, garantindo que apenas aplicações devidamente autorizadas acessem os endpoints de dados metabólicos.</p>
+
+        <p>Essa abordagem garante conformidade rigorosa com a LGPD e padrões internacionais de proteção a dados de saúde (como a HIPAA americana). O paciente mantém controle total sobre o compartilhamento de seus dados, podendo revogar o acesso da clínica ou dos wearables integrados a qualquer momento por meio de uma interface simples de privacidade.</p>
+
+        <h2>5. O Futuro Humanizado da Nutrição de Precisão</h2>
+        <p>À medida que avançamos na consolidação da inteligência de dados aplicada à saúde, torna-se claro que a tecnologia não veio para afastar o profissional do paciente, mas sim para aproximá-los. A verdadeira revolução das APIs e da IA é a libertação do clínico das tarefas burocráticas e repetitivas de cálculo e tabulação.</p>
+
+        <p>Ao automatizar a coleta e o processamento inteligente das informações através da plataforma Amora, o nutricionista recupera o recurso mais escasso do mercado de saúde moderna: o tempo de qualidade. Livre das planilhas, ele pode se dedicar integralmente à escuta ativa, à empatia, ao aconselhamento comportamental focado na realidade do paciente e ao desenvolvimento de uma forte aliança terapêutica.</p>
 
         <div class="article-author">
             <img src="https://ui-avatars.com/api/?name=Rafael+Moura&background=0D8ABC&color=fff&size=96&bold=true" alt="Rafael Moura">
@@ -94,13 +122,11 @@
             </div>
             <div class="footer-col">
                 <h4>Plataforma</h4>
-                <a href="../funcionalidades.html">Funcionalidades</a>
                 <a href="../precos.html">Preços</a>
                 <a href="../blog/">Blog</a>
             </div>
             <div class="footer-col">
                 <h4>Empresa</h4>
-                <a href="../sobre.html">Sobre Nós</a>
                 <a href="../contato.html">Contato</a>
             </div>
             <div class="footer-col">

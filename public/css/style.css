@@ -362,6 +362,10 @@ img {
   position: relative;
   overflow: hidden;
   width: 100%;
+  background-image: url('../images/bg-hero.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .hero {
@@ -616,6 +620,21 @@ img {
   .hero-form-card {
     max-width: 480px;
   }
+}
+
+#recursos {
+  background-image: url('../images/bg-recursos.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#ciencias {
+  background-color: #ffffff;
+  background-image: url('../images/bg-ciencias-v3.png');
+  background-size: clamp(300px, 50vw, 800px);
+  background-position: top left;
+  background-repeat: no-repeat;
 }
 
 /* ---------- Sections: Science, Features, Simulator ---------- */
@@ -894,23 +913,56 @@ input[type="range"] {
 }
 
 /* ---------- CTA Banner ---------- */
+.cta-section {
+  position: relative;
+  overflow: hidden;
+  background-color: #f8f9fc;
+  padding-block: var(--space-4xl) !important;
+}
+
+.cta-section::before,
+.cta-section::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background-color: #954fd6;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cta-section::before {
+  width: 320px;
+  height: 320px;
+  top: -120px;
+  left: -80px;
+}
+
+.cta-section::after {
+  width: 480px;
+  height: 480px;
+  top: -120px;
+  right: -120px;
+}
+
 .cta-banner {
-  background: linear-gradient(135deg, var(--brand-700), oklch(0.30 0.16 260));
+  background-color: #ffffff;
   border-radius: var(--radius-xl);
   padding: var(--space-3xl) var(--space-2xl);
   text-align: center;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.04);
+  z-index: 2;
 }
 
 .cta-banner h2 {
-  color: oklch(0.98 0.005 280);
+  color: var(--neutral-900);
   max-width: 540px;
   margin-inline: auto;
 }
 
 .cta-banner p {
-  color: oklch(0.80 0.04 280);
+  color: var(--neutral-500);
   font-size: 0.875rem;
   margin-top: var(--space-md);
   margin-inline: auto;
@@ -922,11 +974,7 @@ input[type="range"] {
 }
 
 .cta-grid-overlay {
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(oklch(0.98 0.005 280 / 0.08) 1px, transparent 1px);
-  background-size: 28px 28px;
-  pointer-events: none;
+  display: none;
 }
 
 /* ---------- Pricing ---------- */
@@ -1154,16 +1202,46 @@ input[type="range"] {
 }
 
 /* ---------- Footer ---------- */
+
 .site-footer {
   border-top: 1px solid var(--neutral-100);
-  background: oklch(0.995 0.002 280);
+  background-color: #ffffff;
   padding: var(--space-2xl) 0;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.site-footer::before,
+.site-footer::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background-color: #954fd6;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.site-footer::before {
+  width: 320px;
+  height: 320px;
+  bottom: -100px;
+  left: -100px;
+}
+
+.site-footer::after {
+  width: 420px;
+  height: 420px;
+  bottom: -150px;
+  right: -120px;
 }
 
 .footer-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 1fr;
   gap: var(--space-2xl);
+  position: relative;
+  z-index: 2;
 }
 
 .footer-brand img {
@@ -1208,6 +1286,8 @@ input[type="range"] {
   border-top: 1px solid var(--neutral-100);
   font-size: 0.75rem;
   color: var(--neutral-300);
+  position: relative;
+  z-index: 2;
 }
 
 @media (max-width: 768px) {

@@ -2,6 +2,51 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
+// Returns grams per 1 serving unit for discrete units (un, colher, concha)
+const getServingWeight = (description, unit) => {
+  if (!description) return 100;
+  const desc = description.toLowerCase();
+
+  if (unit === 'un') {
+    if (desc.includes('pão, trigo, forma') || desc.includes('pão de forma') || desc.includes('pao de forma') || desc.includes('forma, integral')) return 25;
+    if (desc.includes('pão') || desc.includes('pao')) return 50;
+    if (desc.includes('ovo')) return 50;
+    if (desc.includes('banana')) return 90;
+    if (desc.includes('maçã') || desc.includes('maca')) return 130;
+    if (desc.includes('laranja')) return 130;
+    if (desc.includes('limão') || desc.includes('limao')) return 50;
+    if (desc.includes('iogurte')) return 170;
+    if (desc.includes('leite') || desc.includes('suco') || desc.includes('bebida') || desc.includes('água') || desc.includes('agua')) return 200;
+    return 100;
+  }
+
+  if (unit === 'colher') {
+    // Colher de sopa (tablespoon) — TACO/IBGE household measure references
+    if (desc.includes('arroz') || desc.includes('macarrão') || desc.includes('massa') || desc.includes('macarrao')) return 25;
+    if (desc.includes('feijão') || desc.includes('feijao') || desc.includes('lentilha') || desc.includes('grão') || desc.includes('grao')) return 20;
+    if (desc.includes('aveia') || desc.includes('farelo') || desc.includes('granola') || desc.includes('quinoa')) return 15;
+    if (desc.includes('farinha') || desc.includes('amido') || desc.includes('polvilho')) return 12;
+    if (desc.includes('azeite') || desc.includes('óleo') || desc.includes('oleo') || desc.includes('manteiga') || desc.includes('margarina')) return 13;
+    if (desc.includes('açúcar') || desc.includes('acucar') || desc.includes('mel') || desc.includes('geleia') || desc.includes('geleia')) return 15;
+    if (desc.includes('cream cheese') || desc.includes('requeijão') || desc.includes('requeijao')) return 20;
+    if (desc.includes('pasta') || desc.includes('tahine') || desc.includes('pasta de amendoim')) return 16;
+    return 15; // default tablespoon
+  }
+
+  if (unit === 'concha') {
+    // Concha de servir — TACO/IBGE household measure references
+    if (desc.includes('arroz') || desc.includes('macarrão') || desc.includes('massa') || desc.includes('macarrao')) return 80;
+    if (desc.includes('feijão') || desc.includes('feijao') || desc.includes('lentilha') || desc.includes('grão') || desc.includes('grao')) return 100;
+    if (desc.includes('sopa') || desc.includes('caldo') || desc.includes('creme')) return 120;
+    return 80; // default ladle
+  }
+
+  return 100;
+};
+// Legacy alias used in older calls
+const getUnitWeight = (desc) => getServingWeight(desc, 'un');
+
+
 export default function Recursos() {
   const [loading, setLoading] = useState(true);
   
@@ -17,21 +62,85 @@ export default function Recursos() {
 
   // TACO State
   const [tacoData, setTacoData] = useState([]);
+  const [mealSearchResults, setMealSearchResults] = useState([]);
+  const [subSearchResults, setSubSearchResults] = useState([]);
   const [termoBusca, setTermoBusca] = useState('');
   const [tacoPorcao, setTacoPorcao] = useState('100g'); // 100g, 50g, Porção
   const [activeDb, setActiveDb] = useState('taco'); // 'taco' or 'tbca'
 
   // Meals State
   const [meals, setMeals] = useState([
-    { id: 1, name: 'CAFÉ DA MANHÃ', time: '08:00', items: [] },
-    { id: 2, name: 'ALMOÇO', time: '12:30', items: [] }
+    { id: 1, name: 'CAFÉ DA MANHÃ', time: '08:00', items: [], notes: '' },
+    { id: 2, name: 'ALMOÇO', time: '12:30', items: [], notes: '' }
   ]);
   const [addingToMealId, setAddingToMealId] = useState(null);
   const [mealSearchTerm, setMealSearchTerm] = useState('');
+  
+  // Patient and Diet Customization State
+  const [patientName, setPatientName] = useState('');
+  const [dietNotes, setDietNotes] = useState('');
+  const [planName, setPlanName] = useState('');
+  const [addingSubToItem, setAddingSubToItem] = useState(null); // { mealId, itemIndex }
+  const [subSearchTerm, setSubSearchTerm] = useState('');
 
   // Macros Setting State
   const [showMacroSettings, setShowMacroSettings] = useState(false);
   const [macros, setMacros] = useState({ carb: 50, prot: 30, fat: 20 });
+
+  // Save / Load Plan State
+  const [saveStatus, setSaveStatus] = useState('idle'); // idle | saving | saved | error
+  const [savedPlans, setSavedPlans] = useState([]);
+  const [showSavedPlans, setShowSavedPlans] = useState(false);
+  const [loadingPlans, setLoadingPlans] = useState(false);
+  const [currentPlanId, setCurrentPlanId] = useState(null); // id if editing an existing plan
+  const [patientChat, setPatientChat] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
+
+  // Polling patient chat history if editing a plan
+  useEffect(() => {
+    if (!currentPlanId) return;
+    const fetchChat = async () => {
+      try {
+        const res = await fetch(`/api/diet-plans/${currentPlanId}/chat`);
+        if (res.ok) {
+          const data = await res.json();
+          setPatientChat(data);
+        }
+      } catch (e) {
+        console.error('Erro ao buscar chat no painel:', e);
+      }
+    };
+    fetchChat();
+    const interval = setInterval(fetchChat, 5000);
+    return () => clearInterval(interval);
+  }, [currentPlanId]);
+
+  const sendProfessionalChatReply = async () => {
+    if (!chatInput.trim() || !currentPlanId) return;
+    const newMsg = {
+      role: 'nutri',
+      content: chatInput.trim(),
+      time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    };
+    
+    setPatientChat(prev => [...prev, newMsg]);
+    setChatInput('');
+
+    try {
+      const res = await fetch(`/api/diet-plans/${currentPlanId}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: newMsg })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPatientChat(data);
+      }
+    } catch (e) {
+      console.error('Erro ao responder chat do paciente:', e);
+    }
+  };
 
   // Load Macros from localStorage on mount
   useEffect(() => {
@@ -66,6 +175,16 @@ export default function Recursos() {
   // Nutritional Therapy Simulator State
   const [simPeso, setSimPeso] = useState(70);
   const [simDiagnostico, setSimDiagnostico] = useState('renal');
+  const [simFatDiagnostico, setSimFatDiagnostico] = useState('renal');
+  const [simCaloriasRef, setSimCaloriasRef] = useState(2000);
+
+  // Hydration Calculator State
+  const [hidroPeso, setHidroPeso] = useState('');
+  const [hidroIdade, setHidroIdade] = useState('');
+  const [hidroAtividade, setHidroAtividade] = useState('0');
+  const [hidroFator, setHidroFator] = useState('nenhum');
+  const [hidroClima, setHidroClima] = useState('ameno');
+  const [resultadoHidro, setResultadoHidro] = useState(null);
 
   // Mobile Menu State
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -119,25 +238,52 @@ export default function Recursos() {
     setLoading(false);
   }, []);
 
-  // Fetch from Quarkus backend based on active database & query
+  // 1. General food lookup tool (termoBusca)
   useEffect(() => {
     const q = termoBusca.trim();
     if (q.length < 2) {
-      // Fetch default list
-      fetch(`http://localhost:8080/api/alimentos?db=${activeDb}`)
+      fetch(`/api/alimentos?db=${activeDb}`)
         .then(res => res.json())
         .then(data => setTacoData(data))
-        .catch(err => console.error("Erro ao carregar alimentos base", err));
-    } else {
-      const handler = setTimeout(() => {
-        fetch(`http://localhost:8080/api/alimentos/busca?q=${encodeURIComponent(q)}&db=${activeDb}`)
-          .then(res => res.json())
-          .then(data => setTacoData(data))
-          .catch(err => console.error("Erro ao buscar alimentos", err));
-      }, 300);
-      return () => clearTimeout(handler);
+        .catch(err => console.error('Erro ao carregar alimentos base', err));
+      return;
     }
+    const handler = setTimeout(() => {
+      fetch(`/api/alimentos?q=${encodeURIComponent(q)}&db=${activeDb}`)
+        .then(res => res.json())
+        .then(data => setTacoData(data))
+        .catch(err => console.error('Erro ao buscar alimentos', err));
+    }, 300);
+    return () => clearTimeout(handler);
   }, [termoBusca, activeDb]);
+
+  // 2. Meal item search (inside each meal ’s "+ Adicionar item" panel)
+  useEffect(() => {
+    if (addingToMealId === null) { setMealSearchResults([]); return; }
+    const q = mealSearchTerm.trim();
+    if (q.length < 2) { setMealSearchResults([]); return; }
+    const handler = setTimeout(() => {
+      fetch(`/api/alimentos?q=${encodeURIComponent(q)}&db=${activeDb}`)
+        .then(res => res.json())
+        .then(data => setMealSearchResults(data))
+        .catch(err => console.error('Erro ao buscar alimento na refeição', err));
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [mealSearchTerm, activeDb, addingToMealId]);
+
+  // 3. Substitution item search (inside each item’s sub panel)
+  useEffect(() => {
+    if (addingSubToItem === null) { setSubSearchResults([]); return; }
+    const q = subSearchTerm.trim();
+    if (q.length < 2) { setSubSearchResults([]); return; }
+    const handler = setTimeout(() => {
+      fetch(`/api/alimentos?q=${encodeURIComponent(q)}&db=${activeDb}`)
+        .then(res => res.json())
+        .then(data => setSubSearchResults(data))
+        .catch(err => console.error('Erro ao buscar substituto', err));
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [subSearchTerm, activeDb, addingSubToItem]);
 
   const handleSignOut = () => {
     localStorage.removeItem("user_name");
@@ -208,6 +354,51 @@ export default function Recursos() {
     setResultadoImc({ valor: imc, classificacao, sexoFormatado: sexo === 'feminino' ? 'Feminino' : 'Masculino' });
   };
 
+  const calcularHidratacao = () => {
+    if (!hidroPeso || !hidroIdade) return;
+    const p = parseFloat(hidroPeso);
+    const i = parseInt(hidroIdade);
+    const act = parseFloat(hidroAtividade) || 0;
+    
+    let baseFator = 35;
+    if (i >= 55 && i <= 65) baseFator = 30;
+    else if (i > 65) baseFator = 25;
+    
+    let totalMl = p * baseFator;
+    totalMl += (act / 30) * 350;
+    
+    if (hidroFator === 'gestacao') {
+      totalMl += 300;
+    } else if (hidroFator === 'lactacao') {
+      totalMl += 700;
+    }
+    
+    if (hidroClima === 'quente') {
+      totalMl += 500;
+    } else if (hidroClima === 'muito_quente') {
+      totalMl += 1000;
+    }
+    
+    const finalMl = Math.round(totalMl);
+    const finalLitros = (finalMl / 1000).toFixed(2);
+    const copos250 = Math.round(finalMl / 250);
+    
+    const manha = Math.round(finalMl * 0.40);
+    const tarde = Math.round(finalMl * 0.40);
+    const noite = Math.round(finalMl * 0.20);
+    
+    setResultadoHidro({
+      ml: finalMl,
+      litros: finalLitros,
+      copos: copos250,
+      distribuicao: {
+        manha,
+        tarde,
+        noite
+      }
+    });
+  };
+
   const handleFileUpload = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
@@ -263,25 +454,102 @@ export default function Recursos() {
 
   // TACO / TBCA Filtered results (already filtered by backend)
   const alimentosFiltrados = tacoData.slice(0, 15);
-    
-  // Meal Filter
-  const mealAlimentosFiltrados = mealSearchTerm
-    ? tacoData.slice(0, 5)
-    : [];
+
+  // Meal search results — independent state, no cross-contamination with general search
+  const mealAlimentosFiltrados = mealSearchResults.slice(0, 8);
+
+  // Substitution search results — independent state
+  const subAlimentosFiltrados = subSearchResults.slice(0, 8);
+
+  // Safe number parser: handles NA, *, Tr, empty strings, etc.
+  const safeNum = (v) => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
 
   const handleAddToMeal = (item, mealId) => {
     const newItem = {
       description: item.description,
-      base_kcal: item.energy_kcal !== "NA" ? parseFloat(item.energy_kcal) : 0,
-      base_carb: item.carbohydrate_g !== "NA" ? parseFloat(item.carbohydrate_g) : 0,
-      base_prot: item.protein_g !== "NA" ? parseFloat(item.protein_g) : 0,
-      base_fat: item.lipid_g !== "NA" ? parseFloat(item.lipid_g) : 0,
+      base_kcal: safeNum(item.energy_kcal),
+      base_carb: safeNum(item.carbohydrate_g),
+      base_prot: safeNum(item.protein_g),
+      base_fat: safeNum(item.lipid_g),
       amount_g: 100, // default 100g
-      unit: 'g'
+      unit: 'g',
+      substitutions: []
     };
     setMeals(meals.map(m => m.id === mealId ? { ...m, items: [...m.items, newItem] } : m));
     setAddingToMealId(null);
     setMealSearchTerm('');
+  };
+
+  const handleAddSubstitution = (mealId, itemIndex, item) => {
+    const newSub = {
+      description: item.description,
+      base_kcal: safeNum(item.energy_kcal),
+      base_carb: safeNum(item.carbohydrate_g),
+      base_prot: safeNum(item.protein_g),
+      base_fat: safeNum(item.lipid_g),
+      amount_g: 100,
+      unit: 'g'
+    };
+    setMeals(meals.map(m => {
+      if (m.id === mealId) {
+        const newItems = [...m.items];
+        const mainItem = newItems[itemIndex];
+        const subs = mainItem.substitutions || [];
+        newItems[itemIndex] = { ...mainItem, substitutions: [...subs, newSub] };
+        return { ...m, items: newItems };
+      }
+      return m;
+    }));
+    setAddingSubToItem(null);
+    setSubSearchTerm('');
+  };
+
+  const handleRemoveSubstitution = (mealId, itemIndex, subIndex) => {
+    setMeals(meals.map(m => {
+      if (m.id === mealId) {
+        const newItems = [...m.items];
+        const mainItem = newItems[itemIndex];
+        const subs = (mainItem.substitutions || []).filter((_, idx) => idx !== subIndex);
+        newItems[itemIndex] = { ...mainItem, substitutions: subs };
+        return { ...m, items: newItems };
+      }
+      return m;
+    }));
+  };
+
+  const handleUpdateSubstitutionAmount = (mealId, itemIndex, subIndex, newAmount) => {
+    setMeals(meals.map(m => {
+      if (m.id === mealId) {
+        const newItems = [...m.items];
+        const mainItem = newItems[itemIndex];
+        const subs = [...(mainItem.substitutions || [])];
+        subs[subIndex] = { ...subs[subIndex], amount_g: Number(newAmount) || 0 };
+        newItems[itemIndex] = { ...mainItem, substitutions: subs };
+        return { ...m, items: newItems };
+      }
+      return m;
+    }));
+  };
+
+  const handleUpdateSubstitutionUnit = (mealId, itemIndex, subIndex, newUnit) => {
+    setMeals(meals.map(m => {
+      if (m.id === mealId) {
+        const newItems = [...m.items];
+        const mainItem = newItems[itemIndex];
+        const subs = [...(mainItem.substitutions || [])];
+        let amount = subs[subIndex].amount_g;
+        const unitW = getUnitWeight(subs[subIndex].description);
+        if (newUnit === 'un' && subs[subIndex].unit !== 'un') {
+          amount = Math.round(amount / unitW) || 1;
+        } else if (newUnit !== 'un' && subs[subIndex].unit === 'un') {
+          amount = amount * unitW;
+        }
+        subs[subIndex] = { ...subs[subIndex], unit: newUnit, amount_g: amount };
+        newItems[itemIndex] = { ...mainItem, substitutions: subs };
+        return { ...m, items: newItems };
+      }
+      return m;
+    }));
   };
 
   const handleUpdateItemAmount = (mealId, itemIndex, newAmount) => {
@@ -299,13 +567,28 @@ export default function Recursos() {
     setMeals(meals.map(m => {
       if (m.id === mealId) {
         const newItems = [...m.items];
-        let amount = newItems[itemIndex].amount_g;
-        if (newUnit === 'un' && newItems[itemIndex].unit !== 'un') {
-          amount = Math.round(amount / 100) || 1;
-        } else if (newUnit !== 'un' && newItems[itemIndex].unit === 'un') {
-          amount = amount * 100;
+        const currentItem = newItems[itemIndex];
+        const currentUnit = currentItem.unit || 'g';
+        let amount = currentItem.amount_g;
+
+        const discreteUnits = ['un', 'colher', 'concha'];
+        const wasDiscrete = discreteUnits.includes(currentUnit);
+        const isDiscrete = discreteUnits.includes(newUnit);
+
+        if (wasDiscrete && !isDiscrete) {
+          // Convert count → grams
+          amount = Math.round(amount * getServingWeight(currentItem.description, currentUnit));
+        } else if (!wasDiscrete && isDiscrete) {
+          // Convert grams → count
+          const servW = getServingWeight(currentItem.description, newUnit);
+          amount = Math.max(1, Math.round(amount / servW));
+        } else if (wasDiscrete && isDiscrete && currentUnit !== newUnit) {
+          // Convert between discrete units (e.g. colher → concha)
+          const gramsNow = amount * getServingWeight(currentItem.description, currentUnit);
+          amount = Math.max(1, Math.round(gramsNow / getServingWeight(currentItem.description, newUnit)));
         }
-        newItems[itemIndex] = { ...newItems[itemIndex], unit: newUnit, amount_g: amount };
+
+        newItems[itemIndex] = { ...currentItem, unit: newUnit, amount_g: amount };
         return { ...m, items: newItems };
       }
       return m;
@@ -319,9 +602,121 @@ export default function Recursos() {
   const handleUpdateMeal = (mealId, field, value) => {
     setMeals(meals.map(m => m.id === mealId ? { ...m, [field]: value } : m));
   };
+
+  const handleMoveMeal = (index, direction) => {
+    setMeals(prev => {
+      const next = [...prev];
+      const swapWith = direction === 'up' ? index - 1 : index + 1;
+      if (swapWith < 0 || swapWith >= next.length) return next;
+      [next[index], next[swapWith]] = [next[swapWith], next[index]];
+      return next;
+    });
+  };
   
+  // ── Save / Load Diet Plans ──────────────────────────────────────────────────
+  const saveDietPlan = async () => {
+    setSaveStatus('saving');
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setSaveStatus('error'); return; }
+
+      const payload = {
+        user_id: user.id,
+        plan_name: planName.trim() || `Plano ${new Date().toLocaleDateString('pt-BR')}`,
+        patient_name: patientName,
+        diet_notes: dietNotes,
+        meals: meals.map(m => ({ ...m, _showNotes: undefined })), // strip UI-only field
+        macros,
+      };
+
+      let error;
+      if (currentPlanId) {
+        ({ error } = await supabase.from('diet_plans').update(payload).eq('id', currentPlanId));
+      } else {
+        const { data, error: insertError } = await supabase.from('diet_plans').insert(payload).select('id').single();
+        error = insertError;
+        if (data) setCurrentPlanId(data.id);
+      }
+
+      if (error) throw error;
+      setSaveStatus('saved');
+      
+      // Refresh the saved plans list in memory so the new name/patient shows up instantly
+      loadDietPlans();
+      
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    } catch (e) {
+      console.error('Erro ao salvar plano:', e);
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    }
+  };
+
+  const loadDietPlans = async () => {
+    setLoadingPlans(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data, error } = await supabase
+        .from('diet_plans')
+        .select('id, plan_name, patient_name, updated_at')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      setSavedPlans(data || []);
+    } catch (e) {
+      console.error('Erro ao carregar planos:', e);
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
+
+  const loadPlan = async (planId) => {
+    try {
+      const { data, error } = await supabase.from('diet_plans').select('*').eq('id', planId).single();
+      if (error) throw error;
+      setPlanName(data.plan_name || '');
+      setPatientName(data.patient_name || '');
+      setDietNotes(data.diet_notes || '');
+      setMeals(data.meals || []);
+      if (data.macros) setMacros(data.macros);
+      setPatientChat(data.patient_chat || []);
+      setCurrentPlanId(data.id);
+      setShowSavedPlans(false);
+    } catch (e) {
+      console.error('Erro ao abrir plano:', e);
+    }
+  };
+
+  const deletePlan = async (planId, e) => {
+    e.stopPropagation();
+    if (!confirm('Excluir este plano? Esta ação é irreversível.')) return;
+    try {
+      await supabase.from('diet_plans').delete().eq('id', planId);
+      setSavedPlans(prev => prev.filter(p => p.id !== planId));
+      if (currentPlanId === planId) setCurrentPlanId(null);
+    } catch (e) {
+      console.error('Erro ao excluir plano:', e);
+    }
+  };
+
+  const newPlan = () => {
+    if (!confirm('Criar um novo plano? O plano atual não salvo será perdido.')) return;
+    setPlanName('');
+    setPatientName('');
+    setDietNotes('');
+    setMeals([
+      { id: 1, name: 'CAFÉ DA MANHÃ', time: '08:00', items: [], notes: '' },
+      { id: 2, name: 'ALMOÇO', time: '12:30', items: [], notes: '' }
+    ]);
+    setPatientChat([]);
+    setCurrentPlanId(null);
+  };
+  // ──────────────────────────────────────────────────────────────────────────
+
   const addMeal = () => {
-    setMeals([...meals, { id: Date.now(), name: 'NOVA REFEIÇÃO', time: '16:00', items: [] }]);
+    setMeals([...meals, { id: Date.now(), name: 'NOVA REFEIÇÃO', time: '16:00', items: [], notes: '' }]);
   };
 
   const handleMacroChange = (field, value) => {
@@ -348,7 +743,9 @@ export default function Recursos() {
 
   const calculateMealTotals = (meal) => {
     return meal.items.reduce((acc, item) => {
-      const mult = item.unit === 'un' ? (item.amount_g || 0) : ((item.amount_g || 0) / 100);
+      const isDiscrete = item.unit === 'un' || item.unit === 'colher' || item.unit === 'concha';
+      const servW = isDiscrete ? getServingWeight(item.description, item.unit) : 1;
+      const mult = isDiscrete ? ((item.amount_g || 0) * servW / 100) : ((item.amount_g || 0) / 100);
       acc.kcal += (item.base_kcal || item.kcal || 0) * mult;
       acc.carb += (item.base_carb || item.carb || 0) * mult;
       acc.prot += (item.base_prot || item.prot || 0) * mult;
@@ -391,19 +788,87 @@ export default function Recursos() {
     simConduta = 'Estabilização de glicemia (baixo índice glicêmico & fibras)';
   } else if (simDiagnostico === 'hepática') {
     simProteinaGramas = 1.2;
-    simConduta = 'Prevenção de catabolismo proteico em cirrose compensada';
-  } else if (simDiagnostico === 'esporte') {
-    simProteinaGramas = 2.0;
-    simConduta = 'Hipertrofia muscular e otimização do balanço de nitrogênio';
+    simConduta = 'Prevenção de catabolismo proteico em cirrose hepática compensada';
+  } else if (simDiagnostico === 'sarcopenia') {
+    simProteinaGramas = 1.5;
+    simConduta = 'Aporte proteico elevado para prevenção e tratamento de sarcopenia (ESPEN 2018)';
   } else if (simDiagnostico === 'obesidade') {
     simProteinaGramas = 1.3;
     simConduta = 'Déficit calórico estratégico com preservação de massa magra';
-  } else if (simDiagnostico === 'emagrecimento') {
-    simProteinaGramas = 1.6;
-    simConduta = 'Déficit controlado, saciedade aumentada e poupança muscular';
+  } else if (simDiagnostico === 'manutencao') {
+    simProteinaGramas = 1.0;
+    simConduta = 'Ingestão proteica para manutenção do peso e composição corporal estável';
+  } else if (simDiagnostico === 'hipercolesterolemia') {
+    simProteinaGramas = 1.0;
+    simConduta = 'Redução de gordura saturada, aumento de fibras solúveis e fitosteróis (AHA/EAS)';
+  } else if (simDiagnostico === 'hipertrigliceridemia') {
+    simProteinaGramas = 1.0;
+    simConduta = 'Restrição de carboidratos simples, álcool e gorduras saturadas — ômega-3 indicado';
+  } else if (simDiagnostico === 'cardíaca') {
+    simProteinaGramas = 1.1;
+    simConduta = 'Restrição de sódio (<2g/dia), dieta DASH e controle hídrico (IC - ESPEN/ESC)';
+  } else if (simDiagnostico === 'celíaca') {
+    simProteinaGramas = 1.0;
+    simConduta = 'Dieta 100% isenta de glúten — recuperação da mucosa intestinal e reposição nutricional';
+  } else if (simDiagnostico === 'lactose') {
+    simProteinaGramas = 1.0;
+    simConduta = 'Restrição de lactose com substituição de fontes de cálcio e vitamina D';
   }
 
   const simTotalProteina = (simPeso * simProteinaGramas).toFixed(1);
+
+  // Calculate Fat Simulator values reactively
+  let simGorduraPct = 25; // % do VET
+  let simGorduraConduta = '';
+  let simGorduraTipo = '';
+
+  if (simFatDiagnostico === 'renal') {
+    simGorduraPct = 30;
+    simGorduraTipo = 'AGM e AGPI prioritários';
+    simGorduraConduta = 'Gordura normal-alta para atingir VET; limitar AGS por risco cardiovascular elevado (KDOQI)';
+  } else if (simFatDiagnostico === 'diabetes') {
+    simGorduraPct = 30;
+    simGorduraTipo = 'AGM/AGPI; AGS <7% VET';
+    simGorduraConduta = 'Priorizar ácidos graxos monoinsaturados (azeite) e poli-insaturados; restringir saturados e excluir trans';
+  } else if (simFatDiagnostico === 'hepática') {
+    simGorduraPct = 30;
+    simGorduraTipo = 'Gordura normal; TCM se esteatorreia';
+    simGorduraConduta = 'Manter aporte lipídico normal (25-35% VET); TCM indicado se má-absorção ou colestase (ESPEN)';
+  } else if (simFatDiagnostico === 'sarcopenia') {
+    simGorduraPct = 28;
+    simGorduraTipo = 'Sem restrição específica';
+    simGorduraConduta = 'Aporte lipídico adequado para garantir densidade energética e absorção de vitaminas lipossolúveis (ESPEN 2018)';
+  } else if (simFatDiagnostico === 'obesidade') {
+    simGorduraPct = 25;
+    simGorduraTipo = 'Reduzir AGS; priorizar AGPI';
+    simGorduraConduta = 'Redução moderada do aporte de gordura, priorizando qualidade (AGM/AGPI); eliminar trans';
+  } else if (simFatDiagnostico === 'manutencao') {
+    simGorduraPct = 28;
+    simGorduraTipo = 'Equilibrado';
+    simGorduraConduta = 'Distribuição equilibrada de gorduras; priorizar fontes de qualidade (azeite, ovo, castanhas)';
+  } else if (simFatDiagnostico === 'hipercolesterolemia') {
+    simGorduraPct = 30;
+    simGorduraTipo = 'AGS <7% VET; trans excluído';
+    simGorduraConduta = 'AGS <7% VET, trans excluído, fitosterol 2g/dia (↓~10% LDL), fibras solúveis aumentadas (AHA/EAS 2020)';
+  } else if (simFatDiagnostico === 'hipertrigliceridemia') {
+    simGorduraPct = 28;
+    simGorduraTipo = 'AGS <5% VET; ômega-3 indicado';
+    simGorduraConduta = 'Restrição de AGS (<5% VET), excluir trans; ômega-3 >2g/dia em TG >500 mg/dL (GNUT/AHA)';
+  } else if (simFatDiagnostico === 'cardíaca') {
+    simGorduraPct = 32;
+    simGorduraTipo = 'AGM/AGPI; AGS restrito';
+    simGorduraConduta = '30-35% VET priorizando AGM e AGPI; ômega-3 1g/dia pode reduzir mortalidade cardiovascular (Arq Bras Cardiol 2017)';
+  } else if (simFatDiagnostico === 'celíaca') {
+    simGorduraPct = 28;
+    simGorduraTipo = 'Normal após excluir glúten';
+    simGorduraConduta = 'Aporte lipídico normal; atenção a vitaminas lipossolúveis (A, D, E, K) em fase de recuperação da mucosa';
+  } else if (simFatDiagnostico === 'lactose') {
+    simGorduraPct = 28;
+    simGorduraTipo = 'Evitar laticínios integrais';
+    simGorduraConduta = 'Substituir laticínios convencionais por versões sem lactose ou vegetais; garantir cálcio e vitamina D adequados';
+  }
+
+  const simGorduraTotalG = ((simCaloriasRef * (simGorduraPct / 100)) / 9).toFixed(1);
 
   return (
     <div suppressHydrationWarning className="bg-[#F9FAFB] dark:bg-[#0A0A0B] min-h-screen text-gray-900 dark:text-white">
@@ -432,6 +897,10 @@ export default function Recursos() {
                       <a className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-purple-700 dark:text-purple-400 font-medium bg-purple-50 dark:bg-purple-900/20 transition-colors" href="/recursos">
                           <svg fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14h6"></path><path d="M9 18h6"></path><path d="M12 11v-4"></path></svg>
                           <span className="font-label-md text-sm">Recursos Profissionais</span>
+                      </a>
+                      <a className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="/pacientes">
+                          <span className="material-symbols-outlined" style={{fontSize: '18px'}}>person_search</span>
+                          <span className="font-label-md text-sm">Pacientes</span>
                       </a>
                   </div>
               </div>
@@ -697,281 +1166,6 @@ export default function Recursos() {
         </div>
         </section>
 
-        {/* Card 3: Montador de Dietas */}
-        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 shadow-sm md:row-span-1 relative overflow-hidden">
-          {!isPremium && (
-            <div className="absolute inset-0 bg-white/80 dark:bg-[#18181B]/95 backdrop-blur-[6px] z-20 flex flex-col items-center justify-center p-6 text-center transition-all duration-300">
-              <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 mb-3 shadow-[0_0_15px_rgba(147,51,234,0.3)] animate-pulse">
-                <span className="material-symbols-outlined font-bold text-2xl">lock</span>
-              </div>
-              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Montador de Dietas</h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[200px] mb-4">
-                Monte e estruture planos alimentares completos calculando macros e calorias em tempo real.
-              </p>
-              <a 
-                href="/configuracao"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
-              >
-                <span>Desbloquear com Plano Ultra</span>
-                <span className="material-symbols-outlined text-xs">arrow_forward</span>
-              </a>
-            </div>
-          )}
-        <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 dark:text-orange-400">
-        <span className="material-symbols-outlined">restaurant</span>
-        </div>
-        <div>
-        <h3 className="text-sm font-bold dark:text-white">Montador de Dietas</h3>
-        <p className="text-xs text-gray-500">Planejamento alimentar</p>
-        </div>
-        </div>
-        <button onClick={() => setShowMacroSettings(!showMacroSettings)} className={`p-2 rounded-full transition-colors ${showMacroSettings ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30' : 'hover:bg-gray-100 dark:hover:bg-[#27272A] dark:text-gray-400'}`}>
-        <span className="material-symbols-outlined">settings_suggest</span>
-        </button>
-        </div>
-        
-        {/* Modal de Configuração de Macros */}
-        {showMacroSettings && (
-          <div className="mb-6 p-4 rounded-xl border border-gray-200 dark:border-[#27272A] bg-gray-50 dark:bg-[#0A0A0B]">
-            <h4 className="text-xs font-bold uppercase mb-3 dark:text-white">Distribuição de Macros (%)</h4>
-            <div className="grid grid-cols-3 gap-3">
-               <div>
-                  <label className="text-xs text-gray-500">Carboidratos</label>
-                  <input type="number" value={macros.carb} onChange={e => handleMacroChange('carb', e.target.value)} className="w-full mt-1 bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded p-2 text-sm text-center dark:text-white outline-none focus:ring-1 focus:ring-purple-500"/>
-               </div>
-               <div>
-                  <label className="text-xs text-gray-500">Proteínas</label>
-                  <input type="number" value={macros.prot} onChange={e => handleMacroChange('prot', e.target.value)} className="w-full mt-1 bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded p-2 text-sm text-center dark:text-white outline-none focus:ring-1 focus:ring-purple-500"/>
-               </div>
-               <div>
-                  <label className="text-xs text-gray-500">Gorduras</label>
-                  <input type="number" value={macros.fat} onChange={e => handleMacroChange('fat', e.target.value)} className="w-full mt-1 bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded p-2 text-sm text-center dark:text-white outline-none focus:ring-1 focus:ring-purple-500"/>
-               </div>
-            </div>
-          </div>
-        )}
-
-        <div className="space-y-4">
-        {/* Painel de Balanço da Dieta */}
-        <div className="mb-6 p-4 rounded-xl border border-teal-100 dark:border-teal-900/30 bg-teal-50/50 dark:bg-teal-900/10">
-          <div className="flex justify-between items-center mb-4">
-             <h4 className="text-xs font-bold uppercase dark:text-teal-400 text-teal-700">Balanço Total da Dieta</h4>
-             <span className="text-sm font-bold dark:text-white">{dietTotals.kcal.toFixed(0)} kcal</span>
-          </div>
-          
-          <div className="flex w-full h-3 rounded-full overflow-hidden mb-3">
-             <div style={{width: `${dietPercentages.carb}%`}} className="bg-blue-400 transition-all"></div>
-             <div style={{width: `${dietPercentages.prot}%`}} className="bg-red-400 transition-all"></div>
-             <div style={{width: `${dietPercentages.fat}%`}} className="bg-yellow-400 transition-all"></div>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-2">
-             <div className="flex flex-col border-l-2 border-blue-400 pl-2">
-                <span className="text-[10px] text-gray-500">Carboidratos</span>
-                <span className="text-xs font-bold dark:text-white">{dietPercentages.carb}% <span className="text-gray-400 font-normal">/ {macros.carb}%</span></span>
-                <span className="text-[10px] text-gray-400">{dietTotals.carb.toFixed(0)}g</span>
-             </div>
-             <div className="flex flex-col border-l-2 border-red-400 pl-2">
-                <span className="text-[10px] text-gray-500">Proteínas</span>
-                <span className="text-xs font-bold dark:text-white">{dietPercentages.prot}% <span className="text-gray-400 font-normal">/ {macros.prot}%</span></span>
-                <span className="text-[10px] text-gray-400">{dietTotals.prot.toFixed(0)}g</span>
-             </div>
-             <div className="flex flex-col border-l-2 border-yellow-400 pl-2">
-                <span className="text-[10px] text-gray-500">Gorduras</span>
-                <span className="text-xs font-bold dark:text-white">{dietPercentages.fat}% <span className="text-gray-400 font-normal">/ {macros.fat}%</span></span>
-                <span className="text-[10px] text-gray-400">{dietTotals.fat.toFixed(0)}g</span>
-             </div>
-          </div>
-        </div>
-
-        {meals.map((meal) => {
-          const mTotals = calculateMealTotals(meal);
-          return (
-          <div key={meal.id} className="p-4 rounded-xl bg-gray-50 dark:bg-[#0A0A0B] border border-gray-100 dark:border-[#27272A]">
-          <div className="flex justify-between items-start mb-3">
-            <div>
-              <input 
-                value={meal.name} 
-                onChange={(e) => handleUpdateMeal(meal.id, 'name', e.target.value)} 
-                className="text-xs font-bold uppercase tracking-tight bg-transparent outline-none dark:text-white focus:border-b focus:border-purple-500 w-32" 
-              />
-              <div className="flex gap-2 text-[10px] text-gray-500 mt-1">
-                 <span className="font-medium text-purple-700 dark:text-purple-400">{mTotals.kcal.toFixed(0)} kcal</span>
-                 <span>C: {mTotals.carb.toFixed(0)}g</span>
-                 <span>P: {mTotals.prot.toFixed(0)}g</span>
-                 <span>G: {mTotals.fat.toFixed(0)}g</span>
-              </div>
-            </div>
-          <div className="flex items-center gap-2">
-            <input 
-              type="time" 
-              value={meal.time} 
-              onChange={(e) => handleUpdateMeal(meal.id, 'time', e.target.value)}
-              className="text-xs text-gray-500 bg-transparent outline-none"
-            />
-            <span className="material-symbols-outlined text-xs text-red-500 cursor-pointer opacity-50 hover:opacity-100" onClick={() => setMeals(meals.filter(m => m.id !== meal.id))}>close</span>
-          </div>
-          </div>
-          {meal.items.map((item, idx) => {
-            const mult = item.unit === 'un' ? (item.amount_g || 0) : ((item.amount_g || 0) / 100);
-            return (
-            <div key={idx} className="bg-white dark:bg-[#18181B] px-3 py-2 rounded-md mb-2 text-sm border border-gray-200 dark:border-[#27272A] flex flex-col justify-between">
-              <div className="flex justify-between items-start mb-1 gap-2">
-                 <span className="truncate flex-1 font-medium text-gray-900 dark:text-white" title={item.description}>{item.description}</span>
-                 <div className="flex gap-2 items-center shrink-0">
-                    <div className="flex items-center gap-1 bg-gray-100 dark:bg-[#27272A] rounded px-1.5 py-0.5 border border-gray-200 dark:border-gray-700">
-                       <input 
-                          type="text" 
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          value={item.amount_g === 0 ? '' : item.amount_g} 
-                          onChange={(e) => {
-                            const val = e.target.value.replace(/\D/g, '');
-                            handleUpdateItemAmount(meal.id, idx, val);
-                          }} 
-                          className="w-10 text-xs bg-transparent text-right border-none outline-none focus:ring-0 p-0 dark:text-white"
-                       />
-                       <select
-                          value={item.unit || 'g'}
-                          onChange={(e) => handleUpdateItemUnit(meal.id, idx, e.target.value)}
-                          className="text-[10px] text-gray-500 font-medium bg-transparent border-none outline-none focus:ring-0 p-0 cursor-pointer ml-0.5"
-                       >
-                          <option value="g">g</option>
-                          <option value="un">un</option>
-                          <option value="ml">ml</option>
-                       </select>
-                    </div>
-                    <span className="material-symbols-outlined text-xs text-red-500 cursor-pointer" onClick={() => handleRemoveFromMeal(meal.id, idx)}>delete</span>
-                 </div>
-              </div>
-              <div className="flex gap-2 text-[10px] text-gray-500">
-                 <span>{((item.base_kcal || item.kcal || 0) * mult).toFixed(0)} kcal</span>
-                 <span className="text-gray-300 dark:text-gray-600">|</span>
-                 <span>C: {((item.base_carb || item.carb || 0) * mult).toFixed(1)}g</span>
-                 <span>P: {((item.base_prot || item.prot || 0) * mult).toFixed(1)}g</span>
-                 <span>G: {((item.base_fat || item.fat || 0) * mult).toFixed(1)}g</span>
-              </div>
-            </div>
-          )})}
-          {addingToMealId === meal.id ? (
-             <div className="bg-gray-100 dark:bg-[#18181B] p-2 rounded-lg border border-purple-200 dark:border-purple-900/30">
-                <input 
-                  autoFocus
-                  className="w-full bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-purple-700 outline-none text-sm dark:text-white mb-2" 
-                  placeholder="Buscar na TACO..." 
-                  value={mealSearchTerm} onChange={e => setMealSearchTerm(e.target.value)}
-                />
-                <div className="flex flex-col gap-1 max-h-[150px] overflow-y-auto">
-                   {mealAlimentosFiltrados.map((item, idx) => (
-                      <button key={idx} onClick={() => handleAddToMeal(item, meal.id)} className="text-left text-xs p-2 leading-relaxed hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded truncate">{item.description}</button>
-                   ))}
-                   {mealAlimentosFiltrados.length === 0 && mealSearchTerm && <span className="text-xs text-gray-500 px-1 py-2">Nenhum resultado</span>}
-                </div>
-                <button onClick={() => {setAddingToMealId(null); setMealSearchTerm('')}} className="mt-2 text-xs text-red-500 w-full text-center py-1">Cancelar</button>
-             </div>
-          ) : (
-            <button onClick={() => setAddingToMealId(meal.id)} className="w-full flex items-center justify-center gap-2 py-2 border-2 border-dashed border-gray-300 dark:border-[#27272A] rounded-lg text-sm text-gray-500 hover:border-purple-700 hover:text-purple-700 transition-all">
-            <span className="material-symbols-outlined text-sm">add</span>
-            <span>Adicionar item</span>
-            </button>
-          )}
-          </div>
-        )})}
-        
-        <button onClick={addMeal} className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 dark:text-purple-400 dark:bg-purple-900/20 dark:hover:bg-purple-900/40 transition-all">
-          <span className="material-symbols-outlined text-sm">add_circle</span>
-          <span>Adicionar nova refeição</span>
-        </button>
-
-        </div>
-        </section>
-
-        {/* Card 4: Análise de Exames (AI) */}
-        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 shadow-sm relative overflow-hidden">
-          {!isPremium && (
-            <div className="absolute inset-0 bg-white/80 dark:bg-[#18181B]/95 backdrop-blur-[6px] z-20 flex flex-col items-center justify-center p-6 text-center transition-all duration-300">
-              <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 mb-3 shadow-[0_0_15px_rgba(147,51,234,0.3)] animate-pulse">
-                <span className="material-symbols-outlined font-bold text-2xl">lock</span>
-              </div>
-              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Análise de Exames (IA)</h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[200px] mb-4">
-                Envie laudos de exames laboratoriais e receba insights preditivos gerados por inteligência artificial.
-              </p>
-              <a 
-                href="/configuracao"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
-              >
-                <span>Desbloquear com Plano Ultra</span>
-                <span className="material-symbols-outlined text-xs">arrow_forward</span>
-              </a>
-            </div>
-          )}
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-purple-500/10 blur-[60px] rounded-full pointer-events-none"></div>
-        <div className="flex items-center gap-4 mb-6">
-        <div className="w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-900/20 flex items-center justify-center text-teal-600 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 relative">
-        <span className="material-symbols-outlined">clinical_notes</span>
-        <span className="material-symbols-outlined absolute -top-1 -right-1 text-[12px] text-purple-700" style={{fontVariationSettings: "'FILL' 1"}}>auto_awesome</span>
-        </div>
-        <div>
-        <h3 className="text-sm font-bold dark:text-white">Análise de Exames</h3>
-        <p className="text-xs text-gray-500">Insights com IA preditiva</p>
-        </div>
-        </div>
-
-        <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".pdf,.png,.jpg,.jpeg" />
-
-        <div onClick={triggerUpload} className="flex-1 min-h-[200px] flex flex-col items-center justify-center border-2 border-dashed border-gray-300 dark:border-[#27272A] rounded-xl p-8 bg-gray-50 dark:bg-[#0A0A0B] hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:border-purple-700 transition-all cursor-pointer group">
-        
-        {exameStatus === 'analyzing' && (
-          <div className="flex flex-col items-center justify-center py-6">
-            <div className="w-12 h-12 rounded-full border-4 border-purple-200 border-t-purple-700 animate-spin mb-4"></div>
-            <p className="text-sm font-bold dark:text-white mb-1">Analisando Laudo...</p>
-            <p className="text-xs text-gray-500 animate-pulse">Lendo padrões biomarcadores</p>
-          </div>
-        )}
-
-        {exameStatus === 'done' && exameResultado && (
-          <div className="flex flex-col items-start w-full cursor-default" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-3 mb-4 w-full border-b border-gray-100 dark:border-[#27272A] pb-4">
-               <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center shrink-0">
-                 <span className="material-symbols-outlined text-xl text-teal-600">check_circle</span>
-               </div>
-               <div className="flex-1 overflow-hidden">
-                 <p className="text-xs font-bold dark:text-white truncate" title={exameNome}>{exameNome}</p>
-                 <p className="text-[10px] text-gray-500">Lido com Sucesso • {exameResultado.date}</p>
-               </div>
-               <button onClick={(e) => { e.stopPropagation(); setExameStatus('idle'); setExameNome(''); setExameResultado(null); }} className="text-[10px] text-red-500 hover:underline">Remover</button>
-            </div>
-            <div className="bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 rounded-xl p-4 w-full">
-               <div className="flex items-center gap-2 mb-2">
-                 <span className="material-symbols-outlined text-purple-700 text-sm">robot_2</span>
-                 <p className="text-xs font-bold text-purple-700 dark:text-purple-400">Insight Gerado</p>
-               </div>
-               <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">{exameResultado.summary}</p>
-               <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">{exameResultado.details}</p>
-            </div>
-          </div>
-        )}
-
-        {exameStatus === 'idle' && (
-          <>
-            <div className="w-16 h-16 rounded-full bg-white dark:bg-[#18181B] shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-            <span className="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600 group-hover:text-purple-700 transition-colors">upload_file</span>
-            </div>
-            <p className="text-sm font-bold mb-1 dark:text-white">Arraste seus laudos aqui</p>
-            <p className="text-xs text-gray-500 mb-6">Suporta PDF, JPG e PNG</p>
-          </>
-        )}
-
-        <div className="flex gap-2 items-center py-1 px-4 bg-purple-100 dark:bg-purple-900/30 rounded-full">
-        <span className="material-symbols-outlined text-sm text-purple-700 dark:text-purple-400" style={{fontVariationSettings: "'FILL' 1"}}>auto_awesome</span>
-        <span className="text-xs font-bold text-purple-700 dark:text-purple-400">Análise IA Ativada</span>
-        </div>
-        </div>
-        <p className="mt-4 text-[10px] text-center text-gray-400">Os dados são processados localmente seguindo as normas da LGPD.</p>
-        </section>
 
         {/* Card 5: Calculadora de Gasto Energético */}
         <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 group shadow-sm md:col-span-2 relative overflow-hidden">
@@ -1085,7 +1279,7 @@ export default function Recursos() {
         </section>
 
         {/* Card 6: Simulador de Terapia Nutricional */}
-        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 group shadow-sm md:col-span-2 relative overflow-hidden">
+        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 group shadow-sm relative overflow-hidden">
           {!isPremium && (
             <div className="absolute inset-0 bg-white/80 dark:bg-[#18181B]/95 backdrop-blur-[6px] z-20 flex flex-col items-center justify-center p-6 text-center transition-all duration-300">
               <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 mb-3 shadow-[0_0_15px_rgba(147,51,234,0.3)] animate-pulse">
@@ -1132,12 +1326,17 @@ export default function Recursos() {
               onChange={(e) => setSimDiagnostico(e.target.value)} 
               className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 text-sm outline-none dark:text-white"
             >
-              <option value="renal">Insuficiência Renal Crônica (Tratamento Conservador)</option>
-              <option value="diabetes">Diabetes Mellitus Tipo 2 (Glicemia Descompensada)</option>
-              <option value="hepática">Insuficiência Hepática Crônica / Cirrose Hepática</option>
-              <option value="esporte">Metabolismo Ativo / Hipertrofia & Ganho Muscular</option>
-              <option value="obesidade">Obesidade Clínico-Metabólica (Preservação de Massa Magra)</option>
-              <option value="emagrecimento">Emagrecimento Estético & Poupança Muscular</option>
+              <option value="renal">Insuficiência Renal Crônica (Conservador)</option>
+              <option value="diabetes">Diabetes Mellitus</option>
+              <option value="hepática">Cirrose Hepática</option>
+              <option value="sarcopenia">Sarcopenia (Diretrizes ESPEN)</option>
+              <option value="obesidade">Obesidade (Preservação de Massa Magra)</option>
+              <option value="manutencao">Manutenção de Peso</option>
+              <option value="hipercolesterolemia">Hipercolesterolemia</option>
+              <option value="hipertrigliceridemia">Hipertrigliceridemia</option>
+              <option value="cardíaca">Insuficiência Cardíaca</option>
+              <option value="celíaca">Doença Celíaca</option>
+              <option value="lactose">Intolerância à Lactose</option>
             </select>
           </div>
 
@@ -1157,9 +1356,436 @@ export default function Recursos() {
           </div>
         </section>
 
+        {/* Card 6b: Simulador de Gorduras */}
+        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-yellow-500/50 group shadow-sm relative overflow-hidden">
+          {!isPremium && (
+            <div className="absolute inset-0 bg-white/80 dark:bg-[#18181B]/95 backdrop-blur-[6px] z-20 flex flex-col items-center justify-center p-6 text-center transition-all duration-300">
+              <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 mb-3 shadow-[0_0_15px_rgba(147,51,234,0.3)] animate-pulse">
+                <span className="material-symbols-outlined font-bold text-2xl">lock</span>
+              </div>
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Simulador de Gorduras</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[300px] mb-4">
+                Simule a meta lipídica recomendada e a conduta direcionada baseada no diagnóstico e ingestão calórica.
+              </p>
+              <a 
+                href="/configuracao"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
+              >
+                <span>Desbloquear com Plano Ultra</span>
+                <span className="material-symbols-outlined text-xs">arrow_forward</span>
+              </a>
+            </div>
+          )}
+
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-10 h-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/20 flex items-center justify-center text-yellow-700 dark:text-yellow-400">
+              <span className="material-symbols-outlined">water_drop</span>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold dark:text-white">Simulador de Gorduras</h3>
+              <p className="text-xs text-gray-500">Meta Lipídica e Conduta Direcionada</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-gray-50 dark:bg-[#0A0A0B] p-4 rounded-xl border border-gray-100 dark:border-[#27272A]">
+              <span className="text-[10px] font-bold text-gray-400 uppercase">% VET Recomendada</span>
+              <p className="text-base sm:text-lg font-black text-gray-900 dark:text-white mt-1">{simGorduraPct}% do VET</p>
+            </div>
+            <div className="bg-gray-50 dark:bg-[#0A0A0B] p-4 rounded-xl border border-gray-100 dark:border-[#27272A]">
+              <span className="text-[10px] font-bold text-gray-400 uppercase">Total em Gramas</span>
+              <p className="text-base sm:text-lg font-black text-yellow-700 dark:text-yellow-400 mt-1">~{simGorduraTotalG}g/dia</p>
+            </div>
+            <div className="bg-gray-50 dark:bg-[#0A0A0B] p-4 rounded-xl border border-gray-100 dark:border-[#27272A]">
+              <span className="text-[10px] font-bold text-gray-400 uppercase">Tipo Prioritário</span>
+              <p className="text-xs font-semibold text-yellow-700 dark:text-yellow-400 mt-1">{simGorduraTipo}</p>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 dark:bg-[#0A0A0B] p-4 rounded-xl border border-gray-100 dark:border-[#27272A] mb-6">
+            <span className="text-[10px] font-bold text-gray-400 uppercase">Conduta Direcionada</span>
+            <p className="text-xs font-semibold text-yellow-700 dark:text-yellow-500 mt-1">{simGorduraConduta}</p>
+          </div>
+
+          <div className="space-y-4 mb-6">
+            <label className="block text-xs font-bold text-gray-500">Selecione o Diagnóstico / Patologia</label>
+            <select 
+              value={simFatDiagnostico} 
+              onChange={(e) => setSimFatDiagnostico(e.target.value)} 
+              className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 text-sm outline-none dark:text-white"
+            >
+              <option value="renal">Insuficiência Renal Crônica (Conservador)</option>
+              <option value="diabetes">Diabetes Mellitus</option>
+              <option value="hepática">Cirrose Hepática</option>
+              <option value="sarcopenia">Sarcopenia (Diretrizes ESPEN)</option>
+              <option value="obesidade">Obesidade (Preservação de Massa Magra)</option>
+              <option value="manutencao">Manutenção de Peso</option>
+              <option value="hipercolesterolemia">Hipercolesterolemia</option>
+              <option value="hipertrigliceridemia">Hipertrigliceridemia</option>
+              <option value="cardíaca">Insuficiência Cardíaca</option>
+              <option value="celíaca">Doença Celíaca</option>
+              <option value="lactose">Intolerância à Lactose</option>
+            </select>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Ingestão Calórica de Referência (VET)</span>
+              <span className="font-bold text-gray-800 dark:text-white">{simCaloriasRef} kcal</span>
+            </div>
+            <input 
+              type="range" 
+              min="1200" 
+              max="4000"
+              step="50"
+              value={simCaloriasRef} 
+              onChange={(e) => setSimCaloriasRef(Number(e.target.value))} 
+              className="w-full accent-yellow-500" 
+            />
+            <div className="flex justify-between text-[10px] text-gray-400">
+              <span>1200 kcal</span>
+              <span>4000 kcal</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Card 7: Calculadora de Hidratação */}
+        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col transition-all hover:border-purple-500/50 group shadow-sm relative overflow-hidden">
+          {!isPremium && (
+            <div className="absolute inset-0 bg-white/80 dark:bg-[#18181B]/95 backdrop-blur-[6px] z-20 flex flex-col items-center justify-center p-6 text-center transition-all duration-300">
+              <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 mb-3 shadow-[0_0_15px_rgba(147,51,234,0.3)] animate-pulse">
+                <span className="material-symbols-outlined font-bold text-2xl">lock</span>
+              </div>
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Calculadora de Hidratação</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[300px] mb-4">
+                Calcule a necessidade de ingestão de água diária com base em idade, peso, clima e atividade física.
+              </p>
+              <a 
+                href="/configuracao"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]"
+              >
+                <span>Desbloquear com Plano Ultra</span>
+                <span className="material-symbols-outlined text-xs">arrow_forward</span>
+              </a>
+            </div>
+          )}
+          
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center text-blue-700 dark:text-blue-400">
+              <span className="material-symbols-outlined">water_drop</span>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold dark:text-white">Calculadora de Hidratação</h3>
+              <p className="text-xs text-gray-500">Diretrizes Acadêmicas e Clínicas</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="space-y-2">
+              <label className="text-xs text-gray-500">Idade</label>
+              <input 
+                className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white" 
+                placeholder="Ex: 30" type="number"
+                value={hidroIdade} onChange={(e) => setHidroIdade(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs text-gray-500">Peso (kg)</label>
+              <input 
+                className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white" 
+                placeholder="Ex: 70" type="number"
+                value={hidroPeso} onChange={(e) => setHidroPeso(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="space-y-2">
+              <label className="text-xs text-gray-500">Clima</label>
+              <select 
+                className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white text-xs sm:text-sm"
+                value={hidroClima} onChange={(e) => setHidroClima(e.target.value)}
+              >
+                <option value="ameno">Ameno / Frio (&lt; 25°C)</option>
+                <option value="quente">Quente (&gt; 25°C)</option>
+                <option value="muito_quente">Muito Quente (&gt; 35°C)</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs text-gray-500">Atividade (min/dia)</label>
+              <input 
+                className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white" 
+                placeholder="Ex: 60" type="number"
+                value={hidroAtividade} onChange={(e) => setHidroAtividade(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2 mb-6">
+            <label className="text-xs text-gray-500">Estado Fisiológico Especial</label>
+            <select 
+              className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white"
+              value={hidroFator} onChange={(e) => setHidroFator(e.target.value)}
+            >
+              <option value="nenhum">Nenhum / Padrão</option>
+              <option value="gestacao">Gestação (+300 ml)</option>
+              <option value="lactacao">Lactação (+700 ml)</option>
+            </select>
+          </div>
+
+          {resultadoHidro && (
+            <div className="mb-4 space-y-3">
+              <div className="p-3 bg-blue-50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-900/30 flex justify-between items-center">
+                 <div>
+                   <p className="text-xs text-gray-500 dark:text-gray-400">Água Diária</p>
+                   <p className="text-lg font-bold text-blue-700 dark:text-blue-400">{resultadoHidro.ml} ml ({resultadoHidro.litros} L)</p>
+                 </div>
+                 <div className="text-right">
+                   <p className="text-xs text-gray-500 dark:text-gray-400">Copos (250ml)</p>
+                   <p className="text-sm font-semibold text-gray-900 dark:text-white">~ {resultadoHidro.copos} copos/dia</p>
+                 </div>
+              </div>
+              <div className="bg-gray-50 dark:bg-[#0A0A0B] border border-gray-200 dark:border-[#27272A] rounded-lg p-3 text-[11px] text-gray-600 dark:text-gray-400 space-y-1">
+                 <p className="font-bold text-gray-700 dark:text-gray-300">Sugestão de Distribuição:</p>
+                 <div className="flex justify-between">
+                   <span>Manhã (40%): <strong>{resultadoHidro.distribuicao.manha} ml</strong></span>
+                   <span>Tarde (40%): <strong>{resultadoHidro.distribuicao.tarde} ml</strong></span>
+                   <span>Noite (20%): <strong>{resultadoHidro.distribuicao.noite} ml</strong></span>
+                 </div>
+              </div>
+            </div>
+          )}
+
+          <button onClick={calcularHidratacao} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-auto">
+            <span>Calcular Hidratação</span>
+            <span className="material-symbols-outlined text-sm">arrow_forward</span>
+          </button>
+        </section>
+
         </div>
         </div>
       </main>
+
+      {/* Layout de Impressão de Dieta (Apenas para Impressão) */}
+      <div id="print-diet-plan" className="hidden print:block bg-white text-black p-8 max-w-4xl mx-auto">
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            @media print {
+              body * {
+                visibility: hidden;
+              }
+              #print-diet-plan, #print-diet-plan * {
+                visibility: visible;
+              }
+              #print-diet-plan {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                color: black !important;
+              }
+              .no-print {
+                display: none !important;
+              }
+            }
+          `
+        }} />
+        <div className="border-b-2 border-purple-800 pb-4 mb-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-purple-900 uppercase tracking-tight">Plano Alimentar</h1>
+            <p className="text-xs text-gray-500 mt-1">Gerado por Amora Genômica e Nutrição</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-semibold text-gray-700">Data: {new Date().toLocaleDateString('pt-BR')}</p>
+          </div>
+        </div>
+
+        {patientName && (
+          <div className="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-100">
+            <span className="text-xs font-bold text-gray-400 uppercase">Paciente</span>
+            <h2 className="text-lg font-bold text-gray-800 mt-0.5">{patientName}</h2>
+          </div>
+        )}
+
+        {/* Resumo de Macronutrientes no PDF */}
+        <div className="mb-6 p-4 border border-teal-100 bg-teal-50/20 rounded-lg">
+          <h3 className="text-xs font-bold uppercase text-teal-800 mb-3">Resumo Nutricional Estimado</h3>
+          <div className="grid grid-cols-4 gap-4 text-center">
+            <div className="flex flex-col">
+              <span className="text-[10px] text-gray-500 uppercase">Calorias</span>
+              <span className="text-sm font-bold text-gray-800">{dietTotals.kcal.toFixed(0)} kcal</span>
+            </div>
+            <div className="flex flex-col border-l border-gray-200">
+              <span className="text-[10px] text-gray-500 uppercase">Carboidratos</span>
+              <span className="text-sm font-bold text-gray-800">{dietTotals.carb.toFixed(0)}g ({dietPercentages.carb}%)</span>
+            </div>
+            <div className="flex flex-col border-l border-gray-200">
+              <span className="text-[10px] text-gray-500 uppercase">Proteínas</span>
+              <span className="text-sm font-bold text-gray-800">{dietTotals.prot.toFixed(0)}g ({dietPercentages.prot}%)</span>
+            </div>
+            <div className="flex flex-col border-l border-gray-200">
+              <span className="text-[10px] text-gray-500 uppercase">Gorduras</span>
+              <span className="text-sm font-bold text-gray-800">{dietTotals.fat.toFixed(0)}g ({dietPercentages.fat}%)</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {meals.map((meal, mIdx) => {
+            const mTotals = calculateMealTotals(meal);
+            if (meal.items.length === 0) return null;
+            return (
+              <div key={meal.id} className="border border-gray-200 rounded-lg p-4 bg-white page-break-inside-avoid">
+                <div className="flex justify-between items-center border-b border-gray-100 pb-2 mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded">{meal.time}</span>
+                    <h3 className="font-bold text-gray-800 uppercase text-sm">{meal.name}</h3>
+                  </div>
+                  <span className="text-xs text-gray-500">{mTotals.kcal.toFixed(0)} kcal</span>
+                </div>
+                <div className="divide-y divide-gray-100">
+                  {meal.items.map((item, idx) => {
+                    return (
+                      <div key={idx} className="py-2.5">
+                        <div className="flex justify-between items-baseline gap-2">
+                          <span className="text-sm font-medium text-gray-800">{item.description}</span>
+                          <span className="text-xs font-bold text-gray-600 shrink-0">{item.amount_g}{item.unit || 'g'}</span>
+                        </div>
+                        {item.substitutions && item.substitutions.length > 0 && (
+                          <div className="mt-1.5 pl-3 border-l-2 border-purple-200 space-y-1">
+                            {item.substitutions.map((sub, sIdx) => (
+                              <div key={sIdx} className="flex justify-between items-baseline gap-2 text-xs text-gray-500">
+                                <span><span className="text-purple-600 font-semibold italic mr-1">ou</span> {sub.description}</span>
+                                <span className="font-semibold">{sub.amount_g}{sub.unit || 'g'}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {meal.notes && (
+                  <div className="mt-2 pt-2 border-t border-dashed border-gray-200">
+                    <p className="text-[11px] text-gray-500 italic leading-relaxed whitespace-pre-line">{meal.notes}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {dietNotes && (
+          <div className="mt-8 border-t border-gray-200 pt-6">
+            <h3 className="text-xs font-bold uppercase text-gray-400 mb-2">Instruções / Observações Gerais</h3>
+            <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{dietNotes}</p>
+          </div>
+        )}
+
+        <div className="mt-12 text-center border-t border-gray-100 pt-4 text-[10px] text-gray-400">
+          Este plano alimentar foi elaborado sob medida para o paciente utilizando o sistema inteligente Amora Genômica e Nutrição.
+        </div>
+      </div>
+
+      {/* Floating Action Button for Chat (Patient Chat) - Only for Ultra or Admin users */}
+      {currentPlanId && (userProfile?.plan?.toLowerCase() === 'ultra' || userProfile?.plan?.toLowerCase() === 'admin') && (
+        <button
+          onClick={() => setChatDrawerOpen(true)}
+          className="fixed bottom-6 right-6 w-14 h-14 bg-purple-700 hover:bg-purple-800 text-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(147,51,234,0.4)] transition-all transform hover:scale-105 active:scale-95 z-50 group"
+          title="Chat com o Paciente"
+        >
+          <span className="material-symbols-outlined text-2xl">chat_bubble</span>
+          {/* Notification Dot */}
+          {patientChat.length > 0 && patientChat[patientChat.length - 1].role === 'user' && (
+            <span className="absolute top-0.5 right-0.5 flex h-3.5 w-3.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500 border-2 border-white dark:border-[#18181B]"></span>
+            </span>
+          )}
+        </button>
+      )}
+
+      {/* Right Slide-over Chat Drawer - Only for Ultra or Admin users */}
+      {currentPlanId && (userProfile?.plan?.toLowerCase() === 'ultra' || userProfile?.plan?.toLowerCase() === 'admin') && (
+        <>
+          {/* Backdrop overlay */}
+          <div 
+            onClick={() => setChatDrawerOpen(false)}
+            className={`fixed inset-0 bg-black/45 backdrop-blur-sm transition-opacity duration-300 z-50 ${
+              chatDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+          />
+          
+          {/* Drawer Body */}
+          <div 
+            className={`fixed top-0 right-0 h-screen w-96 bg-white dark:bg-[#18181B] border-l border-gray-200 dark:border-[#27272A] shadow-2xl flex flex-col z-50 transform transition-transform duration-300 ease-in-out ${
+              chatDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
+          >
+            {/* Header */}
+            <div className="p-4 border-b border-gray-200 dark:border-[#27272A] bg-gray-50 dark:bg-black/10 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                  <span className="material-symbols-outlined">chat_bubble</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-950 dark:text-white">Chat com Paciente</h3>
+                  <p className="text-[10px] text-gray-500">
+                    {patientName ? `Conversa com ${patientName}` : 'Canal direto'}
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setChatDrawerOpen(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-white material-symbols-outlined text-xl"
+              >
+                close
+              </button>
+            </div>
+
+            {/* Chat Messages */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50/50 dark:bg-black/20 flex flex-col">
+              {patientChat.map((m, idx) => (
+                <div key={idx} className={`flex flex-col max-w-[85%] ${m.role === 'nutri' ? 'self-end items-end' : 'self-start items-start'}`}>
+                  <div className={`rounded-xl p-2.5 text-xs ${
+                    m.role === 'nutri' 
+                      ? 'bg-purple-600 text-white rounded-tr-none' 
+                      : 'bg-white dark:bg-[#27272A] border border-gray-200 dark:border-[#27272A] shadow-sm rounded-tl-none text-gray-900 dark:text-gray-100'
+                  }`}>
+                    {m.content}
+                  </div>
+                  <span className="text-[8px] text-gray-400 mt-1 px-1">{m.time}</span>
+                </div>
+              ))}
+              {patientChat.length === 0 && (
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
+                  <span className="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-700 mb-2">forum</span>
+                  <p className="text-xs text-gray-400 italic font-medium">Nenhuma mensagem trocada ainda.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Input Form */}
+            <div className="p-4 border-t border-gray-200 dark:border-[#27272A] bg-white dark:bg-[#18181B] flex gap-2">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') sendProfessionalChatReply(); }}
+                placeholder="Responda o paciente..."
+                className="flex-1 bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-3 py-2 text-xs outline-none dark:text-white focus:ring-1 focus:ring-purple-500"
+              />
+              <button
+                onClick={sendProfessionalChatReply}
+                className="w-9 h-9 rounded-lg bg-purple-700 hover:bg-purple-800 text-white flex items-center justify-center active:scale-95 transition-all"
+              >
+                <span className="material-symbols-outlined text-sm">send</span>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

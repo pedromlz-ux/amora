@@ -38,7 +38,15 @@ export default function Cadastro() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0A0A0B] flex items-center justify-center p-4 transition-colors duration-300">
+    <div 
+      className="min-h-screen bg-[#F9FAFB] dark:bg-[#0A0A0B] flex items-center justify-center p-4 transition-colors duration-300"
+      style={{ 
+        backgroundImage: "url('/images/bg-login.png')", 
+        backgroundSize: 'cover', 
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <div className="max-w-[400px] w-full bg-white dark:bg-[#18181B] rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-gray-200 dark:border-[#27272A] p-8">
         <div className="flex flex-col items-center mb-8">
           <div className="flex items-center justify-center mb-6">
