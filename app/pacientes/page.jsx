@@ -1,5 +1,7 @@
 "use client"
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import ConsultaTab from './ConsultaTab';
+import ChatTab from './ChatTab';
 import { supabase } from '../lib/supabaseClient';
 
 // ─── Utility ─────────────────────────────────────────────────────────────────
@@ -114,6 +116,18 @@ function AnthropometryTab({ patientId, token }) {
   useEffect(() => { if (patientId) load(); }, [patientId, load]);
 
   const imc = form.weight_kg && form.height_cm ? (parseFloat(form.weight_kg) / Math.pow(parseFloat(form.height_cm) / 100, 2)).toFixed(1) : null;
+  const rcq = form.waist_cm && form.hip_cm ? (parseFloat(form.waist_cm) / parseFloat(form.hip_cm)).toFixed(2) : null;
+  const rce = form.waist_cm && form.height_cm ? (parseFloat(form.waist_cm) / parseFloat(form.height_cm)).toFixed(2) : null;
+
+  const getImcClass = (val) => {
+    const v = parseFloat(val);
+    if(v < 18.5) return 'Baixo peso';
+    if(v < 25) return 'Eutrofia';
+    if(v < 30) return 'Sobrepeso';
+    if(v < 35) return 'Obesidade I';
+    if(v < 40) return 'Obesidade II';
+    return 'Obesidade III';
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -166,10 +180,27 @@ function AnthropometryTab({ patientId, token }) {
                   className="w-full bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
               </div>
             ))}
-            {imc && (
-              <div className="md:col-span-2 p-3 bg-purple-50 dark:bg-purple-900/10 rounded-lg border border-purple-100 dark:border-purple-900/30">
-                <p className="text-xs text-gray-500">IMC Calculado</p>
-                <p className="text-lg font-black text-purple-700">{imc} kg/m²</p>
+            {(imc || rcq || rce) && (
+              <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-purple-50 dark:bg-purple-900/10 rounded-lg border border-purple-100 dark:border-purple-900/30">
+                {imc && (
+                  <div>
+                    <p className="text-xs text-gray-500">IMC</p>
+                    <p className="text-lg font-black text-purple-700">{imc} kg/m²</p>
+                    <p className="text-[10px] font-bold text-purple-600 uppercase">{getImcClass(imc)}</p>
+                  </div>
+                )}
+                {rcq && (
+                  <div>
+                    <p className="text-xs text-gray-500">RCQ (Cintura/Quadril)</p>
+                    <p className="text-lg font-black text-purple-700">{rcq}</p>
+                  </div>
+                )}
+                {rce && (
+                  <div>
+                    <p className="text-xs text-gray-500">RCE (Cintura/Estatura)</p>
+                    <p className="text-lg font-black text-purple-700">{rce}</p>
+                  </div>
+                )}
               </div>
             )}
             <div className="md:col-span-2">
@@ -572,6 +603,8 @@ function DietTab({ patientId, patientName, token }) {
   const [subSearchTerm, setSubSearchTerm] = useState('');
   const [subSearchResults, setSubSearchResults] = useState([]);
   const [addingSubToItem, setAddingSubToItem] = useState(null);
+  const [showCustomFoodForm, setShowCustomFoodForm] = useState(false);
+  const [customFoodForm, setCustomFoodForm] = useState({ description: '', base_kcal: '', base_carb: '', base_prot: '', base_fat: '', amount_g: 100, unit: 'g' });
   const [macros, setMacros] = useState({ carb: 50, prot: 30, fat: 20 });
   const [showMacroSettings, setShowMacroSettings] = useState(false);
   const [planName, setPlanName] = useState('');
@@ -588,9 +621,11 @@ function DietTab({ patientId, patientName, token }) {
     const q = mealSearchTerm.trim();
     if (q.length < 2) { setMealSearchResults([]); return; }
     const h = setTimeout(() => {
-      fetch(`/api/alimentos?q=${encodeURIComponent(q)}&db=${activeDb}`)
-        .then(r => r.json()).then(d => setMealSearchResults(d))
-        .catch(() => {});
+      const url = activeDb === 'meus_alimentos' ? `/api/custom-foods?q=${encodeURIComponent(q)}` : `/api/alimentos?q=${encodeURIComponent(q)}&db=${activeDb}`;
+      const headers = activeDb === 'meus_alimentos' ? { Authorization: `Bearer ${token}` } : {};
+      fetch(url, { headers })
+        .then(r => r.json()).then(d => setMealSearchResults(Array.isArray(d) ? d : []))
+        .catch(() => { setMealSearchResults([]); });
     }, 300);
     return () => clearTimeout(h);
   }, [mealSearchTerm, activeDb, addingToMealId]);
@@ -600,9 +635,11 @@ function DietTab({ patientId, patientName, token }) {
     const q = subSearchTerm.trim();
     if (q.length < 2) { setSubSearchResults([]); return; }
     const h = setTimeout(() => {
-      fetch(`/api/alimentos?q=${encodeURIComponent(q)}&db=${activeDb}`)
-        .then(r => r.json()).then(d => setSubSearchResults(d))
-        .catch(() => {});
+      const url = activeDb === 'meus_alimentos' ? `/api/custom-foods?q=${encodeURIComponent(q)}` : `/api/alimentos?q=${encodeURIComponent(q)}&db=${activeDb}`;
+      const headers = activeDb === 'meus_alimentos' ? { Authorization: `Bearer ${token}` } : {};
+      fetch(url, { headers })
+        .then(r => r.json()).then(d => setSubSearchResults(Array.isArray(d) ? d : []))
+        .catch(() => { setSubSearchResults([]); });
     }, 300);
     return () => clearTimeout(h);
   }, [subSearchTerm, activeDb, addingSubToItem]);
@@ -728,6 +765,13 @@ function DietTab({ patientId, patientName, token }) {
             <span className="material-symbols-outlined text-sm">add</span>
             <span className="hidden sm:inline">Novo</span>
           </button>
+          {currentPlanId && (
+            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/dieta/${currentPlanId}`); alert('Link do paciente copiado!'); }}
+              className="px-4 py-2.5 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 text-xs font-bold text-blue-600 dark:text-blue-400 hover:border-blue-500 transition-colors flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+              <span className="hidden sm:inline">Link do Paciente</span>
+            </button>
+          )}
           <button onClick={saveDietPlan} disabled={saveStatus === 'saving'}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold text-white flex items-center gap-1 transition-all active:scale-[0.98] ${saveStatus === 'saved' ? 'bg-green-600' : saveStatus === 'error' ? 'bg-red-600' : 'bg-green-600 hover:bg-green-700'}`}>
             <span className="material-symbols-outlined text-sm">{saveStatus === 'saved' ? 'check_circle' : 'save'}</span>
@@ -750,9 +794,14 @@ function DietTab({ patientId, patientName, token }) {
                     <p className="text-sm font-bold dark:text-white">{p.plan_name}</p>
                     <p className="text-[10px] text-gray-400">{new Date(p.updated_at).toLocaleDateString('pt-BR')}</p>
                   </div>
-                  <button onClick={(e) => deletePlan(p.id, e)} className="p-1 text-red-400 hover:text-red-600">
-                    <span className="material-symbols-outlined text-sm">delete</span>
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(`${window.location.origin}/dieta/${p.id}`); alert('Link copiado!'); }} className="p-1 text-blue-500 hover:text-blue-700" title="Copiar link do paciente">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    </button>
+                    <button onClick={(e) => deletePlan(p.id, e)} className="p-1 text-red-400 hover:text-red-600" title="Excluir plano">
+                      <span className="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -762,10 +811,10 @@ function DietTab({ patientId, patientName, token }) {
 
       {/* DB selector */}
       <div className="flex gap-2">
-        {['taco', 'tbca'].map(db => (
+        {['taco', 'tbca', 'meus_alimentos'].map(db => (
           <button key={db} onClick={() => setActiveDb(db)}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${activeDb === db ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-[#27272A] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
-            {db.toUpperCase()}
+            {db === 'meus_alimentos' ? 'MEUS ALIMENTOS' : db.toUpperCase()}
           </button>
         ))}
       </div>
@@ -903,18 +952,80 @@ function DietTab({ patientId, patientName, token }) {
               {/* Add item to meal */}
               {addingToMealId === meal.id ? (
                 <div className="px-4 py-3 border-t border-gray-200 dark:border-[#27272A]">
-                  <input value={mealSearchTerm} onChange={e => setMealSearchTerm(e.target.value)} placeholder="Buscar alimento (TACO/TBCA)..." autoFocus
-                    className="w-full text-sm bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-green-500 dark:text-white" />
-                  <div className="mt-1 rounded-xl overflow-hidden border border-gray-100 dark:border-[#27272A]">
-                    {mealSearchResults.slice(0, 6).map(r => (
-                      <div key={r.id} onClick={() => handleAddToMeal(r, meal.id)}
-                        className="px-4 py-2 text-sm cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/10 dark:text-white border-b border-gray-50 dark:border-[#27272A] last:border-0 flex items-center justify-between">
-                        <span>{r.description}</span>
-                        <span className="text-[10px] text-gray-400">{safeNum(r.energy_kcal).toFixed(0)} kcal/100g</span>
+                  {!showCustomFoodForm ? (
+                    <>
+                      <input value={mealSearchTerm} onChange={e => setMealSearchTerm(e.target.value)} placeholder="Buscar alimento (TACO/TBCA)..." autoFocus
+                        className="w-full text-sm bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-green-500 dark:text-white" />
+                      <div className="mt-1 rounded-xl overflow-hidden border border-gray-100 dark:border-[#27272A]">
+                        {mealSearchResults.slice(0, 6).map(r => (
+                          <div key={r.id} onClick={() => handleAddToMeal(r, meal.id)}
+                            className="px-4 py-2 text-sm cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/10 dark:text-white border-b border-gray-50 dark:border-[#27272A] last:border-0 flex items-center justify-between">
+                            <span>{r.description}</span>
+                            <span className="text-[10px] text-gray-400">{safeNum(r.energy_kcal).toFixed(0)} kcal/100g</span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  <button onClick={() => { setAddingToMealId(null); setMealSearchTerm(''); }} className="mt-2 text-xs text-gray-400 hover:text-gray-600">Cancelar</button>
+                      <div className="flex justify-between items-center mt-2">
+                        <button onClick={() => { setAddingToMealId(null); setMealSearchTerm(''); }} className="text-xs text-gray-400 hover:text-gray-600">Cancelar</button>
+                        <button onClick={() => setShowCustomFoodForm(true)} className="text-xs font-bold text-green-600 hover:text-green-700">+ Adicionar Manualmente</button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="space-y-3 bg-gray-50 dark:bg-[#18181B] p-3 rounded-lg border border-gray-200 dark:border-[#27272A]">
+                      <h5 className="text-xs font-bold text-gray-700 dark:text-gray-300">Cadastrar Alimento Manual (por 100g)</h5>
+                      <div>
+                        <input value={customFoodForm.description} onChange={e => setCustomFoodForm({...customFoodForm, description: e.target.value})} placeholder="Nome do alimento..."
+                          className="w-full text-sm bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-green-500 dark:text-white" />
+                      </div>
+                      <div className="grid grid-cols-4 gap-2">
+                        <div>
+                          <label className="block text-[10px] text-gray-500">Kcal</label>
+                          <input type="number" value={customFoodForm.base_kcal} onChange={e => setCustomFoodForm({...customFoodForm, base_kcal: e.target.value})} placeholder="0" className="w-full text-sm bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-2 py-1 outline-none dark:text-white" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-gray-500">Carb (g)</label>
+                          <input type="number" value={customFoodForm.base_carb} onChange={e => setCustomFoodForm({...customFoodForm, base_carb: e.target.value})} placeholder="0" className="w-full text-sm bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-2 py-1 outline-none dark:text-white" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-gray-500">Prot (g)</label>
+                          <input type="number" value={customFoodForm.base_prot} onChange={e => setCustomFoodForm({...customFoodForm, base_prot: e.target.value})} placeholder="0" className="w-full text-sm bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-2 py-1 outline-none dark:text-white" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-gray-500">Gord (g)</label>
+                          <input type="number" value={customFoodForm.base_fat} onChange={e => setCustomFoodForm({...customFoodForm, base_fat: e.target.value})} placeholder="0" className="w-full text-sm bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-2 py-1 outline-none dark:text-white" />
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center mt-2">
+                        <button onClick={() => setShowCustomFoodForm(false)} className="text-xs text-gray-400 hover:text-gray-600">Voltar</button>
+                        <button onClick={async () => {
+                          if(!customFoodForm.description) return;
+                          
+                          const foodPayload = {
+                            description: customFoodForm.description,
+                            energy_kcal: parseFloat(customFoodForm.base_kcal) || 0,
+                            carbohydrate_g: parseFloat(customFoodForm.base_carb) || 0,
+                            protein_g: parseFloat(customFoodForm.base_prot) || 0,
+                            lipid_g: parseFloat(customFoodForm.base_fat) || 0,
+                          };
+
+                          // Save to DB
+                          try {
+                            await fetch('/api/custom-foods', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                              body: JSON.stringify(foodPayload)
+                            });
+                          } catch (e) { console.error('Error saving custom food', e); }
+
+                          // Add to meal
+                          handleAddToMeal(foodPayload, meal.id);
+                          
+                          setShowCustomFoodForm(false);
+                          setCustomFoodForm({ description: '', base_kcal: '', base_carb: '', base_prot: '', base_fat: '', amount_g: 100, unit: 'g' });
+                        }} className="px-3 py-1.5 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 transition-colors">Adicionar</button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <button onClick={() => setAddingToMealId(meal.id)} className="w-full px-4 py-2.5 text-xs font-bold text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors flex items-center justify-center gap-1">
@@ -1030,11 +1141,13 @@ export default function PacientesPage() {
   const filteredPatients = patients.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const tabs = [
+    { id: 'consulta', label: 'Consulta', icon: 'medical_services' },
     { id: 'anamnese', label: 'Anamnese', icon: 'assignment' },
     { id: 'antropometria', label: 'Antropometria', icon: 'straighten' },
     { id: 'bia', label: 'BIA', icon: 'monitor_weight' },
     { id: 'exames', label: 'Exames', icon: 'lab_panel' },
     { id: 'dieta', label: 'Dieta', icon: 'restaurant_menu' },
+    { id: 'chat', label: 'Chat', icon: 'chat' },
   ];
 
   if (loading) return null;
@@ -1277,11 +1390,13 @@ export default function PacientesPage() {
 
                 {/* Tab content */}
                 <div className="flex-1 overflow-y-auto p-6">
+                  {activeTab === 'consulta' && <ConsultaTab selectedPatient={selectedPatient} token={token} supabase={supabase} />}
                   {activeTab === 'anamnese' && <AnamneseTab patientId={selectedPatient.id} token={token} />}
                   {activeTab === 'antropometria' && <AnthropometryTab patientId={selectedPatient.id} token={token} />}
                   {activeTab === 'bia' && <BiaTab patientId={selectedPatient.id} token={token} />}
                   {activeTab === 'exames' && <ExamsTab patientId={selectedPatient.id} token={token} />}
                   {activeTab === 'dieta' && <DietTab patientId={selectedPatient.id} patientName={selectedPatient.name} token={token} />}
+                  {activeTab === 'chat' && <ChatTab selectedPatient={selectedPatient} supabase={supabase} />}
                 </div>
               </div>
             )}

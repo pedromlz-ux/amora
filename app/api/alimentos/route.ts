@@ -65,9 +65,14 @@ export async function GET(req: Request) {
     const query = searchParams.get('q') || '';
     const lowerQuery = query.toLowerCase();
 
+    const searchTerms = lowerQuery.split(' ').map(s => s.trim()).filter(s => s.length > 0);
+
     const filterFoods = (foods: any[]) =>
-      lowerQuery.length >= 2
-        ? foods.filter(f => f.description && f.description.toLowerCase().includes(lowerQuery))
+      searchTerms.length > 0
+        ? foods.filter(f => {
+            const desc = (f.description || '').toLowerCase();
+            return searchTerms.every(term => desc.includes(term));
+          })
         : foods;
 
     // When a specific DB is requested, use only that one

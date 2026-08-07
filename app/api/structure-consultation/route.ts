@@ -1,0 +1,96 @@
+import { NextResponse } from 'next/server';
+import { GoogleGenAI } from '@google/genai';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const geminiApiKey = process.env.GEMINI_API_KEY!;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+const ai = new GoogleGenAI({ apiKey: geminiApiKey });
+
+export const maxDuration = 300; 
+
+export async function POST(req: Request) {
+  try {
+    const authHeader = req.headers.get('Authorization');
+    const token = authHeader?.split(' ')[1];
+
+    if (!token) {
+      return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) {
+      return NextResponse.json({ error: "Sessão inválida." }, { status: 401 });
+    }
+
+    const { transcription, notes, patientData, type = 'structured' } = await req.json();
+    if (!transcription) {
+      return NextResponse.json({ error: "Transcrição ausente." }, { status: 400 });
+    }
+
+    let prompt = '';
+    
+    if (type === 'synthetic') {
+      prompt = `Abaixo está a transcrição de uma consulta nutricional/médica, juntamente com algumas observações do profissional e dados do paciente.
+Gere um "Relatório IA Sintético", que é um resumo executivo direto ao ponto (em formato markdown) contendo apenas: 
+- Queixa principal
+- Resumo da conduta
+- Pontos de alerta
+
+Transcrição:
+${transcription}
+
+Observações do profissional:
+${notes || 'Nenhuma.'}
+
+Dados do Paciente:
+CPF: ${patientData?.cpf || 'N/A'}
+Alergias: ${patientData?.allergies || 'N/A'}
+Doenças Crônicas: ${patientData?.chronic_diseases || 'N/A'}
+`;
+    } else {
+      prompt = `Abaixo está a transcrição de uma consulta nutricional/médica, juntamente com observações do profissional e dados do paciente.
+Gere uma "Transcrição Estruturada IA" (em formato markdown) detalhada, dividida em seções médicas/nutricionais profissionais. 
+Use a seguinte estrutura de tópicos (se aplicável, omita se não tiver dados):
+1. **Queixa Principal e Histórico (HDA)**
+2. **Avaliação Clínica / Sintomas**
+3. **Hábitos de Vida (Sono, Intestino, Atividade Física)**
+4. **Histórico Alimentar**
+5. **Hipóteses Diagnósticas / Avaliação**
+6. **Conduta Adotada / Plano Alimentar**
+
+Transcrição:
+${transcription}
+
+Observações do profissional:
+${notes || 'Nenhuma.'}
+
+Dados do Paciente:
+CPF: ${patientData?.cpf || 'N/A'}
+Alergias: ${patientData?.allergies || 'N/A'}
+Doenças Crônicas: ${patientData?.chronic_diseases || 'N/A'}
+`;
+    }
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [prompt],
+      config: {
+        temperature: 0.3,
+      }
+    });
+
+    const responseText = response.text;
+    if (!responseText) {
+      throw new Error("Resposta vazia da API do Gemini.");
+    }
+
+    return NextResponse.json({ report: responseText });
+
+  } catch (error: any) {
+    console.error('Erro na estruturação da consulta:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

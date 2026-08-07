@@ -4,6 +4,19 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 
 export default function PatientDietPortal() {
+  const formatFoodName = (name) => {
+    if (!name) return '';
+    let formatted = name.replace(/,\s*cru/gi, '')
+                        .replace(/,\s*cozido/gi, ' cozido')
+                        .replace(/,\s*de galinha/gi, '')
+                        .replace(/,\s*trigo/gi, '')
+                        .replace(/,/g, '');
+    
+    if (formatted.toLowerCase().includes('pão francês')) return 'Pão Francês';
+    
+    return formatted.replace(/\b\w/g, l => l.toUpperCase());
+  };
+
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -141,14 +154,32 @@ export default function PatientDietPortal() {
   };
 
   // Send message to AI clinical chat
-  const handleSendAIMessage = async (customText = null) => {
-    const textToSend = customText || inputMessage;
-    if (!textToSend.trim()) return;
+  const handleSendAIMessage = async (overrideMessage = null) => {
+    const text = overrideMessage || inputMessage;
+    if (!text.trim()) return;
 
-    const userMsg = { role: 'user', content: textToSend };
-    const updatedMessages = [...messages, userMsg];
-    setMessages(updatedMessages);
-    if (!customText) setInputMessage('');
+    // Check rate limit
+    const todayStr = new Date().toDateString();
+    let questionsAsked = 0;
+    const savedDate = localStorage.getItem(`ai_chat_date_${id}`);
+    if (savedDate === todayStr) {
+      questionsAsked = parseInt(localStorage.getItem(`ai_chat_count_${id}`) || '0');
+    } else {
+      localStorage.setItem(`ai_chat_date_${id}`, todayStr);
+      localStorage.setItem(`ai_chat_count_${id}`, '0');
+    }
+
+    if (questionsAsked >= 3) {
+      setMessages(prev => [...prev, { role: 'user', content: text }, { role: 'assistant', content: 'Desculpe, você atingiu o limite de 3 dúvidas por dia com a IA.\nPor favor, deixe sua dúvida na aba "Nutricionista" ou volte amanhã!' }]);
+      setInputMessage('');
+      return;
+    }
+
+    localStorage.setItem(`ai_chat_count_${id}`, (questionsAsked + 1).toString());
+
+    const userMsg = { role: 'user', content: text };
+    setMessages((prev) => [...prev, userMsg]);
+    setInputMessage('');
     setIsTyping(true);
 
     try {
@@ -156,7 +187,7 @@ export default function PatientDietPortal() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: updatedMessages,
+          messages: [...messages, userMsg],
           dietPlanId: id
         })
       });
@@ -168,7 +199,6 @@ export default function PatientDietPortal() {
       let done = false;
       let assistantResponse = '';
 
-      // Add a placeholder message for the assistant
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
       while (!done) {
@@ -177,7 +207,6 @@ export default function PatientDietPortal() {
         const chunkValue = decoder.decode(value);
         assistantResponse += chunkValue;
         
-        // Update the last message dynamically
         setMessages(prev => {
           const next = [...prev];
           next[next.length - 1] = { role: 'assistant', content: assistantResponse };
@@ -525,23 +554,11 @@ export default function PatientDietPortal() {
                               <p className={`text-xs font-semibold truncate transition-all ${
                                 isConsumed ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-white'
                               }`}>
-                                {item.description}
+                                {formatFoodName(item.name || item.description)}
                               </p>
                               <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">
                                 {item.amount_g || item.amount} {item.unit || 'g'}
                               </span>
-                            </div>
-                          </div>
-
-                          {/* Item Macro summary */}
-                          <div className="text-right shrink-0">
-                            <span className="text-xs font-bold text-gray-800 dark:text-gray-300">
-                              {item.energy_kcal && item.energy_kcal !== 'NA' ? Math.round(parseFloat(item.energy_kcal)) : 0} kcal
-                            </span>
-                            <div className="flex items-center gap-1.5 text-[9px] text-gray-400 font-medium">
-                              <span>P: {item.protein_g && item.protein_g !== 'NA' ? parseFloat(item.protein_g).toFixed(0) : 0}g</span>
-                              <span>•</span>
-                              <span>C: {item.carbohydrate_g && item.carbohydrate_g !== 'NA' ? parseFloat(item.carbohydrate_g).toFixed(0) : 0}g</span>
                             </div>
                           </div>
                         </div>
