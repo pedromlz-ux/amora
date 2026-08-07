@@ -1240,168 +1240,181 @@ export default function PacientesPage() {
           <p className="text-xs text-gray-400 hidden sm:block">— Prontuário Nutricional</p>
         </div>
 
-        <div className="flex h-[calc(100vh-57px)]">
-          {/* Patient sidebar */}
-          <div className="w-64 shrink-0 border-r border-gray-200 dark:border-[#27272A] bg-white dark:bg-[#18181B] flex flex-col hidden md:flex">
-            <div className="p-3 border-b border-gray-100 dark:border-[#27272A] space-y-2">
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">search</span>
-                <input value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Buscar paciente..."
-                  className="w-full bg-gray-50 dark:bg-[#0A0A0B] border border-gray-200 dark:border-[#27272A] rounded-xl pl-9 pr-3 py-2 text-xs outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
-              </div>
-              <button onClick={() => setShowNewPatient(true)}
-                className="w-full bg-purple-700 text-white py-2 rounded-xl text-xs font-bold hover:bg-purple-800 transition-all flex items-center justify-center gap-1">
-                <span className="material-symbols-outlined text-sm">person_add</span>
-                Novo Paciente
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              {loadingPatients ? (
-                <div className="flex items-center justify-center py-8"><div className="w-6 h-6 border-4 border-purple-200 border-t-purple-700 rounded-full animate-spin" /></div>
-              ) : filteredPatients.length === 0 ? (
-                <div className="text-center py-8 px-3">
-                  <span className="material-symbols-outlined text-3xl text-gray-300 block mb-2">person_off</span>
-                  <p className="text-xs text-gray-400">{searchTerm ? 'Nenhum paciente encontrado' : 'Nenhum paciente cadastrado'}</p>
+        {(!userProfile?.plan || (userProfile.plan.toLowerCase() !== 'ultra' && userProfile.plan.toLowerCase() !== 'admin')) ? (
+          <div className="flex flex-col items-center justify-center h-[calc(100vh-57px)] px-4 text-center">
+            <span className="material-symbols-outlined text-6xl text-purple-700 mb-4 opacity-80">lock</span>
+            <h2 className="text-2xl font-bold dark:text-white mb-2">Recurso Exclusivo</h2>
+            <p className="text-gray-500 mb-6 max-w-md">
+              A Gestão de Pacientes (Prontuário Nutricional, Dietas, Exames e Chat) está disponível apenas para usuários do plano <strong>Amora Ultra (Profissional)</strong>.
+            </p>
+            <a href="/configuracao" className="bg-purple-700 hover:bg-purple-800 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md">
+              Fazer Upgrade para Ultra
+            </a>
+          </div>
+        ) : (
+          <div className="flex h-[calc(100vh-57px)]">
+            {/* Patient sidebar */}
+            <div className="w-64 shrink-0 border-r border-gray-200 dark:border-[#27272A] bg-white dark:bg-[#18181B] flex flex-col hidden md:flex">
+              <div className="p-3 border-b border-gray-100 dark:border-[#27272A] space-y-2">
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">search</span>
+                  <input value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Buscar paciente..."
+                    className="w-full bg-gray-50 dark:bg-[#0A0A0B] border border-gray-200 dark:border-[#27272A] rounded-xl pl-9 pr-3 py-2 text-xs outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
                 </div>
-              ) : (
-                filteredPatients.map(p => (
-                  <div key={p.id} onClick={() => { setSelectedPatient(p); setActiveTab('anamnese'); }}
-                    className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer border-b border-gray-50 dark:border-[#27272A] transition-colors group ${selectedPatient?.id === p.id ? 'bg-purple-50 dark:bg-purple-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800/30'}`}>
-                    <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 font-bold text-xs shrink-0">
-                      {p.name.charAt(0).toUpperCase()}
+                <button onClick={() => setShowNewPatient(true)}
+                  className="w-full bg-purple-700 text-white py-2 rounded-xl text-xs font-bold hover:bg-purple-800 transition-all flex items-center justify-center gap-1">
+                  <span className="material-symbols-outlined text-sm">person_add</span>
+                  Novo Paciente
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                {loadingPatients ? (
+                  <div className="flex items-center justify-center py-8"><div className="w-6 h-6 border-4 border-purple-200 border-t-purple-700 rounded-full animate-spin" /></div>
+                ) : filteredPatients.length === 0 ? (
+                  <div className="text-center py-8 px-3">
+                    <span className="material-symbols-outlined text-3xl text-gray-300 block mb-2">person_off</span>
+                    <p className="text-xs text-gray-400">{searchTerm ? 'Nenhum paciente encontrado' : 'Nenhum paciente cadastrado'}</p>
+                  </div>
+                ) : (
+                  filteredPatients.map(p => (
+                    <div key={p.id} onClick={() => { setSelectedPatient(p); setActiveTab('anamnese'); }}
+                      className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer border-b border-gray-50 dark:border-[#27272A] transition-colors group ${selectedPatient?.id === p.id ? 'bg-purple-50 dark:bg-purple-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800/30'}`}>
+                      <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 font-bold text-xs shrink-0">
+                        {p.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-xs font-bold truncate ${selectedPatient?.id === p.id ? 'text-purple-700 dark:text-purple-400' : 'dark:text-white'}`}>{p.name}</p>
+                        {p.birth_date && <p className="text-[10px] text-gray-400">{fmtDate(p.birth_date)}</p>}
+                      </div>
+                      <button onClick={(e) => deletePatient(p.id, e)} className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 transition-all">
+                        <span className="material-symbols-outlined text-sm">delete</span>
+                      </button>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-bold truncate ${selectedPatient?.id === p.id ? 'text-purple-700 dark:text-purple-400' : 'dark:text-white'}`}>{p.name}</p>
-                      {p.birth_date && <p className="text-[10px] text-gray-400">{fmtDate(p.birth_date)}</p>}
-                    </div>
-                    <button onClick={(e) => deletePatient(p.id, e)} className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 transition-all">
-                      <span className="material-symbols-outlined text-sm">delete</span>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Main content */}
+            <div className="flex-1 overflow-y-auto">
+              {!selectedPatient && !showNewPatient ? (
+                <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                  <div className="w-20 h-20 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center mb-4">
+                    <span className="material-symbols-outlined text-4xl text-purple-400">person_search</span>
+                  </div>
+                  <h2 className="text-base font-bold dark:text-white mb-2">Selecione um Paciente</h2>
+                  <p className="text-sm text-gray-400 max-w-xs mb-6">Escolha um paciente na lista ao lado ou cadastre um novo para acessar o prontuário completo.</p>
+                  <button onClick={() => setShowNewPatient(true)}
+                    className="bg-purple-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-purple-800 transition-all flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">person_add</span>
+                    Cadastrar Primeiro Paciente
+                  </button>
+                </div>
+              ) : showNewPatient ? (
+                <div className="p-6 max-w-2xl">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-base font-bold dark:text-white flex items-center gap-2">
+                      <span className="material-symbols-outlined text-purple-700">person_add</span>
+                      Novo Paciente
+                    </h2>
+                    <button onClick={() => setShowNewPatient(false)} className="text-gray-400 hover:text-gray-600">
+                      <span className="material-symbols-outlined">close</span>
                     </button>
                   </div>
-                ))
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-gray-500 mb-1">Nome Completo *</label>
+                      <input value={newPatientForm.name} onChange={e => setNewPatientForm(p => ({ ...p, name: e.target.value }))} placeholder="Ex: Maria Silva"
+                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 mb-1">E-mail</label>
+                      <input type="email" value={newPatientForm.email} onChange={e => setNewPatientForm(p => ({ ...p, email: e.target.value }))} placeholder="maria@email.com"
+                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 mb-1">Telefone</label>
+                      <input value={newPatientForm.phone} onChange={e => setNewPatientForm(p => ({ ...p, phone: e.target.value }))} placeholder="(11) 99999-9999"
+                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 mb-1">Data de Nascimento</label>
+                      <input type="date" value={newPatientForm.birth_date} onChange={e => setNewPatientForm(p => ({ ...p, birth_date: e.target.value }))}
+                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 mb-1">Sexo</label>
+                      <select value={newPatientForm.gender} onChange={e => setNewPatientForm(p => ({ ...p, gender: e.target.value }))}
+                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white">
+                        <option value="">Selecione</option>
+                        <option value="feminino">Feminino</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="outro">Outro</option>
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-gray-500 mb-1">Objetivo Principal</label>
+                      <input value={newPatientForm.objective} onChange={e => setNewPatientForm(p => ({ ...p, objective: e.target.value }))} placeholder="Ex: Emagrecimento, Hipertrofia, Controle de DM..."
+                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
+                    </div>
+                  </div>
+                  <button onClick={createPatient} disabled={savingPatient || !newPatientForm.name.trim()}
+                    className="mt-6 w-full bg-purple-700 text-white py-3 rounded-xl font-bold hover:bg-purple-800 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined text-sm">person_add</span>
+                    {savingPatient ? 'Cadastrando...' : 'Cadastrar Paciente'}
+                  </button>
+                </div>
+              ) : selectedPatient && (
+                <div className="flex flex-col h-full">
+                  {/* Patient header */}
+                  <div className="bg-white dark:bg-[#18181B] border-b border-gray-200 dark:border-[#27272A] px-6 py-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 font-black text-lg">
+                        {selectedPatient.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1">
+                        <h2 className="text-base font-black dark:text-white">{selectedPatient.name}</h2>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          {selectedPatient.birth_date && <p className="text-xs text-gray-400">Nasc. {fmtDate(selectedPatient.birth_date)}</p>}
+                          {selectedPatient.gender && <p className="text-xs text-gray-400 capitalize">• {selectedPatient.gender}</p>}
+                          {selectedPatient.objective && <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold">• {selectedPatient.objective}</p>}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {selectedPatient.phone && (
+                          <a href={`tel:${selectedPatient.phone}`} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1">
+                            <span className="material-symbols-outlined text-sm">phone</span>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    {/* Tabs */}
+                    <div className="flex gap-1 mt-4 overflow-x-auto">
+                      {tabs.map(tab => (
+                        <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800/50'}`}>
+                          <span className="material-symbols-outlined text-sm">{tab.icon}</span>
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tab content */}
+                  <div className="flex-1 overflow-y-auto p-6">
+                    {activeTab === 'consulta' && <ConsultaTab selectedPatient={selectedPatient} token={token} supabase={supabase} />}
+                    {activeTab === 'anamnese' && <AnamneseTab patientId={selectedPatient.id} token={token} />}
+                    {activeTab === 'antropometria' && <AnthropometryTab patientId={selectedPatient.id} token={token} />}
+                    {activeTab === 'bia' && <BiaTab patientId={selectedPatient.id} token={token} />}
+                    {activeTab === 'exames' && <ExamsTab patientId={selectedPatient.id} token={token} />}
+                    {activeTab === 'dieta' && <DietTab patientId={selectedPatient.id} patientName={selectedPatient.name} token={token} />}
+                    {activeTab === 'chat' && <ChatTab selectedPatient={selectedPatient} supabase={supabase} />}
+                  </div>
+                </div>
               )}
             </div>
           </div>
-
-          {/* Main content */}
-          <div className="flex-1 overflow-y-auto">
-            {!selectedPatient && !showNewPatient ? (
-              <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                <div className="w-20 h-20 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center mb-4">
-                  <span className="material-symbols-outlined text-4xl text-purple-400">person_search</span>
-                </div>
-                <h2 className="text-base font-bold dark:text-white mb-2">Selecione um Paciente</h2>
-                <p className="text-sm text-gray-400 max-w-xs mb-6">Escolha um paciente na lista ao lado ou cadastre um novo para acessar o prontuário completo.</p>
-                <button onClick={() => setShowNewPatient(true)}
-                  className="bg-purple-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-purple-800 transition-all flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm">person_add</span>
-                  Cadastrar Primeiro Paciente
-                </button>
-              </div>
-            ) : showNewPatient ? (
-              <div className="p-6 max-w-2xl">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-base font-bold dark:text-white flex items-center gap-2">
-                    <span className="material-symbols-outlined text-purple-700">person_add</span>
-                    Novo Paciente
-                  </h2>
-                  <button onClick={() => setShowNewPatient(false)} className="text-gray-400 hover:text-gray-600">
-                    <span className="material-symbols-outlined">close</span>
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Nome Completo *</label>
-                    <input value={newPatientForm.name} onChange={e => setNewPatientForm(p => ({ ...p, name: e.target.value }))} placeholder="Ex: Maria Silva"
-                      className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">E-mail</label>
-                    <input type="email" value={newPatientForm.email} onChange={e => setNewPatientForm(p => ({ ...p, email: e.target.value }))} placeholder="maria@email.com"
-                      className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Telefone</label>
-                    <input value={newPatientForm.phone} onChange={e => setNewPatientForm(p => ({ ...p, phone: e.target.value }))} placeholder="(11) 99999-9999"
-                      className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Data de Nascimento</label>
-                    <input type="date" value={newPatientForm.birth_date} onChange={e => setNewPatientForm(p => ({ ...p, birth_date: e.target.value }))}
-                      className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Sexo</label>
-                    <select value={newPatientForm.gender} onChange={e => setNewPatientForm(p => ({ ...p, gender: e.target.value }))}
-                      className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white">
-                      <option value="">Selecione</option>
-                      <option value="feminino">Feminino</option>
-                      <option value="masculino">Masculino</option>
-                      <option value="outro">Outro</option>
-                    </select>
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Objetivo Principal</label>
-                    <input value={newPatientForm.objective} onChange={e => setNewPatientForm(p => ({ ...p, objective: e.target.value }))} placeholder="Ex: Emagrecimento, Hipertrofia, Controle de DM..."
-                      className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
-                  </div>
-                </div>
-                <button onClick={createPatient} disabled={savingPatient || !newPatientForm.name.trim()}
-                  className="mt-6 w-full bg-purple-700 text-white py-3 rounded-xl font-bold hover:bg-purple-800 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
-                  <span className="material-symbols-outlined text-sm">person_add</span>
-                  {savingPatient ? 'Cadastrando...' : 'Cadastrar Paciente'}
-                </button>
-              </div>
-            ) : selectedPatient && (
-              <div className="flex flex-col h-full">
-                {/* Patient header */}
-                <div className="bg-white dark:bg-[#18181B] border-b border-gray-200 dark:border-[#27272A] px-6 py-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 font-black text-lg">
-                      {selectedPatient.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex-1">
-                      <h2 className="text-base font-black dark:text-white">{selectedPatient.name}</h2>
-                      <div className="flex items-center gap-3 flex-wrap">
-                        {selectedPatient.birth_date && <p className="text-xs text-gray-400">Nasc. {fmtDate(selectedPatient.birth_date)}</p>}
-                        {selectedPatient.gender && <p className="text-xs text-gray-400 capitalize">• {selectedPatient.gender}</p>}
-                        {selectedPatient.objective && <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold">• {selectedPatient.objective}</p>}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {selectedPatient.phone && (
-                        <a href={`tel:${selectedPatient.phone}`} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-sm">phone</span>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                  {/* Tabs */}
-                  <div className="flex gap-1 mt-4 overflow-x-auto">
-                    {tabs.map(tab => (
-                      <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800/50'}`}>
-                        <span className="material-symbols-outlined text-sm">{tab.icon}</span>
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Tab content */}
-                <div className="flex-1 overflow-y-auto p-6">
-                  {activeTab === 'consulta' && <ConsultaTab selectedPatient={selectedPatient} token={token} supabase={supabase} />}
-                  {activeTab === 'anamnese' && <AnamneseTab patientId={selectedPatient.id} token={token} />}
-                  {activeTab === 'antropometria' && <AnthropometryTab patientId={selectedPatient.id} token={token} />}
-                  {activeTab === 'bia' && <BiaTab patientId={selectedPatient.id} token={token} />}
-                  {activeTab === 'exames' && <ExamsTab patientId={selectedPatient.id} token={token} />}
-                  {activeTab === 'dieta' && <DietTab patientId={selectedPatient.id} patientName={selectedPatient.name} token={token} />}
-                  {activeTab === 'chat' && <ChatTab selectedPatient={selectedPatient} supabase={supabase} />}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
