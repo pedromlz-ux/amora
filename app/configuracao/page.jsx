@@ -217,20 +217,6 @@ export default function Page() {
                 console.error("Error loading user profile in config page:", e);
             }
 
-            // Load preference checkboxes from localStorage
-            const prefEmailCheck = document.getElementById("pref-email");
-            const prefPushCheck = document.getElementById("pref-push");
-            const prefClinicalCheck = document.getElementById("pref-clinical");
-
-            if (prefEmailCheck) {
-                prefEmailCheck.checked = localStorage.getItem("pref-email") !== "false";
-            }
-            if (prefPushCheck) {
-                prefPushCheck.checked = localStorage.getItem("pref-push") === "true";
-            }
-            if (prefClinicalCheck) {
-                prefClinicalCheck.checked = localStorage.getItem("pref-clinical") !== "false";
-            }
         }
 
         async function fetchUsageData() {
@@ -390,15 +376,7 @@ export default function Page() {
                 
                 try {
                     const nameVal = document.getElementById("user-name-input")?.value;
-                    const prefEmail = document.getElementById("pref-email")?.checked;
-                    const prefPush = document.getElementById("pref-push")?.checked;
-                    const prefClinical = document.getElementById("pref-clinical")?.checked;
-
-                    // Save to localStorage
                     if (nameVal) localStorage.setItem("user_name", nameVal);
-                    if (prefEmail !== undefined) localStorage.setItem("pref-email", prefEmail ? "true" : "false");
-                    if (prefPush !== undefined) localStorage.setItem("pref-push", prefPush ? "true" : "false");
-                    if (prefClinical !== undefined) localStorage.setItem("pref-clinical", prefClinical ? "true" : "false");
 
                     // Save name to Supabase profiles
                     const { data: { user } } = await supabase.auth.getUser();
@@ -825,7 +803,7 @@ export default function Page() {
 
                                 <!-- Theme Selection: Tema da interface -->
                                 <div
-                                    class="flex flex-col gap-3 pb-6 border-b border-gray-100 dark:border-[#27272A]/50">
+                                    class="flex flex-col gap-3">
                                     <div>
                                         <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Tema da interface</h4>
                                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-light">Escolha a aparência da interface do Amora de acordo com a sua preferência.</p>
@@ -842,57 +820,6 @@ export default function Page() {
                                             <span class="text-xs font-semibold text-gray-900 dark:text-white">Escuro</span>
                                         </button>
                                     </div>
-                                </div>
-
-                                <!-- Toggle 2: Notificações por E-mail -->
-                                <div
-                                    class="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-[#27272A]/50">
-                                    <div class="flex-1 pr-4">
-                                        <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Notificações por
-                                            E-mail</h4>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-light">Receba
-                                            atualizações sobre novas aulas de capacitação e resumos clínicos.</p>
-                                    </div>
-                                    <label class="relative inline-flex items-center cursor-pointer select-none">
-                                        <input type="checkbox" id="pref-email" class="sr-only peer" checked />
-                                        <div
-                                            class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-650 peer-checked:bg-purple-750">
-                                        </div>
-                                    </label>
-                                </div>
-
-                                <!-- Toggle 3: Notificações Push -->
-                                <div
-                                    class="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-[#27272A]/50">
-                                    <div class="flex-1 pr-4">
-                                        <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Notificações
-                                            Push no Navegador</h4>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-light">Receba
-                                            alertas em tempo real de mensagens prontas do assistente.</p>
-                                    </div>
-                                    <label class="relative inline-flex items-center cursor-pointer select-none">
-                                        <input type="checkbox" id="pref-push" class="sr-only peer" />
-                                        <div
-                                            class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-650 peer-checked:bg-purple-750">
-                                        </div>
-                                    </label>
-                                </div>
-
-                                <!-- Toggle 4: Recomendações Inteligentes -->
-                                <div class="flex items-center justify-between">
-                                    <div class="flex-1 pr-4">
-                                        <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Recomendações
-                                            Clínicas Inteligentes</h4>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-light">Permita que
-                                            a IA processe dados anônimos para sugerir melhores caminhos terapêuticos.
-                                        </p>
-                                    </div>
-                                    <label class="relative inline-flex items-center cursor-pointer select-none">
-                                        <input type="checkbox" id="pref-clinical" class="sr-only peer" checked />
-                                        <div
-                                            class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-650 peer-checked:bg-purple-750">
-                                        </div>
-                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -958,24 +885,7 @@ export default function Page() {
                                 </div>
                             </div>
 
-                            <!-- 2FA Multi factor -->
-                            <div
-                                class="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-2xl p-6 shadow-sm flex items-center justify-between">
-                                <div class="flex-1 pr-4">
-                                    <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Autenticação em Duas
-                                        Etapas (2FA)</h4>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-light">Adicione uma
-                                        camada extra de proteção na sua conta clínica exigindo token do celular.</p>
-                                    <p class="text-xs text-purple-750 dark:text-purple-400 font-semibold mt-1"
-                                        id="sec-2fa-status">Status: Desativado</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer select-none">
-                                    <input type="checkbox" id="sec-2fa" class="sr-only peer" />
-                                    <div
-                                        class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-650 peer-checked:bg-purple-750">
-                                    </div>
-                                </label>
-                            </div>
+
                         </div>
                     </section>
                 </div>
