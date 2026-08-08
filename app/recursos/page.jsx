@@ -899,7 +899,7 @@ export default function Recursos() {
                           <span className="font-label-md text-sm">Recursos Profissionais</span>
                       </a>
                       <a className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" href="/pacientes">
-                          <span className="material-symbols-outlined" style={{fontSize: '18px'}}>person_search</span>
+                          <svg fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                           <span className="font-label-md text-sm">Pacientes</span>
                       </a>
                   </div>
