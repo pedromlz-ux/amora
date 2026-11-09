@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
+import { isNonEmptyString, requestIsTooLarge } from '../../lib/server/security';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -13,6 +14,9 @@ export const maxDuration = 300;
 
 export async function POST(req: Request) {
   try {
+    if (requestIsTooLarge(req, 256 * 1024)) {
+      return NextResponse.json({ error: 'Solicitação excede o limite permitido.' }, { status: 413 });
+    }
     const authHeader = req.headers.get('Authorization');
     const token = authHeader?.split(' ')[1];
 
@@ -26,7 +30,7 @@ export async function POST(req: Request) {
     }
 
     const { transcription, notes, patientData, type = 'structured' } = await req.json();
-    if (!transcription) {
+    if (!isNonEmptyString(transcription, 80_000) || (notes !== undefined && (typeof notes !== 'string' || notes.length > 10_000))) {
       return NextResponse.json({ error: "Transcrição ausente." }, { status: 400 });
     }
 
@@ -91,6 +95,6 @@ Doenças Crônicas: ${patientData?.chronic_diseases || 'N/A'}
 
   } catch (error: any) {
     console.error('Erro na estruturação da consulta:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Erro interno ao estruturar a consulta.' }, { status: 500 });
   }
 }

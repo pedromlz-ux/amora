@@ -26,6 +26,13 @@ export default function Page() {
         // Execute legacy scripts
         try {
 
+            const escapeHtml = (value) => String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+
             // Asset URLs for Light and Dark (Night) Themes
             const ASSETS = {
                 light: {
@@ -91,7 +98,7 @@ export default function Page() {
                 toast.className = "fixed top-6 right-6 z-[100] bg-white dark:bg-[#18181B] border border-purple-500/30 text-gray-900 dark:text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 transform translate-y-[-20px] opacity-0 transition-all duration-300";
                 toast.innerHTML = `
             <span class="w-2 h-2 rounded-full bg-purple-500 animate-ping"></span>
-            <span class="text-sm font-medium font-body-md">${message}</span>
+            <span class="text-sm font-medium font-body-md">${escapeHtml(message)}</span>
         `;
                 document.body.appendChild(toast);
 
@@ -197,7 +204,7 @@ export default function Page() {
                         badgeContainer.innerHTML = `
                     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800 text-xs font-medium">
                         <svg fill="none" height="12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="12" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/></svg>
-                        ${attachedFile.name} (${Math.round(attachedFile.size / 1024)} KB)
+                        ${escapeHtml(attachedFile.name)} (${Math.round(attachedFile.size / 1024)} KB)
                         <button id="btn-remove-file" class="ml-1 text-purple-400 hover:text-purple-600 dark:hover:text-purple-200 font-bold">×</button>
                     </div>
                 `;
@@ -220,30 +227,46 @@ export default function Page() {
             const textarea = document.getElementById("prompt-textarea");
             let isRecording = false;
             let recognition = null;
+            let finalTranscript = "";
 
             if (typeof window !== "undefined") {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 if (SpeechRecognition) {
                     recognition = new SpeechRecognition();
-                    recognition.continuous = false;
+                    recognition.continuous = true;
                     recognition.lang = 'pt-BR';
-                    recognition.interimResults = false;
+                    recognition.interimResults = true;
 
                     recognition.onstart = () => {
                         isRecording = true;
+                        finalTranscript = textarea.value.trim();
                         btnMic.classList.add("bg-red-50", "dark:bg-red-950/20", "text-red-650", "dark:text-red-400", "border-red-500/50", "animate-pulse");
                         textarea.placeholder = "Ouvindo... 🎙️ Fale sua dúvida sobre nutrição.";
                         showToast("Microfone ativado! Fale agora 🎙️");
                     };
 
                     recognition.onresult = (event) => {
-                        const transcript = event.results[0][0].transcript;
-                        textarea.value += (textarea.value ? " " : "") + transcript;
-                        showToast("Voz transcrita com sucesso! ✨");
+                        let interimTranscript = "";
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                            const transcript = event.results[i][0].transcript.trim();
+                            if (event.results[i].isFinal) {
+                                finalTranscript += (finalTranscript ? " " : "") + transcript;
+                            } else {
+                                interimTranscript += (interimTranscript ? " " : "") + transcript;
+                            }
+                        }
+                        textarea.value = `${finalTranscript}${finalTranscript && interimTranscript ? " " : ""}${interimTranscript}`;
                     };
 
                     recognition.onerror = (event) => {
-                        showToast("Erro ao reconhecer voz. Tente novamente.");
+                        const errors = {
+                            'not-allowed': 'Permita o acesso ao microfone no navegador para usar a digitação por voz.',
+                            'service-not-allowed': 'O reconhecimento de voz foi bloqueado pelo navegador.',
+                            'no-speech': 'Não foi detectada fala. Tente novamente.',
+                            'network': 'Falha de rede no reconhecimento de voz. Verifique a conexão.',
+                            'audio-capture': 'Nenhum microfone disponível no momento.'
+                        };
+                        if (event.error !== 'aborted') showToast(errors[event.error] || "Erro ao reconhecer voz. Tente novamente.");
                     };
 
                     recognition.onend = () => {
@@ -263,7 +286,11 @@ export default function Page() {
                     if (isRecording) {
                         recognition.stop();
                     } else {
-                        recognition.start();
+                        try {
+                            recognition.start();
+                        } catch (error) {
+                            showToast("A digitação por voz já está sendo iniciada. Tente novamente em instantes.");
+                        }
                     }
                 });
             }
@@ -274,6 +301,24 @@ export default function Page() {
             const emptyState = document.getElementById("empty-state");
             const chatMessages = document.getElementById("chat-messages");
             let chatHistory = [];
+            const MAX_CHAT_CONTEXT_MESSAGES = 40;
+
+            // Arquivos servem somente como contexto da mensagem em que foram
+            // enviados. Não os persistimos nem os reenviamos em cada turno,
+            // evitando que conversas longas ultrapassem o limite da API.
+            function messagesForStorage() {
+                return chatHistory.map(({ role, content }) => ({ role, content }));
+            }
+
+            function messagesForModel() {
+                const start = Math.max(0, chatHistory.length - MAX_CHAT_CONTEXT_MESSAGES);
+                return chatHistory.slice(start).map((message, index) => {
+                    const isLatest = start + index === chatHistory.length - 1;
+                    return isLatest && message.inlineData
+                        ? message
+                        : { role: message.role, content: message.content };
+                });
+            }
 
             // Supabase Chat History state and logic
             let activeChatId = null;
@@ -325,7 +370,7 @@ export default function Page() {
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50";
                     return `
                         <div data-chat-id="${chat.id}" class="group flex items-center justify-between px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer ${activeClass}">
-                            <span class="truncate flex-1 font-label-md select-none">${chat.title}</span>
+                            <span class="truncate flex-1 font-label-md select-none">${escapeHtml(chat.title)}</span>
                             <button class="btn-delete-chat p-1 rounded hover:bg-red-50 dark:hover:bg-red-950/30 text-gray-450 hover:text-red-600 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1 cursor-pointer" data-id="${chat.id}" title="Excluir conversa">
                                 <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg">
                                     <polyline points="3 6 5 6 21 6"></polyline>
@@ -395,10 +440,10 @@ export default function Page() {
 
             function appendStaticAIMessage(responseText, isLastInHistory = false) {
                 const aiMsg = document.createElement("div");
-                aiMsg.className = "flex items-start gap-4";
+                aiMsg.className = "flex items-start gap-3 sm:gap-4 w-full min-w-0";
                 const logoSrc = htmlEl.classList.contains("dark") ? ASSETS.dark.sidebarLogo : ASSETS.light.sidebarLogo;
 
-                let styled = responseText.replace(/\n/g, '<br/>');
+                let styled = escapeHtml(responseText).replace(/\n/g, '<br/>');
                 styled = styled.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-purple-700 dark:text-purple-400">$1</strong>');
 
                 const subChatId = 'sub-chat-hist-' + Math.random().toString(36).substring(2, 9);
@@ -407,8 +452,8 @@ export default function Page() {
                     <div class="w-8 h-8 rounded-full bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-sm">
                         <img class="w-full h-full object-contain" src="${logoSrc}"/>
                     </div>
-                    <div class="flex-grow flex flex-col gap-4">
-                        <div class="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-[20px] rounded-tl-[4px] p-5 text-sm leading-relaxed shadow-sm font-light text-gray-800 dark:text-gray-200 space-y-4">
+                    <div class="flex-grow min-w-0 flex flex-col gap-4">
+                        <div class="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-[20px] rounded-tl-[4px] p-5 text-sm leading-relaxed shadow-sm font-light text-gray-800 dark:text-gray-200 space-y-4 break-words [overflow-wrap:anywhere] min-w-0">
                             <p class="typing-text-block">${styled}</p>
                         </div>
                         
@@ -447,7 +492,7 @@ export default function Page() {
                                     subAttachedFile = e.target.files[0];
                                     subBadge.innerHTML = `
                                         <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800 text-[10px] font-medium">
-                                            ${subAttachedFile.name}
+                                            ${escapeHtml(subAttachedFile.name)}
                                             <button id="remove-${subChatId}" class="ml-1 text-purple-400 hover:text-purple-600 dark:hover:text-purple-200 font-bold">×</button>
                                         </div>
                                     `;
@@ -566,14 +611,14 @@ export default function Page() {
 
             function appendUserMessage(content, file) {
                 const userMsg = document.createElement("div");
-                userMsg.className = "flex items-start gap-4 justify-end";
+                userMsg.className = "flex items-start gap-3 sm:gap-4 justify-end w-full min-w-0";
 
                 let fileBadgeHtml = "";
                 if (file) {
                     fileBadgeHtml = `
-                <div class="mt-2 inline-flex items-center gap-1 px-2.5 py-1 rounded bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200/50 dark:border-purple-800/50 text-[11px] font-medium max-w-max">
+                <div class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/60 text-[11px] font-medium max-w-max">
                     <svg fill="none" height="12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="12" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/></svg>
-                    Anexo: ${file.name}
+                    <span>Anexo: ${escapeHtml(file.name)}</span>
                 </div>
             `;
                 }
@@ -582,25 +627,84 @@ export default function Page() {
                 let avatarHtml = "";
                 if (avatar.startsWith("INITIALS:")) {
                     const initials = avatar.split(":")[1];
-                    avatarHtml = `<div class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-tr from-purple-700 to-pink-500 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm border border-purple-200 dark:border-purple-800">${initials}</div>`;
+                    avatarHtml = `<div class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-tr from-purple-700 to-pink-500 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm border border-purple-200 dark:border-purple-800 select-none">${escapeHtml(initials)}</div>`;
                 } else {
                     avatarHtml = `
                 <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-200 shrink-0 shadow-sm border border-purple-200 dark:border-purple-800">
-                    <img class="w-full h-full object-cover" src="${avatar}"/>
+                    <img class="w-full h-full object-cover" src="${escapeHtml(avatar)}" alt="Avatar"/>
                 </div>
             `;
                 }
 
+                const msgId = 'user-msg-' + Math.random().toString(36).substring(2, 9);
+                const textStr = String(content ?? '');
+                const isLargePrompt = textStr.length > 380 || (textStr.match(/\n/g) || []).length > 5;
+
+                let bodyHtml = "";
+                if (isLargePrompt) {
+                    bodyHtml = `
+                        <div class="relative min-w-0">
+                            <div id="content-${msgId}" class="max-h-44 sm:max-h-48 overflow-hidden transition-[max-height] duration-300 ease-in-out whitespace-pre-wrap select-text break-words [overflow-wrap:anywhere] leading-relaxed text-sm">${escapeHtml(textStr)}</div>
+                            <div id="fade-${msgId}" class="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-purple-700 dark:from-purple-800 to-transparent pointer-events-none rounded-b-[18px]"></div>
+                        </div>
+                        <button type="button" id="toggle-${msgId}" class="mt-2.5 pt-2 border-t border-purple-400/30 text-xs font-medium text-purple-100 hover:text-white flex items-center justify-between gap-3 transition-colors cursor-pointer select-none w-full">
+                            <span id="label-${msgId}" class="flex items-center gap-1.5 font-medium">
+                                <svg class="w-3.5 h-3.5 opacity-90 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                <span>Ver prompt completo</span>
+                            </span>
+                            <span class="text-[11px] opacity-75 bg-purple-900/50 dark:bg-purple-950/50 px-2 py-0.5 rounded-full font-mono">${textStr.length} caracteres</span>
+                        </button>
+                    `;
+                } else {
+                    bodyHtml = `
+                        <div class="whitespace-pre-wrap select-text break-words [overflow-wrap:anywhere] leading-relaxed text-sm">${escapeHtml(textStr)}</div>
+                    `;
+                }
+
                 userMsg.innerHTML = `
-            <div class="flex flex-col items-end max-w-[80%]">
-                <div class="bg-purple-700 dark:bg-purple-400 text-white dark:text-gray-900 rounded-[20px] rounded-tr-[4px] px-5 py-3 text-sm leading-relaxed shadow-sm font-light">
-                    ${content}
-                </div>
-                ${fileBadgeHtml}
-            </div>
-            ${avatarHtml}
-        `;
+                    <div class="flex flex-col items-end max-w-[85%] sm:max-w-[78%] min-w-0 w-fit">
+                        <div class="bg-purple-700 dark:bg-purple-800 text-white rounded-[20px] rounded-tr-[4px] px-5 py-3.5 shadow-sm font-normal break-words [overflow-wrap:anywhere] min-w-0 w-fit max-w-full">
+                            ${bodyHtml}
+                        </div>
+                        ${fileBadgeHtml}
+                    </div>
+                    ${avatarHtml}
+                `;
+
                 chatMessages.appendChild(userMsg);
+
+                if (isLargePrompt) {
+                    const toggleBtn = userMsg.querySelector(`#toggle-${msgId}`);
+                    const contentEl = userMsg.querySelector(`#content-${msgId}`);
+                    const fadeEl = userMsg.querySelector(`#fade-${msgId}`);
+                    const labelEl = userMsg.querySelector(`#label-${msgId}`);
+                    let expanded = false;
+
+                    if (toggleBtn && contentEl && fadeEl && labelEl) {
+                        toggleBtn.addEventListener("click", () => {
+                            expanded = !expanded;
+                            if (expanded) {
+                                contentEl.classList.remove("max-h-44", "sm:max-h-48", "overflow-hidden");
+                                contentEl.classList.add("max-h-none");
+                                fadeEl.classList.add("hidden");
+                                labelEl.innerHTML = `
+                                    <svg class="w-3.5 h-3.5 opacity-90 rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <span>Ver menos</span>
+                                `;
+                            } else {
+                                contentEl.classList.add("max-h-44", "sm:max-h-48", "overflow-hidden");
+                                contentEl.classList.remove("max-h-none");
+                                fadeEl.classList.remove("hidden");
+                                labelEl.innerHTML = `
+                                    <svg class="w-3.5 h-3.5 opacity-90 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <span>Ver prompt completo</span>
+                                `;
+                                userMsg.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                            }
+                        });
+                    }
+                }
+
                 userMsg.scrollIntoView({ behavior: "smooth" });
             }
 
@@ -608,7 +712,7 @@ export default function Page() {
 
             function appendAIMessageWithTyping(responseText) {
                 const aiMsg = document.createElement("div");
-                aiMsg.className = "flex items-start gap-4";
+                aiMsg.className = "flex items-start gap-3 sm:gap-4 w-full min-w-0";
 
                 const logoSrc = htmlEl.classList.contains("dark") ? ASSETS.dark.sidebarLogo : ASSETS.light.sidebarLogo;
 
@@ -616,7 +720,7 @@ export default function Page() {
             <div class="w-8 h-8 rounded-full bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-sm">
                 <img class="w-full h-full object-contain" src="${logoSrc}"/>
             </div>
-            <div class="flex-1 bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-[20px] rounded-tl-[4px] p-5 text-sm leading-relaxed shadow-sm font-light text-gray-800 dark:text-gray-200 space-y-4">
+            <div class="flex-1 min-w-0 bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-[20px] rounded-tl-[4px] p-5 text-sm leading-relaxed shadow-sm font-light text-gray-800 dark:text-gray-200 space-y-4 break-words [overflow-wrap:anywhere]">
                 <!-- Typing container -->
                 <p class="typing-text-block"></p>
             </div>
@@ -635,7 +739,7 @@ export default function Page() {
                         if (char === "\n") {
                             currentText += "<br/>";
                         } else {
-                            currentText += char;
+                            currentText += escapeHtml(char);
                         }
                         textBlock.innerHTML = currentText;
                         textIndex++;
@@ -652,7 +756,7 @@ export default function Page() {
             function appendThinkingIndicator() {
                 const thinkingMsg = document.createElement("div");
                 thinkingMsg.id = "thinking-indicator";
-                thinkingMsg.className = "flex items-start gap-4";
+                thinkingMsg.className = "flex items-start gap-3 sm:gap-4 w-full min-w-0";
 
                 const logoSrc = htmlEl.classList.contains("dark") ? ASSETS.dark.sidebarLogo : ASSETS.light.sidebarLogo;
 
@@ -698,6 +802,7 @@ export default function Page() {
                     // It's a nested input, we don't clear the main one
                 } else {
                     textarea.value = "";
+                    textarea.style.height = "";
                     attachedFile = null;
                     badgeContainer.classList.add("hidden");
                     badgeContainer.innerHTML = "";
@@ -736,7 +841,7 @@ export default function Page() {
                             .insert({
                                 user_id: currentUser.id,
                                 title: title,
-                                messages: chatHistory
+                                messages: messagesForStorage()
                             })
                             .select()
                             .single();
@@ -750,7 +855,7 @@ export default function Page() {
                     // Update messages in the existing session
                     await supabase
                         .from('chats')
-                        .update({ messages: chatHistory })
+                        .update({ messages: messagesForStorage() })
                         .eq('id', activeChatId);
                 }
 
@@ -766,7 +871,7 @@ export default function Page() {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         },
-                        body: JSON.stringify({ messages: chatHistory })
+                        body: JSON.stringify({ messages: messagesForModel() })
                     });
 
                     const indicator = document.getElementById("thinking-indicator");
@@ -781,7 +886,7 @@ export default function Page() {
                     const decoder = new TextDecoder("utf-8");
 
                     const aiMsg = document.createElement("div");
-                    aiMsg.className = "flex items-start gap-4";
+                    aiMsg.className = "flex items-start gap-3 sm:gap-4 w-full min-w-0";
                     const logoSrc = htmlEl.classList.contains("dark") ? ASSETS.dark.sidebarLogo : ASSETS.light.sidebarLogo;
 
                     // Generate a unique ID for the sub-chat input
@@ -791,8 +896,8 @@ export default function Page() {
                 <div class="w-8 h-8 rounded-full bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-sm">
                     <img class="w-full h-full object-contain" src="${logoSrc}"/>
                 </div>
-                <div class="flex-grow flex flex-col gap-4">
-                    <div class="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-[20px] rounded-tl-[4px] p-5 text-sm leading-relaxed shadow-sm font-light text-gray-800 dark:text-gray-200 space-y-4">
+                <div class="flex-grow min-w-0 flex flex-col gap-4">
+                    <div class="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-[20px] rounded-tl-[4px] p-5 text-sm leading-relaxed shadow-sm font-light text-gray-800 dark:text-gray-200 space-y-4 break-words [overflow-wrap:anywhere] min-w-0">
                         <p class="typing-text-block"></p>
                     </div>
                     
@@ -823,7 +928,7 @@ export default function Page() {
                         const chunkText = decoder.decode(value, { stream: true });
                         fullResponse += chunkText;
 
-                        let styled = fullResponse.replace(/\n/g, '<br/>');
+                        let styled = escapeHtml(fullResponse).replace(/\n/g, '<br/>');
                         styled = styled.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-purple-700 dark:text-purple-400">$1</strong>');
                         textBlock.innerHTML = styled;
                         aiMsg.scrollIntoView({ behavior: "smooth" });
@@ -834,7 +939,7 @@ export default function Page() {
                     if (activeChatId) {
                         await supabase
                             .from('chats')
-                            .update({ messages: chatHistory })
+                            .update({ messages: messagesForStorage() })
                             .eq('id', activeChatId);
                     }
 
@@ -853,7 +958,7 @@ export default function Page() {
                                 subAttachedFile = e.target.files[0];
                                 subBadge.innerHTML = `
                                     <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800 text-[10px] font-medium">
-                                        ${subAttachedFile.name}
+                                        ${escapeHtml(subAttachedFile.name)}
                                         <button id="remove-${subChatId}" class="ml-1 text-purple-400 hover:text-purple-600 dark:hover:text-purple-200 font-bold">×</button>
                                     </div>
                                 `;
@@ -898,6 +1003,13 @@ export default function Page() {
 
             if (btnSend && textarea) {
                 btnSend.addEventListener("click", () => handleSend());
+
+                const adjustTextareaHeight = () => {
+                    textarea.style.height = "auto";
+                    const newH = Math.min(Math.max(textarea.scrollHeight, 128), 280);
+                    textarea.style.height = newH + "px";
+                };
+                textarea.addEventListener("input", adjustTextareaHeight);
 
                 textarea.addEventListener("keydown", (e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
@@ -1249,7 +1361,7 @@ export default function Page() {
     <!-- Ambient Background Pattern -->
     <div class="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.02]" style="background-image: radial-gradient(var(--tw-colors-purple-500) 1px, transparent 1px); background-size: 24px 24px;"></div>
     
-    <div class="flex-1 max-w-3xl mx-auto w-full px-8 pt-24 pb-12 relative z-10 flex flex-col">
+    <div class="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-8 pt-20 sm:pt-24 pb-12 relative z-10 flex flex-col min-w-0">
         <!-- Header Section -->
         <div class="flex flex-col items-center text-center mb-16">
             <a class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-sm font-medium hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors mb-8 shadow-sm border border-purple-200 dark:border-purple-800/50" href="#">
@@ -1294,10 +1406,8 @@ export default function Page() {
 
         
         <!-- Empty State & Chat Area -->
-        <div id="dynamic-content-area" class="flex-1 flex flex-col justify-center">
-
-            
-            <div id="chat-messages" class="hidden space-y-6 w-full text-left pb-16">
+        <div id="dynamic-content-area" class="flex-1 flex flex-col justify-center min-w-0 w-full">
+            <div id="chat-messages" class="hidden space-y-6 w-full min-w-0 text-left pb-16">
                 <!-- Chat messages will be injected here -->
             </div>
         </div>

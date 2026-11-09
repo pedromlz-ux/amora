@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
+import { isNonEmptyString, requestIsTooLarge } from '../../lib/server/security';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -11,6 +12,9 @@ const ai = new GoogleGenAI({ apiKey: geminiApiKey });
 
 export async function POST(req: Request) {
   try {
+    if (requestIsTooLarge(req, 8 * 1024 * 1024)) {
+      return NextResponse.json({ error: 'Arquivo excede o limite de 8 MB.' }, { status: 413 });
+    }
     const authHeader = req.headers.get('Authorization');
     const token = authHeader?.split(' ')[1];
 
@@ -24,8 +28,8 @@ export async function POST(req: Request) {
     }
 
     const { fileData, fileType } = await req.json();
-    if (!fileData) {
-      return NextResponse.json({ error: "Dados do arquivo ausentes." }, { status: 400 });
+    if (!isNonEmptyString(fileData, 7 * 1024 * 1024) || !['image/jpeg', 'image/png', 'image/webp'].includes(fileType)) {
+      return NextResponse.json({ error: "Arquivo inválido." }, { status: 400 });
     }
 
     // Split base64 prefix if exists
@@ -97,6 +101,6 @@ Campos esperados:
 
   } catch (error: any) {
     console.error('Erro na análise de BIA:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Erro interno ao analisar a bioimpedância.' }, { status: 500 });
   }
 }

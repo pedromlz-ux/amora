@@ -1,6 +1,9 @@
 const https = require('https');
 
-const token = "APP_USR-1942857438337683-052719-e3d7c2ff8fbf04437fe72044d18ce75e-3370288024";
+require('dotenv').config({ path: '.env.local' });
+
+const token = process.env.MERCADOPAGO_ACCESS_TOKEN;
+if (!token) throw new Error('MERCADOPAGO_ACCESS_TOKEN não configurado.');
 
 async function createPlan() {
   console.log("Creating Amora Ultra (Mensal) plan on Mercado Pago...");

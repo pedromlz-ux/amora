@@ -1,6 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
+const AUDIO_MIME_TYPES = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+
+function getSupportedAudioMimeType() {
+  return AUDIO_MIME_TYPES.find((mimeType) =>
+    typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(mimeType)
+  ) || '';
+}
+
+function getAudioMimeType(mimeType) {
+  const normalized = (mimeType || '').split(';')[0].toLowerCase();
+  return ['audio/webm', 'audio/mp4', 'audio/mpeg', 'audio/wav', 'audio/ogg'].includes(normalized)
+    ? normalized
+    : 'audio/webm';
+}
+
 export default function ConsultaTab({ selectedPatient, token, supabase }) {
   const [sessionToken, setSessionToken] = useState(null);
   const [consultationId, setConsultationId] = useState(null);
@@ -9,8 +24,11 @@ export default function ConsultaTab({ selectedPatient, token, supabase }) {
   const [transcription, setTranscription] = useState('');
   const [notes, setNotes] = useState('');
   const [structuredReport, setStructuredReport] = useState('');
+  const [desktopAudio, setDesktopAudio] = useState(null);
+  const [desktopAudioMimeType, setDesktopAudioMimeType] = useState('audio/webm');
   const [processingAudio, setProcessingAudio] = useState(false);
   const [processingAI, setProcessingAI] = useState(false);
+  const [recordingError, setRecordingError] = useState('');
 
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
@@ -18,39 +36,73 @@ export default function ConsultaTab({ selectedPatient, token, supabase }) {
   const qrUrl = typeof window !== 'undefined' ? `${window.location.origin}/mobile-recorder/${sessionToken}` : '';
 
   useEffect(() => {
-    // Generate or fetch an active session for this patient
+    let cancelled = false;
+    const patientId = selectedPatient?.id;
+    if (!patientId) return undefined;
+
+    setSessionToken(null);
+    setConsultationId(null);
+    setDesktopAudio(null);
+    setDesktopAudioMimeType('audio/webm');
+    setTranscription('');
+    setNotes('');
+    setStructuredReport('');
+    setRecordingError('');
+
+    // Generate a separate session whenever the selected patient changes.
     async function initSession() {
-      // Simplification: generate a session immediately when opening tab
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        if (!cancelled) setRecordingError('Sua sessão expirou. Faça login novamente para iniciar uma consulta.');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('consultations')
-        .insert({ patient_id: selectedPatient.id, user_id: (await supabase.auth.getUser()).data.user.id })
+        .insert({ patient_id: patientId, user_id: user.id })
         .select()
         .single();
 
-      if (data) {
+      if (!cancelled && data) {
         setSessionToken(data.session_token);
         setConsultationId(data.id);
+      } else if (!cancelled) {
+        console.error('Erro ao iniciar consulta', error);
+        setRecordingError('Não foi possível preparar a sessão da consulta. Tente iniciar uma nova consulta.');
       }
     }
-    if (selectedPatient && !sessionToken) {
-      initSession();
-    }
-  }, [selectedPatient, supabase]);
+    initSession();
+
+    return () => { cancelled = true; };
+  }, [selectedPatient?.id, supabase]);
 
   const startRecording = async () => {
+    if (!consultationId) {
+      setRecordingError('A sessão da consulta ainda está sendo preparada. Aguarde alguns segundos e tente novamente.');
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      const preferredMimeType = getSupportedAudioMimeType();
+      const mediaRecorder = preferredMimeType
+        ? new MediaRecorder(stream, { mimeType: preferredMimeType })
+        : new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
+      setRecordingError('');
+      setProcessingAudio(false);
 
       mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        await processAudio(audioBlob);
+        const mimeType = getAudioMimeType(mediaRecorder.mimeType || chunksRef.current[0]?.type || preferredMimeType);
+        const audioBlob = new Blob(chunksRef.current, { type: mimeType });
+        setDesktopAudio(audioBlob);
+        setDesktopAudioMimeType(mimeType);
+        setProcessingAudio(false);
       };
 
       mediaRecorder.start();
@@ -66,31 +118,31 @@ export default function ConsultaTab({ selectedPatient, token, supabase }) {
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.stream.getTracks().forEach(t => t.stop());
       setRecording(false);
-      setProcessingAudio(true);
     }
   };
 
-  const processAudio = async (blob) => {
+  const processAudio = async (blob, mimeType) => {
+    setProcessingAudio(true);
+    setRecordingError('');
     try {
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = async () => {
-        const base64data = reader.result;
-        const res = await fetch('/api/transcribe-consultation', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ fileData: base64data, fileType: 'audio/webm' })
-        });
-        const data = await res.json();
-        if (data.transcription) {
-          setTranscription(prev => prev ? prev + '\n\n' + data.transcription : data.transcription);
-        } else if (data.error) {
-          alert('Erro na transcrição: ' + data.error);
-        }
-        setProcessingAudio(false);
-      };
+      const base64data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Não foi possível ler o áudio gravado.'));
+        reader.readAsDataURL(blob);
+      });
+      const res = await fetch('/api/transcribe-consultation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ fileData: base64data, fileType: getAudioMimeType(mimeType), consultationId })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.transcription) throw new Error(data.error || 'Não foi possível transcrever o áudio.');
+      setTranscription(prev => prev ? prev + '\n\n' + data.transcription : data.transcription);
     } catch (e) {
       console.error(e);
+      setRecordingError(e instanceof Error ? e.message : 'Não foi possível transcrever o áudio.');
+    } finally {
       setProcessingAudio(false);
     }
   };
@@ -134,6 +186,7 @@ export default function ConsultaTab({ selectedPatient, token, supabase }) {
     setTranscription('');
     setNotes('');
     setStructuredReport('');
+    setDesktopAudio(null);
     setMobileRecorderActive(false);
 
     try {
@@ -159,12 +212,12 @@ export default function ConsultaTab({ selectedPatient, token, supabase }) {
 
     setProcessingAI(true);
     try {
-      const { error } = await supabase.from('consultation_records').insert({
+      const { error } = await supabase.from('consultation_records').upsert({
         consultation_id: consultationId,
         raw_transcription: transcription,
         additional_notes: notes,
         structured_report: JSON.stringify({ report: structuredReport })
-      });
+      }, { onConflict: 'consultation_id' });
 
       if (error) throw error;
       alert('Relatório salvo com sucesso no prontuário!');
@@ -262,7 +315,16 @@ export default function ConsultaTab({ selectedPatient, token, supabase }) {
           </button>
 
           {recording && <p className="text-red-500 font-bold text-sm mt-4 animate-pulse">Gravando... Não feche a página.</p>}
+          {desktopAudio && !recording && !processingAudio && (
+            <button
+              onClick={() => processAudio(desktopAudio, desktopAudioMimeType)}
+              className="mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl font-bold transition-colors shadow-sm"
+            >
+              Transcrever Consulta
+            </button>
+          )}
           {processingAudio && <p className="text-blue-500 font-bold text-sm mt-4 animate-pulse">Processando áudio com Gemini IA...</p>}
+          {recordingError && <p role="alert" className="mt-4 text-sm font-medium text-red-600 dark:text-red-400">{recordingError}</p>}
         </div>
       </div>
 

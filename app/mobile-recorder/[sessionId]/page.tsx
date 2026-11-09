@@ -2,6 +2,21 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 
+const AUDIO_MIME_TYPES = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+
+function getSupportedAudioMimeType() {
+  return AUDIO_MIME_TYPES.find((mimeType) =>
+    typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(mimeType)
+  ) || '';
+}
+
+function getAudioMimeType(mimeType: string) {
+  const normalized = (mimeType || '').split(';')[0].toLowerCase();
+  return ['audio/webm', 'audio/mp4', 'audio/mpeg', 'audio/wav', 'audio/ogg'].includes(normalized)
+    ? normalized
+    : 'audio/webm';
+}
+
 export default function MobileRecorder() {
   const params = useParams();
   const sessionId = params.sessionId as string;
@@ -17,7 +32,10 @@ export default function MobileRecorder() {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      const preferredMimeType = getSupportedAudioMimeType();
+      const mediaRecorder = preferredMimeType
+        ? new MediaRecorder(stream, { mimeType: preferredMimeType })
+        : new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
@@ -26,8 +44,9 @@ export default function MobileRecorder() {
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        await uploadAudio(audioBlob);
+        const mimeType = getAudioMimeType(mediaRecorder.mimeType || chunksRef.current[0]?.type || preferredMimeType);
+        const audioBlob = new Blob(chunksRef.current, { type: mimeType });
+        await uploadAudio(audioBlob, mimeType);
       };
 
       mediaRecorder.start();
@@ -48,7 +67,7 @@ export default function MobileRecorder() {
     }
   };
 
-  const uploadAudio = async (blob: Blob) => {
+  const uploadAudio = async (blob: Blob, mimeType: string) => {
     try {
       // Create a FormData or Base64. Let's use Base64 for simplicity with the same API route if needed,
       // But actually we should upload directly to Supabase Storage.
@@ -61,7 +80,7 @@ export default function MobileRecorder() {
           const res = await fetch('/api/mobile-upload', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionId, audioData: base64data })
+            body: JSON.stringify({ sessionId, audioData: base64data, audioMimeType: getAudioMimeType(mimeType) })
           });
           if (res.ok) {
             setStatus('Áudio enviado com sucesso!');
@@ -91,7 +110,7 @@ export default function MobileRecorder() {
           Deixe o celular próximo para garantir um backup com boa qualidade.
         </p>
 
-        <p className={`font-semibold mb-6 ${recording ? 'text-red-500 animate-pulse' : 'text-gray-700'}`}>
+        <p className={`font-semibold mb-6 ${recording ? 'text-green-500 animate-pulse' : 'text-gray-700'}`}>
           {status}
         </p>
 

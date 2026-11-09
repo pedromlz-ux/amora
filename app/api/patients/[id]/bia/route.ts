@@ -37,6 +37,14 @@ export async function POST(req: Request, context: { params: any }) {
   const { id } = await context.params;
   const body = await req.json();
 
+  const { data: patient } = await supabase
+    .from('patients')
+    .select('id')
+    .eq('id', id)
+    .eq('nutritionist_id', user.id)
+    .maybeSingle();
+  if (!patient) return NextResponse.json({ error: 'Paciente não encontrado' }, { status: 404 });
+
   const { data, error } = await supabase
     .from('patient_bia')
     .insert({ ...body, patient_id: id, nutritionist_id: user.id })

@@ -1,9 +1,36 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 
 export default function PatientDietPortal() {
+  const getServingWeight = (description, unit) => {
+    if (!description) return 100;
+    const desc = description.toLowerCase();
+    if (unit === 'un') {
+      if (desc.includes('pão')) return 50;
+      if (desc.includes('ovo')) return 50;
+      if (desc.includes('banana')) return 90;
+      if (desc.includes('maçã') || desc.includes('maca')) return 130;
+      if (desc.includes('laranja')) return 130;
+      if (desc.includes('iogurte')) return 170;
+      return 100;
+    }
+    if (unit === 'colher') {
+      if (desc.includes('arroz') || desc.includes('macarrão')) return 25;
+      if (desc.includes('feijão') || desc.includes('lentilha')) return 20;
+      if (desc.includes('azeite') || desc.includes('óleo') || desc.includes('manteiga')) return 13;
+      if (desc.includes('açúcar') || desc.includes('mel')) return 15;
+      return 15;
+    }
+    if (unit === 'concha') {
+      if (desc.includes('arroz') || desc.includes('macarrão')) return 80;
+      if (desc.includes('feijão') || desc.includes('lentilha')) return 100;
+      return 80;
+    }
+    return 100;
+  };
+
   const formatFoodName = (name) => {
     if (!name) return '';
     let formatted = name.replace(/,\s*cru/gi, '')
@@ -14,10 +41,15 @@ export default function PatientDietPortal() {
     
     if (formatted.toLowerCase().includes('pão francês')) return 'Pão Francês';
     
-    return formatted.replace(/\b\w/g, l => l.toUpperCase());
+    return formatted.split(' ').map(word => {
+      if (!word) return '';
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }).join(' ');
   };
 
   const { id } = useParams();
+  const patientAccess = useSearchParams().get('access') || '';
+  const patientHeaders = patientAccess ? { 'X-Patient-Access': patientAccess } : {};
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dietPlan, setDietPlan] = useState(null);
@@ -51,12 +83,103 @@ export default function PatientDietPortal() {
   ]);
   const [nutriInput, setNutriInput] = useState('');
 
+  // Equivalence Calculator State
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [calcBaseFood, setCalcBaseFood] = useState(null);
+  const [calcTargetSearch, setCalcTargetSearch] = useState('');
+  const [calcTargetResults, setCalcTargetResults] = useState([]);
+  const [calcTargetFood, setCalcTargetFood] = useState(null);
+  const [calcResult, setCalcResult] = useState(null);
+
+  const openCalculator = (item) => {
+    setCalcBaseFood(item);
+    setCalcTargetSearch('');
+    setCalcTargetResults([]);
+    setCalcTargetFood(null);
+    setCalcResult(null);
+    setShowCalculator(true);
+  };
+
+  useEffect(() => {
+    if (!calcTargetSearch.trim() || calcTargetSearch.length < 2) {
+      setCalcTargetResults([]);
+      return;
+    }
+    const h = setTimeout(() => {
+      fetch(`/api/alimentos?q=${encodeURIComponent(calcTargetSearch)}`)
+        .then(r => r.json())
+        .then(d => setCalcTargetResults(Array.isArray(d) ? d : []))
+        .catch(() => setCalcTargetResults([]));
+    }, 300);
+    return () => clearTimeout(h);
+  }, [calcTargetSearch]);
+
+  useEffect(() => {
+    if (calcBaseFood && calcTargetFood) {
+      // Base macros per 100g
+      const bKcal100 = parseFloat(calcBaseFood.base_kcal ?? calcBaseFood.energy_kcal) || 0;
+      const bCarb100 = parseFloat(calcBaseFood.base_carb ?? calcBaseFood.carbohydrate_g) || 0;
+      const bProt100 = parseFloat(calcBaseFood.base_prot ?? calcBaseFood.protein_g) || 0;
+      const bFat100 = parseFloat(calcBaseFood.base_fat ?? calcBaseFood.lipid_g) || 0;
+
+      // Base amount
+      const bAmount = parseFloat(calcBaseFood.amount_g || calcBaseFood.amount || 100);
+      const isD = ['un', 'colher', 'concha'].includes(calcBaseFood.unit);
+      const sw = isD ? getServingWeight(calcBaseFood.name || calcBaseFood.description, calcBaseFood.unit) : 1;
+      const bMultiplier = isD ? (bAmount * sw / 100) : (bAmount / 100);
+
+      // Total macros in base food
+      const baseKcal = bKcal100 * bMultiplier;
+      const baseCarb = bCarb100 * bMultiplier;
+      const baseProt = bProt100 * bMultiplier;
+      const baseFat = bFat100 * bMultiplier;
+
+      // Target macros per 100g
+      const tKcal100 = parseFloat(calcTargetFood.energy_kcal) || 0;
+      const tCarb100 = parseFloat(calcTargetFood.carbohydrate_g) || 0;
+      const tProt100 = parseFloat(calcTargetFood.protein_g) || 0;
+      const tFat100 = parseFloat(calcTargetFood.lipid_g) || 0;
+
+      if (tKcal100 === 0) {
+        setCalcResult(null);
+        return;
+      }
+
+      // Find equivalent amount based on Kcal
+      const equivalentAmount = (baseKcal / tKcal100) * 100;
+      const tMultiplier = equivalentAmount / 100;
+
+      // Target macros at equivalent amount
+      const targetCarb = tCarb100 * tMultiplier;
+      const targetProt = tProt100 * tMultiplier;
+      const targetFat = tFat100 * tMultiplier;
+
+      // Calculate score based on macros difference
+      // Max diff per macro is 1 (100%). We cap at 1 to prevent negative scores from getting too large.
+      const carbDiff = Math.min(Math.abs(baseCarb - targetCarb) / Math.max(baseCarb, 1), 1);
+      const protDiff = Math.min(Math.abs(baseProt - targetProt) / Math.max(baseProt, 1), 1);
+      const fatDiff = Math.min(Math.abs(baseFat - targetFat) / Math.max(baseFat, 1), 1);
+
+      // Score 0-100 (Weighted: Carb 40%, Prot 40%, Fat 20%)
+      const penalty = (carbDiff * 40) + (protDiff * 40) + (fatDiff * 20);
+      let score = Math.round(100 - penalty);
+      if (score < 0) score = 0;
+
+      setCalcResult({
+        equivalentAmount: Math.round(equivalentAmount),
+        score,
+        baseMacros: { carb: baseCarb, prot: baseProt, fat: baseFat, kcal: baseKcal },
+        targetMacros: { carb: targetCarb, prot: targetProt, fat: targetFat, kcal: baseKcal } // kcal is same
+      });
+    }
+  }, [calcBaseFood, calcTargetFood]);
+
   // Fetch diet plan on mount
   useEffect(() => {
     if (!id) return;
     async function fetchDiet() {
       try {
-        const res = await fetch(`/api/diet-plans/${id}`);
+        const res = await fetch(`/api/diet-plans/${id}`, { headers: patientHeaders });
         if (!res.ok) {
           throw new Error('Plano de dieta não encontrado ou indisponível.');
         }
@@ -89,7 +212,7 @@ export default function PatientDietPortal() {
       }
     }
     fetchDiet();
-  }, [id]);
+  }, [id, patientAccess]);
 
   // Scroll to bottom of chat
   useEffect(() => {
@@ -104,12 +227,14 @@ export default function PatientDietPortal() {
         if (m.items) {
           m.items.forEach((item) => {
             const amount = parseFloat(item.amount_g || item.amount || 0);
-            const multiplier = amount / 100;
+            const isD = ['un', 'colher', 'concha'].includes(item.unit);
+            const sw = isD ? getServingWeight(item.name || item.description, item.unit) : 1;
+            const multiplier = isD ? (amount * sw / 100) : (amount / 100);
             
-            const itemKcal = item.energy_kcal && item.energy_kcal !== 'NA' ? parseFloat(item.energy_kcal) : 0;
-            const itemProt = item.protein_g && item.protein_g !== 'NA' ? parseFloat(item.protein_g) : 0;
-            const itemCarb = item.carbohydrate_g && item.carbohydrate_g !== 'NA' ? parseFloat(item.carbohydrate_g) : 0;
-            const itemFat = item.lipid_g && item.lipid_g !== 'NA' ? parseFloat(item.lipid_g) : 0;
+            const itemKcal = (parseFloat(item.base_kcal ?? item.energy_kcal) || 0) * multiplier;
+            const itemProt = (parseFloat(item.base_prot ?? item.protein_g) || 0) * multiplier;
+            const itemCarb = (parseFloat(item.base_carb ?? item.carbohydrate_g) || 0) * multiplier;
+            const itemFat = (parseFloat(item.base_fat ?? item.lipid_g) || 0) * multiplier;
 
             kcal += itemKcal;
             carb += itemCarb;
@@ -185,7 +310,7 @@ export default function PatientDietPortal() {
     try {
       const res = await fetch('/api/chat-paciente', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...patientHeaders },
         body: JSON.stringify({
           messages: [...messages, userMsg],
           dietPlanId: id
@@ -227,7 +352,7 @@ export default function PatientDietPortal() {
     
     const fetchChat = async () => {
       try {
-        const res = await fetch(`/api/diet-plans/${id}/chat`);
+        const res = await fetch(`/api/diet-plans/${id}/chat`, { headers: patientHeaders });
         if (res.ok) {
           const data = await res.json();
           setNutriMessages(data.length > 0 ? data : [
@@ -247,7 +372,7 @@ export default function PatientDietPortal() {
 
     const interval = setInterval(fetchChat, 5000);
     return () => clearInterval(interval);
-  }, [id, activeTab]);
+  }, [id, activeTab, patientAccess]);
 
   // Send message to Nutritionist (synced with Database)
   const handleSendNutriMessage = async () => {
@@ -265,7 +390,7 @@ export default function PatientDietPortal() {
     try {
       const res = await fetch(`/api/diet-plans/${id}/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...patientHeaders },
         body: JSON.stringify({ message: userMsg })
       });
       if (res.ok) {
@@ -557,10 +682,23 @@ export default function PatientDietPortal() {
                                 {formatFoodName(item.name || item.description)}
                               </p>
                               <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">
-                                {item.amount_g || item.amount} {item.unit || 'g'}
+                                {item.amount_g || item.amount} {item.unit || 'g'} • {(() => {
+                                  const isD = ['un', 'colher', 'concha'].includes(item.unit);
+                                  const sw = isD ? getServingWeight(item.name || item.description, item.unit) : 1;
+                                  const mult = isD ? (parseFloat(item.amount_g || item.amount || 0) * sw / 100) : (parseFloat(item.amount_g || item.amount || 0) / 100);
+                                  return Math.round((parseFloat(item.base_kcal ?? item.energy_kcal) || 0) * mult);
+                                })()} kcal
                               </span>
                             </div>
                           </div>
+                          
+                          <button
+                            onClick={(e) => { e.stopPropagation(); openCalculator(item); }}
+                            className="text-[10px] px-2 py-1.5 bg-gray-50 dark:bg-purple-900/10 text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-300 font-bold rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-colors flex items-center gap-1 border border-gray-100 dark:border-[#27272A] hover:border-purple-200 dark:hover:border-purple-800/50"
+                          >
+                            <span className="material-symbols-outlined text-[12px]">swap_horiz</span>
+                            Substituir
+                          </button>
                         </div>
                       );
                     })}
@@ -725,6 +863,151 @@ export default function PatientDietPortal() {
         )}
 
       </main>
+
+      {/* Equivalence Calculator Modal */}
+      {showCalculator && calcBaseFood && (() => {
+        const requiredScore = dietPlan?.substitution_score ?? dietPlan?.patients?.substitution_score ?? 70;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white dark:bg-[#18181B] rounded-3xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="p-4 bg-purple-50 dark:bg-purple-900/10 border-b border-purple-100 dark:border-purple-900/30 flex justify-between items-center">
+                <div>
+                  <h3 className="text-sm font-black text-purple-900 dark:text-purple-300 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-purple-600 dark:text-purple-400">sync_alt</span>
+                    Calculadora de Equivalências
+                  </h3>
+                </div>
+                <button onClick={() => setShowCalculator(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              <div className="p-5 flex-1 overflow-y-auto">
+                {/* Base Food */}
+                <div className="mb-4">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 block">
+                    Sua Dieta (Você quer trocar):
+                  </label>
+                  <div className="bg-gray-50 dark:bg-black p-3 rounded-xl border border-gray-100 dark:border-[#27272A] flex justify-between items-center">
+                    <div>
+                      <p className="text-sm font-bold text-gray-800 dark:text-white">
+                        {formatFoodName(calcBaseFood.name || calcBaseFood.description)}
+                      </p>
+                      <p className="text-xs text-gray-500">{calcBaseFood.amount_g || calcBaseFood.amount} {calcBaseFood.unit || 'g'}</p>
+                    </div>
+                    <p className="text-xs font-black text-orange-600">
+                      {Math.round(
+                        (parseFloat(calcBaseFood.base_kcal ?? calcBaseFood.energy_kcal) || 0) * 
+                        (
+                          ['un', 'colher', 'concha'].includes(calcBaseFood.unit)
+                            ? (parseFloat(calcBaseFood.amount_g || calcBaseFood.amount || 0) * getServingWeight(calcBaseFood.name || calcBaseFood.description, calcBaseFood.unit) / 100)
+                            : (parseFloat(calcBaseFood.amount_g || calcBaseFood.amount || 0) / 100)
+                        )
+                      )} kcal
+                    </p>
+                  </div>
+                </div>
+
+                {/* Target Search */}
+                <div className="mb-4">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 block">
+                    Por Qual Alimento?
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={calcTargetSearch}
+                      onChange={(e) => setCalcTargetSearch(e.target.value)}
+                      placeholder="Ex: Tapioca, Arroz..."
+                      className="w-full bg-white dark:bg-[#18181B] border border-purple-200 dark:border-purple-800/50 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-500 dark:text-white placeholder-gray-400"
+                    />
+                    <span className="material-symbols-outlined absolute right-3 top-2.5 text-gray-400">search</span>
+                  </div>
+
+                  {calcTargetResults.length > 0 && !calcTargetFood && (
+                    <div className="mt-2 bg-white dark:bg-[#27272A] border border-gray-100 dark:border-gray-700 rounded-xl max-h-40 overflow-y-auto shadow-sm divide-y divide-gray-50 dark:divide-gray-800">
+                      {calcTargetResults.map(r => (
+                        <div
+                          key={r.id}
+                          onClick={() => { setCalcTargetFood(r); setCalcTargetResults([]); setCalcTargetSearch(''); }}
+                          className="p-3 text-xs cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                        >
+                          <p className="font-bold text-gray-800 dark:text-gray-200">{formatFoodName(r.description)}</p>
+                          <p className="text-[10px] text-gray-500">{r.energy_kcal} kcal / 100g</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Result Area */}
+                {calcTargetFood && calcResult && (
+                  <div className="mt-4 border-t border-gray-100 dark:border-[#27272A] pt-4 animate-slide-up">
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="text-xs font-bold text-gray-600 dark:text-gray-300">Nova Sugestão:</h4>
+                      <button onClick={() => setCalcTargetFood(null)} className="text-[10px] text-purple-600 font-bold hover:underline">Trocar Alimento</button>
+                    </div>
+                    
+                    <div className={`p-4 rounded-xl border mb-4 ${
+                      calcResult.score >= requiredScore
+                        ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800' 
+                        : 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800'
+                    }`}>
+                      <p className="text-center text-[10px] font-bold mb-1 opacity-75">QUANTIDADE IDEAL</p>
+                      <p className="text-center text-xl font-black mb-2 text-gray-900 dark:text-white">
+                        {calcResult.equivalentAmount}g <span className="text-sm font-medium text-gray-500">de {formatFoodName(calcTargetFood.description)}</span>
+                      </p>
+                      
+                      <div className="flex items-center justify-center gap-1.5 mb-2">
+                        {calcResult.score >= requiredScore ? (
+                          <>
+                            <span className="material-symbols-outlined text-green-600 text-sm">check_circle</span>
+                            <span className="text-xs font-bold text-green-700 dark:text-green-400">Substituição Liberada!</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="material-symbols-outlined text-red-600 text-sm">warning</span>
+                            <span className="text-xs font-bold text-red-700 dark:text-red-400">Não Recomendada</span>
+                          </>
+                        )}
+                      </div>
+                      
+                      <p className="text-center text-[10px] text-gray-500 dark:text-gray-400">
+                        Score de Similaridade: {calcResult.score}/100 <br/>
+                        (Mínimo exigido: {requiredScore})
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[10px]">
+                      <div className="bg-gray-50 dark:bg-black p-2 rounded-lg border border-gray-100 dark:border-[#27272A]">
+                        <p className="font-bold mb-1 text-gray-600 dark:text-gray-400">Original</p>
+                        <p>Carb: {Math.round(calcResult.baseMacros.carb)}g</p>
+                        <p>Prot: {Math.round(calcResult.baseMacros.prot)}g</p>
+                        <p>Gord: {Math.round(calcResult.baseMacros.fat)}g</p>
+                      </div>
+                      <div className="bg-gray-50 dark:bg-black p-2 rounded-lg border border-gray-100 dark:border-[#27272A]">
+                        <p className="font-bold mb-1 text-purple-700 dark:text-purple-400">Substituto ({calcResult.equivalentAmount}g)</p>
+                        <p>Carb: {Math.round(calcResult.targetMacros.carb)}g</p>
+                        <p>Prot: {Math.round(calcResult.targetMacros.prot)}g</p>
+                        <p>Gord: {Math.round(calcResult.targetMacros.fat)}g</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-4 border-t border-gray-100 dark:border-[#27272A] bg-gray-50 dark:bg-black text-center">
+                <button 
+                  onClick={() => setShowCalculator(false)}
+                  className="w-full py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-[#27272A] dark:hover:bg-gray-700 text-gray-700 dark:text-white font-bold rounded-xl transition-colors text-sm"
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

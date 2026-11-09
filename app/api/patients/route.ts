@@ -20,7 +20,7 @@ export async function GET(req: Request) {
 
   const { data, error } = await supabase
     .from('patients')
-    .select('id, name, email, phone, birth_date, gender, objective, created_at, updated_at')
+    .select('*')
     .eq('nutritionist_id', user.id)
     .order('name', { ascending: true });
 
@@ -33,17 +33,55 @@ export async function POST(req: Request) {
   const user = await getUser(req);
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
-  const body = await req.json();
-  const { name, email, phone, birth_date, gender, objective } = body;
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Dados do paciente inválidos' }, { status: 400 });
+  }
 
-  if (!name?.trim()) return NextResponse.json({ error: 'Nome obrigatório' }, { status: 400 });
+  const { name, email, phone, birth_date, gender, objective, substitution_score } = body;
 
-  const { data, error } = await supabase
+  if (typeof name !== 'string' || !name.trim()) {
+    return NextResponse.json({ error: 'Nome obrigatório' }, { status: 400 });
+  }
+
+  const patient = {
+    nutritionist_id: user.id,
+    name: name.trim(),
+    email: typeof email === 'string' ? email.trim() || null : null,
+    phone: typeof phone === 'string' ? phone.trim() || null : null,
+    birth_date: typeof birth_date === 'string' && birth_date ? birth_date : null,
+    gender: typeof gender === 'string' ? gender || null : null,
+    objective: typeof objective === 'string' ? objective.trim() || null : null,
+  };
+
+  const score = typeof substitution_score === 'number'
+    && Number.isInteger(substitution_score)
+    && [60, 70, 80, 90].includes(substitution_score)
+    ? substitution_score
+    : 70;
+
+  let { data, error } = await supabase
     .from('patients')
-    .insert({ nutritionist_id: user.id, name: name.trim(), email, phone, birth_date, gender, objective })
+    .insert({ ...patient, substitution_score: score })
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // Sites ainda não migrados não têm a coluna. O cadastro continua funcionando
+  // com o padrão de 70 até que a migration seja aplicada no banco.
+  if (error && /substitution_score/i.test(error.message || '')) {
+    ({ data, error } = await supabase
+      .from('patients')
+      .insert(patient)
+      .select()
+      .single());
+  }
+
+  if (error) {
+    console.error('Unable to create patient', error);
+    return NextResponse.json({ error: 'Não foi possível cadastrar o paciente. Tente novamente.' }, { status: 500 });
+  }
+
   return NextResponse.json(data, { status: 201 });
 }

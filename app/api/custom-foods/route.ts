@@ -52,7 +52,11 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const query = searchParams.get('q') || '';
 
-    let dbQuery = supabase.from('custom_foods').select('*').order('created_at', { ascending: false });
+    let dbQuery = supabase
+      .from('custom_foods')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
     
     if (query.length >= 2) {
       dbQuery = dbQuery.ilike('description', `%${query}%`);

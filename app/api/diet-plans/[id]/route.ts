@@ -1,37 +1,39 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+import {
+  getAuthenticatedUser,
+  getPatientAccessToken,
+  getServiceSupabase,
+} from '../../../lib/server/security';
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const PATIENT_PLAN_COLUMNS = `
+  id, plan_name, patient_name, diet_notes, meals, macros, substitution_score,
+  patients(substitution_score)
+`;
 
-export async function GET(
-  request: Request,
-  context: { params: any }
-) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const params = await context.params;
-    const { id } = params;
+    const { id } = await context.params;
+    const supabase = getServiceSupabase();
+    const user = await getAuthenticatedUser(request);
 
-    if (!id) {
-      return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
+    let query = supabase.from('diet_plans').select(PATIENT_PLAN_COLUMNS).eq('id', id);
+    if (user) {
+      query = query.eq('user_id', user.id);
+    } else {
+      const accessToken = getPatientAccessToken(request);
+      if (!accessToken) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+      query = query
+        .eq('patient_access_token', accessToken)
+        .gt('patient_access_expires_at', new Date().toISOString());
     }
 
-    const { data, error } = await supabase
-      .from('diet_plans')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { data, error } = await query.single();
+    if (error || !data) return NextResponse.json({ error: 'Plano de dieta não encontrado' }, { status: 404 });
 
-    if (error || !data) {
-      console.error('Erro ao buscar plano de dieta:', error);
-      return NextResponse.json({ error: 'Plano de dieta não encontrado' }, { status: 404 });
-    }
-
-    return NextResponse.json(data);
-  } catch (err: any) {
-    console.error('Erro no endpoint de buscar plano:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json(data, { headers: { 'Cache-Control': 'private, no-store' } });
+  } catch (error) {
+    console.error('Erro ao buscar plano de dieta:', error);
+    return NextResponse.json({ error: 'Erro interno ao buscar plano.' }, { status: 500 });
   }
 }

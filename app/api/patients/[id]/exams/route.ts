@@ -42,6 +42,14 @@ export async function POST(req: Request, context: { params: any }) {
     return NextResponse.json({ error: 'file_name e file_url são obrigatórios' }, { status: 400 });
   }
 
+  const { data: patient } = await supabase
+    .from('patients')
+    .select('id')
+    .eq('id', id)
+    .eq('nutritionist_id', user.id)
+    .maybeSingle();
+  if (!patient) return NextResponse.json({ error: 'Paciente não encontrado' }, { status: 404 });
+
   const { data, error } = await supabase
     .from('patient_exams')
     .insert({ patient_id: id, nutritionist_id: user.id, file_name, file_url, exam_date, exam_type, notes })

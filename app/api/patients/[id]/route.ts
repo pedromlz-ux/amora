@@ -36,10 +36,20 @@ export async function PATCH(req: Request, context: { params: any }) {
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
   const { id } = await context.params;
   const body = await req.json();
+  const allowedFields = ['name', 'email', 'phone', 'birth_date', 'gender', 'objective', 'substitution_score'];
+  const updates = Object.fromEntries(
+    Object.entries(body).filter(([key]) => allowedFields.includes(key))
+  );
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: 'Nenhum campo válido para atualização.' }, { status: 400 });
+  }
+  if (typeof updates.name === 'string') updates.name = updates.name.trim();
+  if (updates.name === '') return NextResponse.json({ error: 'Nome obrigatório' }, { status: 400 });
 
   const { data, error } = await supabase
     .from('patients')
-    .update({ ...body, updated_at: new Date().toISOString() })
+    .update({ ...updates, updated_at: new Date().toISOString() })
     .eq('id', id)
     .eq('nutritionist_id', user.id)
     .select()

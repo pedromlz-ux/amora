@@ -1,4 +1,4 @@
-import { MercadoPagoConfig, Payment } from 'mercadopago';
+import { MercadoPagoConfig, Payment, PreApproval, WebhookSignatureValidator } from 'mercadopago';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -13,9 +13,22 @@ export async function POST(request) {
     }
 
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
-    if (!accessToken) {
-      console.error("MERCADOPAGO_ACCESS_TOKEN is missing");
+    const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+    if (!accessToken || !webhookSecret) {
+      console.error("Configuração do Mercado Pago ausente");
       return NextResponse.json({ error: "Config error" }, { status: 500 });
+    }
+
+    try {
+      WebhookSignatureValidator.validate({
+        xSignature: request.headers.get('x-signature'),
+        xRequestId: request.headers.get('x-request-id'),
+        dataId: id,
+        secret: webhookSecret,
+        toleranceSeconds: 300,
+      });
+    } catch {
+      return NextResponse.json({ error: 'Assinatura de webhook inválida' }, { status: 401 });
     }
 
     // We only care about payment updates/creations
@@ -29,7 +42,7 @@ export async function POST(request) {
       const status = paymentInfo.status;
       const externalReference = paymentInfo.external_reference; // This is our user_id!
 
-      if (status === 'approved' && externalReference) {
+      if (status === 'approved' && externalReference && paymentInfo.currency_id === 'BRL' && Number(paymentInfo.transaction_amount) === 19.9) {
         // Upgrade user to premium
         // We MUST use the service role key here because the webhook doesn't have the user's JWT
         const supabaseAdmin = createClient(
@@ -52,8 +65,6 @@ export async function POST(request) {
         console.log(`Usuário ${externalReference} atualizado para Premium com sucesso!`);
       }
     } else if (action === "subscription_preapproval.created" || action === "subscription_preapproval.updated" || request.url.includes("topic=subscription_preapproval")) {
-      // Import PreApproval dynamically to avoid top-level issues if SDK is old (though it is v3)
-      const { PreApproval } = require('mercadopago');
       const client = new MercadoPagoConfig({ accessToken });
       const preApprovalClient = new PreApproval(client);
       
@@ -68,27 +79,33 @@ export async function POST(request) {
         );
 
         // Fetch user by email
-        const { data: { users }, error: authError } = await supabaseAdmin.auth.admin.listUsers();
+        const { data: { users }, error: authError } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
         if (authError) throw authError;
 
         const user = users.find(u => u.email === payerEmail);
         
         if (user) {
-          if (status === 'authorized') {
-            const assignedPlan = subInfo.preapproval_plan_id === 'c45e35a99a5b46e18f3dc970c9d266ff' ? 'ultra' : 'premium';
-            await supabaseAdmin.from('user_usage').update({ 
+          const planByPreapprovalId = {
+            baaaf6620b4f42fb8847302ce0dc5cf2: 'premium',
+            c45e35a99a5b46e18f3dc970c9d266ff: 'ultra',
+          };
+          const assignedPlan = planByPreapprovalId[subInfo.preapproval_plan_id];
+          if (status === 'authorized' && assignedPlan) {
+            const { error: updateError } = await supabaseAdmin.from('user_usage').update({ 
               plan: assignedPlan, 
               subscription_id: id,
               subscription_status: status 
             }).eq('user_id', user.id);
+            if (updateError) throw updateError;
             console.log(`Assinatura ativa (${assignedPlan}) para ${payerEmail}`);
-          } else if (status === 'cancelled') {
-            await supabaseAdmin.from('user_usage').update({ 
+          } else if (status === 'cancelled' || status === 'paused') {
+            const { error: updateError } = await supabaseAdmin.from('user_usage').update({ 
               plan: 'free', 
               subscription_id: null,
               subscription_status: status 
             }).eq('user_id', user.id);
-            console.log(`Assinatura cancelada para ${payerEmail}`);
+            if (updateError) throw updateError;
+            console.log(`Assinatura ${status} para ${payerEmail}`);
           }
         } else {
           console.error(`Usuário com e-mail ${payerEmail} não encontrado na base para vincular assinatura.`);

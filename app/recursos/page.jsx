@@ -97,12 +97,19 @@ export default function Recursos() {
   const [chatInput, setChatInput] = useState('');
   const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
 
+  const getAuthHeaders = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {};
+  };
+
   // Polling patient chat history if editing a plan
   useEffect(() => {
     if (!currentPlanId) return;
     const fetchChat = async () => {
       try {
-        const res = await fetch(`/api/diet-plans/${currentPlanId}/chat`);
+        const res = await fetch(`/api/diet-plans/${currentPlanId}/chat`, {
+          headers: await getAuthHeaders(),
+        });
         if (res.ok) {
           const data = await res.json();
           setPatientChat(data);
@@ -130,7 +137,7 @@ export default function Recursos() {
     try {
       const res = await fetch(`/api/diet-plans/${currentPlanId}/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
         body: JSON.stringify({ message: newMsg })
       });
       if (res.ok) {
@@ -1276,6 +1283,59 @@ export default function Recursos() {
              <span>Calcular Gasto Energético</span>
              <span className="material-symbols-outlined text-sm">arrow_forward</span>
            </button>
+        </section>
+
+        {/* Card 5b: Calculadora de METs (Múltiplos Metabólicos) */}
+        <section className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-2xl flex flex-col justify-between transition-all hover:border-purple-500/50 group shadow-sm md:col-span-2">
+          <div>
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center text-purple-700 dark:text-purple-400">
+                  <span className="material-symbols-outlined">bolt</span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">Calculadora de Gasto por METs</h3>
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                      NOVO • +80 Atividades
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Múltiplos de Equivalentes Metabólicos (Ainsworth / Nutritotal)</p>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-5 leading-relaxed">
+              Estime com precisão o gasto calórico de caminhadas, corridas, musculação, natação, lutas e rotinas diárias com cálculo da taxa por minuto, consumo de oxigênio (VO₂) e somatório de atividades do paciente.
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+              <div className="p-3 rounded-xl bg-gray-50 dark:bg-[#0A0A0B] border border-gray-100 dark:border-[#27272A]">
+                <p className="text-[10px] text-gray-400 font-semibold uppercase">Fórmula</p>
+                <p className="text-xs sm:text-sm font-bold text-purple-700 dark:text-purple-300 font-mono mt-0.5">MET × kg × h</p>
+              </div>
+              <div className="p-3 rounded-xl bg-gray-50 dark:bg-[#0A0A0B] border border-gray-100 dark:border-[#27272A]">
+                <p className="text-[10px] text-gray-400 font-semibold uppercase">Base</p>
+                <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white mt-0.5">+80 Atividades</p>
+              </div>
+              <div className="p-3 rounded-xl bg-gray-50 dark:bg-[#0A0A0B] border border-gray-100 dark:border-[#27272A]">
+                <p className="text-[10px] text-gray-400 font-semibold uppercase">Métricas</p>
+                <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white mt-0.5">Kcal/min & VO₂</p>
+              </div>
+              <div className="p-3 rounded-xl bg-gray-50 dark:bg-[#0A0A0B] border border-gray-100 dark:border-[#27272A]">
+                <p className="text-[10px] text-gray-400 font-semibold uppercase">Modo</p>
+                <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white mt-0.5">Rotina Diária</p>
+              </div>
+            </div>
+          </div>
+
+          <a
+            href="/recursos/mets"
+            className="w-full bg-purple-700 hover:bg-purple-800 text-white py-3 rounded-xl font-bold active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm text-xs sm:text-sm"
+          >
+            <span>Abrir Calculadora Completa de METs</span>
+            <span className="material-symbols-outlined text-sm">arrow_forward</span>
+          </a>
         </section>
 
         {/* Card 6: Simulador de Terapia Nutricional */}

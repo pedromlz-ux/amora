@@ -1,10 +1,15 @@
 "use client"
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import ConsultaTab from './ConsultaTab';
+import HistoricoConsultasTab from './HistoricoConsultasTab';
+import AlimentosTab from './AlimentosTab';
 import ChatTab from './ChatTab';
+import EnergyExpenditureCalculator from './EnergyExpenditureCalculator';
 import { supabase } from '../lib/supabaseClient';
 
 // ─── Utility ─────────────────────────────────────────────────────────────────
+const HOUSEHOLD_UNITS = new Set(['un', 'colher', 'colher_sopa', 'colher_cha', 'xicara', 'copo', 'fatia', 'concha', 'pegador', 'prato_raso', 'prato_fundo']);
+
 const getServingWeight = (description, unit) => {
   if (!description) return 100;
   const desc = description.toLowerCase();
@@ -17,13 +22,20 @@ const getServingWeight = (description, unit) => {
     if (desc.includes('iogurte')) return 170;
     return 100;
   }
-  if (unit === 'colher') {
+  if (unit === 'colher' || unit === 'colher_sopa') {
     if (desc.includes('arroz') || desc.includes('macarrão')) return 25;
     if (desc.includes('feijão') || desc.includes('lentilha')) return 20;
     if (desc.includes('azeite') || desc.includes('óleo') || desc.includes('manteiga')) return 13;
     if (desc.includes('açúcar') || desc.includes('mel')) return 15;
     return 15;
   }
+  if (unit === 'colher_cha') return 5;
+  if (unit === 'xicara') return 150;
+  if (unit === 'copo') return 200;
+  if (unit === 'fatia') return desc.includes('pão') ? 25 : 30;
+  if (unit === 'pegador') return 80;
+  if (unit === 'prato_raso') return 250;
+  if (unit === 'prato_fundo') return 350;
   if (unit === 'concha') {
     if (desc.includes('arroz') || desc.includes('macarrão')) return 80;
     if (desc.includes('feijão') || desc.includes('lentilha')) return 100;
@@ -33,6 +45,17 @@ const getServingWeight = (description, unit) => {
 };
 const safeNum = (v) => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
 const fmtDate = (d) => d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
+const calculateAge = (birthDateString) => {
+  if (!birthDateString) return '';
+  const today = new Date();
+  const birthDate = new Date(birthDateString);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return `${age} anos`;
+};
 
 // ─── Tab Components ───────────────────────────────────────────────────────────
 
@@ -101,7 +124,7 @@ function AnamneseTab({ patientId, token }) {
   );
 }
 
-function AnthropometryTab({ patientId, token }) {
+function AnthropometryTab({ patientId, selectedPatient, token }) {
   const emptyForm = { assessment_date: new Date().toISOString().split('T')[0], weight_kg: '', height_cm: '', waist_cm: '', hip_cm: '', arm_cm: '', calf_cm: '', triceps_skinfold: '', subscapular_skinfold: '', abdominal_skinfold: '', suprailiac_skinfold: '', body_fat_pct: '', lean_mass_kg: '', notes: '' };
   const [form, setForm] = useState(emptyForm);
   const [history, setHistory] = useState([]);
@@ -155,8 +178,15 @@ function AnthropometryTab({ patientId, token }) {
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      {/* Calculadora de Gasto Energético com Todas as Fórmulas */}
+      <EnergyExpenditureCalculator
+        selectedPatient={selectedPatient}
+        latestAnthropometry={history[0]}
+        formAnthropometry={showForm ? form : null}
+      />
+
+      <div className="flex items-center justify-between pt-2">
         <h4 className="text-sm font-bold dark:text-white">Histórico de Avaliações</h4>
         <button onClick={() => setShowForm(v => !v)} className="flex items-center gap-1 text-xs font-bold text-purple-700 hover:text-purple-800 border border-purple-300 dark:border-purple-700 rounded-lg px-3 py-1.5 transition-colors">
           <span className="material-symbols-outlined text-sm">{showForm ? 'remove' : 'add'}</span>
@@ -603,16 +633,20 @@ function DietTab({ patientId, patientName, token }) {
   const [subSearchTerm, setSubSearchTerm] = useState('');
   const [subSearchResults, setSubSearchResults] = useState([]);
   const [addingSubToItem, setAddingSubToItem] = useState(null);
+  const [showCustomSubFoodForm, setShowCustomSubFoodForm] = useState(false);
+  const [customSubFoodForm, setCustomSubFoodForm] = useState({ description: '', base_kcal: '', base_carb: '', base_prot: '', base_fat: '', amount_g: 100, unit: 'g' });
   const [showCustomFoodForm, setShowCustomFoodForm] = useState(false);
   const [customFoodForm, setCustomFoodForm] = useState({ description: '', base_kcal: '', base_carb: '', base_prot: '', base_fat: '', amount_g: 100, unit: 'g' });
   const [macros, setMacros] = useState({ carb: 50, prot: 30, fat: 20 });
   const [showMacroSettings, setShowMacroSettings] = useState(false);
   const [planName, setPlanName] = useState('');
   const [dietNotes, setDietNotes] = useState('');
+  const [substitutionScore, setSubstitutionScore] = useState(70);
   const [saveStatus, setSaveStatus] = useState('idle');
   const [savedPlans, setSavedPlans] = useState([]);
   const [showSavedPlans, setShowSavedPlans] = useState(false);
   const [currentPlanId, setCurrentPlanId] = useState(null);
+  const [currentPlanAccessToken, setCurrentPlanAccessToken] = useState(null);
   const [loadingPlans, setLoadingPlans] = useState(false);
 
   // Search for foods in a meal
@@ -660,14 +694,34 @@ function DietTab({ patientId, patientName, token }) {
     setAddingSubToItem(null); setSubSearchTerm('');
   };
 
+  const handleAddCustomSubstitution = (mealId, itemIndex) => {
+    if (!customSubFoodForm.description.trim()) return;
+    const customFood = {
+      description: customSubFoodForm.description.trim(),
+      base_kcal: safeNum(customSubFoodForm.base_kcal),
+      base_carb: safeNum(customSubFoodForm.base_carb),
+      base_prot: safeNum(customSubFoodForm.base_prot),
+      base_fat: safeNum(customSubFoodForm.base_fat),
+      amount_g: Math.max(1, safeNum(customSubFoodForm.amount_g) || 100),
+      unit: customSubFoodForm.unit || 'g'
+    };
+    setMeals(ms => ms.map(m => {
+      if (m.id !== mealId) return m;
+      const items = [...m.items];
+      items[itemIndex] = { ...items[itemIndex], substitutions: [...(items[itemIndex].substitutions || []), customFood] };
+      return { ...m, items };
+    }));
+    setCustomSubFoodForm({ description: '', base_kcal: '', base_carb: '', base_prot: '', base_fat: '', amount_g: 100, unit: 'g' });
+    setShowCustomSubFoodForm(false); setAddingSubToItem(null); setSubSearchTerm('');
+  };
+
   const handleRemoveFromMeal = (mealId, idx) => setMeals(ms => ms.map(m => m.id === mealId ? { ...m, items: m.items.filter((_, i) => i !== idx) } : m));
   const handleUpdateItemAmount = (mealId, idx, val) => setMeals(ms => ms.map(m => m.id === mealId ? { ...m, items: m.items.map((it, i) => i === idx ? { ...it, amount_g: Number(val) || 0 } : it) } : m));
   const handleUpdateItemUnit = (mealId, idx, unit) => {
     setMeals(ms => ms.map(m => {
       if (m.id !== mealId) return m;
       const ni = [...m.items]; const it = ni[idx];
-      const discreteUnits = ['un', 'colher', 'concha'];
-      const wasD = discreteUnits.includes(it.unit); const isD = discreteUnits.includes(unit);
+      const wasD = HOUSEHOLD_UNITS.has(it.unit); const isD = HOUSEHOLD_UNITS.has(unit);
       let amount = it.amount_g;
       if (wasD && !isD) amount = Math.round(amount * getServingWeight(it.description, it.unit));
       else if (!wasD && isD) amount = Math.max(1, Math.round(amount / getServingWeight(it.description, unit)));
@@ -679,7 +733,7 @@ function DietTab({ patientId, patientName, token }) {
   const addMeal = () => setMeals(ms => [...ms, { id: Date.now(), name: 'NOVA REFEIÇÃO', time: '16:00', items: [], notes: '' }]);
 
   const calculateMealTotals = (meal) => meal.items.reduce((acc, item) => {
-    const isD = ['un', 'colher', 'concha'].includes(item.unit);
+    const isD = HOUSEHOLD_UNITS.has(item.unit);
     const sw = isD ? getServingWeight(item.description, item.unit) : 1;
     const mult = isD ? (item.amount_g * sw / 100) : (item.amount_g / 100);
     acc.kcal += (item.base_kcal || 0) * mult; acc.carb += (item.base_carb || 0) * mult;
@@ -700,8 +754,8 @@ function DietTab({ patientId, patientName, token }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       const query = patientId
-        ? supabase.from('diet_plans').select('id, plan_name, patient_name, updated_at').eq('user_id', user.id).eq('patient_id', patientId).order('updated_at', { ascending: false }).limit(20)
-        : supabase.from('diet_plans').select('id, plan_name, patient_name, updated_at').eq('user_id', user.id).order('updated_at', { ascending: false }).limit(20);
+        ? supabase.from('diet_plans').select('id, plan_name, patient_name, updated_at, patient_access_token').eq('user_id', user.id).eq('patient_id', patientId).order('updated_at', { ascending: false }).limit(20)
+        : supabase.from('diet_plans').select('id, plan_name, patient_name, updated_at, patient_access_token').eq('user_id', user.id).order('updated_at', { ascending: false }).limit(20);
       const { data } = await query;
       setSavedPlans(data || []);
     } finally { setLoadingPlans(false); }
@@ -712,13 +766,17 @@ function DietTab({ patientId, patientName, token }) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setSaveStatus('error'); return; }
-      const payload = { user_id: user.id, plan_name: planName.trim() || `Plano ${new Date().toLocaleDateString('pt-BR')}`, patient_name: patientName, diet_notes: dietNotes, meals: meals.map(m => ({ ...m, _showNotes: undefined })), macros, patient_id: patientId || null };
+      const payload = { user_id: user.id, plan_name: planName.trim() || `Plano ${new Date().toLocaleDateString('pt-BR')}`, patient_name: patientName, diet_notes: dietNotes, substitution_score: substitutionScore, meals: meals.map(m => ({ ...m, _showNotes: undefined })), macros, patient_id: patientId || null };
       let error;
       if (currentPlanId) {
         ({ error } = await supabase.from('diet_plans').update(payload).eq('id', currentPlanId));
       } else {
-        const { data, error: ie } = await supabase.from('diet_plans').insert(payload).select('id').single();
-        error = ie; if (data) setCurrentPlanId(data.id);
+        const { data, error: ie } = await supabase.from('diet_plans').insert(payload).select('id, patient_access_token').single();
+        error = ie;
+        if (data) {
+          setCurrentPlanId(data.id);
+          setCurrentPlanAccessToken(data.patient_access_token);
+        }
       }
       if (error) throw error;
       setSaveStatus('saved'); loadDietPlans();
@@ -729,9 +787,9 @@ function DietTab({ patientId, patientName, token }) {
   const loadPlan = async (planId) => {
     const { data } = await supabase.from('diet_plans').select('*').eq('id', planId).single();
     if (!data) return;
-    setPlanName(data.plan_name || ''); setDietNotes(data.diet_notes || '');
+    setPlanName(data.plan_name || ''); setDietNotes(data.diet_notes || ''); setSubstitutionScore(data.substitution_score ?? 70);
     setMeals(data.meals || []); if (data.macros) setMacros(data.macros);
-    setCurrentPlanId(data.id); setShowSavedPlans(false);
+    setCurrentPlanId(data.id); setCurrentPlanAccessToken(data.patient_access_token); setShowSavedPlans(false);
   };
 
   const deletePlan = async (planId, e) => {
@@ -739,12 +797,12 @@ function DietTab({ patientId, patientName, token }) {
     if (!confirm('Excluir este plano?')) return;
     await supabase.from('diet_plans').delete().eq('id', planId);
     setSavedPlans(ps => ps.filter(p => p.id !== planId));
-    if (currentPlanId === planId) setCurrentPlanId(null);
+    if (currentPlanId === planId) { setCurrentPlanId(null); setCurrentPlanAccessToken(null); }
   };
 
   const newPlan = () => {
     if (!confirm('Criar novo plano? O atual não salvo será perdido.')) return;
-    setPlanName(''); setDietNotes(''); setCurrentPlanId(null);
+    setPlanName(''); setDietNotes(''); setSubstitutionScore(70); setCurrentPlanId(null); setCurrentPlanAccessToken(null);
     setMeals([{ id: 1, name: 'CAFÉ DA MANHÃ', time: '08:00', items: [], notes: '' }, { id: 2, name: 'ALMOÇO', time: '12:30', items: [], notes: '' }]);
   };
 
@@ -765,8 +823,8 @@ function DietTab({ patientId, patientName, token }) {
             <span className="material-symbols-outlined text-sm">add</span>
             <span className="hidden sm:inline">Novo</span>
           </button>
-          {currentPlanId && (
-            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/dieta/${currentPlanId}`); alert('Link do paciente copiado!'); }}
+          {currentPlanId && currentPlanAccessToken && (
+            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/dieta/${currentPlanId}?access=${currentPlanAccessToken}`); alert('Link seguro do paciente copiado!'); }}
               className="px-4 py-2.5 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 text-xs font-bold text-blue-600 dark:text-blue-400 hover:border-blue-500 transition-colors flex items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
               <span className="hidden sm:inline">Link do Paciente</span>
@@ -795,7 +853,7 @@ function DietTab({ patientId, patientName, token }) {
                     <p className="text-[10px] text-gray-400">{new Date(p.updated_at).toLocaleDateString('pt-BR')}</p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <button onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(`${window.location.origin}/dieta/${p.id}`); alert('Link copiado!'); }} className="p-1 text-blue-500 hover:text-blue-700" title="Copiar link do paciente">
+                    <button onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(`${window.location.origin}/dieta/${p.id}?access=${p.patient_access_token}`); alert('Link seguro copiado!'); }} className="p-1 text-blue-500 hover:text-blue-700" title="Copiar link do paciente">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                     </button>
                     <button onClick={(e) => deletePlan(p.id, e)} className="p-1 text-red-400 hover:text-red-600" title="Excluir plano">
@@ -841,6 +899,26 @@ function DietTab({ patientId, patientName, token }) {
         )}
       </div>
 
+      {/* Flexibility panel */}
+      <div className="pt-2 border-t border-gray-100 dark:border-[#27272A]">
+        <label className="text-xs font-bold text-gray-500 mb-1.5 block">
+          Flexibilidade do Paciente para Substituições (Calculadora)
+        </label>
+        <select
+          value={substitutionScore}
+          onChange={e => setSubstitutionScore(parseInt(e.target.value))}
+          className="w-full sm:w-1/2 bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-3 py-2 text-sm outline-none dark:text-white font-medium"
+        >
+          <option value={90}>Restrito (Score exigido: 90+)</option>
+          <option value={80}>Moderado (Score exigido: 80+)</option>
+          <option value={70}>Flexível (Score exigido: 70+)</option>
+          <option value={60}>Muito Flexível (Score exigido: 60+)</option>
+        </select>
+        <p className="text-[10px] text-gray-400 mt-1">
+          Determina a similaridade nutricional exigida para liberar uma troca de alimento feita pelo paciente.
+        </p>
+      </div>
+
       {/* Totals bar */}
       {dietTotals.kcal > 0 && (
         <div className="bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30 rounded-xl p-3">
@@ -879,10 +957,18 @@ function DietTab({ patientId, patientName, token }) {
                   <span className="material-symbols-outlined text-sm">delete</span>
                 </button>
               </div>
+              {mt.kcal > 0 && (
+                <div className="grid grid-cols-4 gap-1 px-4 py-2 bg-white/60 dark:bg-black/20 text-center text-[10px] border-b border-gray-100 dark:border-[#27272A]">
+                  <span className="text-gray-500"><b className="block text-gray-700 dark:text-gray-200">{mt.kcal.toFixed(0)}</b>kcal</span>
+                  <span className="text-blue-600"><b className="block">{mt.carb.toFixed(1)}g</b>carb.</span>
+                  <span className="text-green-600"><b className="block">{mt.prot.toFixed(1)}g</b>prot.</span>
+                  <span className="text-yellow-600"><b className="block">{mt.fat.toFixed(1)}g</b>gord.</span>
+                </div>
+              )}
               {/* Items */}
               <div className="divide-y divide-gray-100 dark:divide-[#27272A]">
                 {meal.items.map((item, idx) => {
-                  const isD = ['un', 'colher', 'concha'].includes(item.unit);
+                  const isD = HOUSEHOLD_UNITS.has(item.unit);
                   const sw = isD ? getServingWeight(item.description, item.unit) : 1;
                   const mult = isD ? (item.amount_g * sw / 100) : (item.amount_g / 100);
                   const kcalItem = ((item.base_kcal || 0) * mult).toFixed(0);
@@ -901,8 +987,16 @@ function DietTab({ patientId, patientName, token }) {
                             <option value="g">g</option>
                             <option value="ml">ml</option>
                             <option value="un">un</option>
-                            <option value="colher">col</option>
+                            <option value="colher_sopa">col. sopa</option>
+                            <option value="colher_cha">col. chá</option>
+                            <option value="xicara">xícara</option>
+                            <option value="copo">copo</option>
+                            <option value="fatia">fatia</option>
                             <option value="concha">concha</option>
+                            <option value="pegador">pegador</option>
+                            <option value="prato_raso">prato raso</option>
+                            <option value="prato_fundo">prato fundo</option>
+                            <option value="colher">col. (legado)</option>
                           </select>
                           <button onClick={() => handleRemoveFromMeal(meal.id, idx)} className="text-gray-300 hover:text-red-500 transition-colors ml-1">
                             <span className="material-symbols-outlined text-sm">close</span>
@@ -935,14 +1029,28 @@ function DietTab({ patientId, patientName, token }) {
                       </button>
                       {addingSubToItem?.mealId === meal.id && addingSubToItem?.itemIndex === idx && (
                         <div className="mt-2">
-                          <input value={subSearchTerm} onChange={e => setSubSearchTerm(e.target.value)} placeholder="Buscar substituto..."
-                            className="w-full text-xs bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
-                          {subSearchResults.slice(0, 5).map(r => (
-                            <div key={r.id} onClick={() => handleAddSubstitution(meal.id, idx, r)}
-                              className="px-3 py-1.5 text-xs cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/10 dark:text-white rounded">
-                              {r.description}
+                          {!showCustomSubFoodForm ? <>
+                            <input value={subSearchTerm} onChange={e => setSubSearchTerm(e.target.value)} placeholder="Buscar substituto..."
+                              className="w-full text-xs bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
+                            {subSearchResults.slice(0, 5).map(r => (
+                              <div key={r.id} onClick={() => handleAddSubstitution(meal.id, idx, r)}
+                                className="px-3 py-1.5 text-xs cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/10 dark:text-white rounded">
+                                {r.description}
+                              </div>
+                            ))}
+                            <button type="button" onClick={() => setShowCustomSubFoodForm(true)} className="mt-2 text-[10px] text-purple-600 hover:text-purple-700 font-medium">
+                              + Criar alimento substituto
+                            </button>
+                          </> : <div className="rounded-lg border border-purple-200 dark:border-purple-900/50 p-2 space-y-2 bg-purple-50/50 dark:bg-purple-950/10">
+                            <input autoFocus value={customSubFoodForm.description} onChange={e => setCustomSubFoodForm(f => ({ ...f, description: e.target.value }))} placeholder="Nome do alimento *" className="w-full text-xs bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded px-2 py-1.5 outline-none dark:text-white" />
+                            <div className="grid grid-cols-4 gap-1">
+                              {[['base_kcal', 'kcal'], ['base_carb', 'carb g'], ['base_prot', 'prot g'], ['base_fat', 'gord g']].map(([field, label]) => <input key={field} type="number" min="0" value={customSubFoodForm[field]} onChange={e => setCustomSubFoodForm(f => ({ ...f, [field]: e.target.value }))} placeholder={label} className="min-w-0 text-[10px] bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] rounded px-1 py-1 outline-none dark:text-white" />)}
                             </div>
-                          ))}
+                            <div className="flex gap-1 justify-end">
+                              <button type="button" onClick={() => setShowCustomSubFoodForm(false)} className="text-[10px] text-gray-500 px-2 py-1">Cancelar</button>
+                              <button type="button" onClick={() => handleAddCustomSubstitution(meal.id, idx)} className="text-[10px] bg-purple-600 text-white rounded px-2 py-1">Adicionar</button>
+                            </div>
+                          </div>}
                         </div>
                       )}
                     </div>
@@ -1065,9 +1173,34 @@ export default function PacientesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('anamnese');
   const [showNewPatient, setShowNewPatient] = useState(false);
+  const [isEditingPatient, setIsEditingPatient] = useState(false);
 
-  const [newPatientForm, setNewPatientForm] = useState({ name: '', email: '', phone: '', birth_date: '', gender: '', objective: '' });
+  const [newPatientForm, setNewPatientForm] = useState({ name: '', email: '', phone: '', birth_date: '', gender: '', objective: '', substitution_score: 70 });
   const [savingPatient, setSavingPatient] = useState(false);
+  const [patientSaveError, setPatientSaveError] = useState('');
+
+  const openNewPatient = () => {
+    setNewPatientForm({ name: '', email: '', phone: '', birth_date: '', gender: '', objective: '', substitution_score: 70 });
+    setPatientSaveError('');
+    setIsEditingPatient(false);
+    setShowNewPatient(true);
+  };
+
+  const openEditPatient = () => {
+    if (!selectedPatient) return;
+    setNewPatientForm({
+      name: selectedPatient.name || '',
+      email: selectedPatient.email || '',
+      phone: selectedPatient.phone || '',
+      birth_date: selectedPatient.birth_date || '',
+      gender: selectedPatient.gender || '',
+      objective: selectedPatient.objective || '',
+      substitution_score: selectedPatient.substitution_score ?? 70
+    });
+    setPatientSaveError('');
+    setIsEditingPatient(true);
+    setShowNewPatient(true);
+  };
 
   // Load user
   useEffect(() => {
@@ -1105,27 +1238,45 @@ export default function PacientesPage() {
     try {
       const r = await fetch('/api/patients', { headers: { Authorization: `Bearer ${token}` } });
       const d = await r.json();
-      setPatients(d || []);
+      setPatients(Array.isArray(d) ? d : []);
     } finally { setLoadingPatients(false); }
   }, [token]);
 
   useEffect(() => { if (token) loadPatients(); }, [token, loadPatients]);
 
-  const createPatient = async () => {
+  const savePatient = async () => {
     if (!newPatientForm.name.trim()) return;
     setSavingPatient(true);
+    setPatientSaveError('');
     try {
-      const r = await fetch('/api/patients', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(newPatientForm)
-      });
-      const d = await r.json();
-      setPatients(ps => [d, ...ps].sort((a, b) => a.name.localeCompare(b.name)));
-      setSelectedPatient(d);
-      setShowNewPatient(false);
-      setNewPatientForm({ name: '', email: '', phone: '', birth_date: '', gender: '', objective: '' });
-      setActiveTab('anamnese');
+      if (isEditingPatient && selectedPatient) {
+        const r = await fetch(`/api/patients/${selectedPatient.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify(newPatientForm)
+        });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok || !d?.id) throw new Error(d?.error || 'Não foi possível salvar as alterações.');
+        setPatients(ps => ps.map(p => p.id === d.id ? d : p).sort((a, b) => a.name.localeCompare(b.name)));
+        setSelectedPatient(d);
+        setShowNewPatient(false);
+        setIsEditingPatient(false);
+      } else {
+        const r = await fetch('/api/patients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify(newPatientForm)
+        });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok || !d?.id) throw new Error(d?.error || 'Não foi possível cadastrar o paciente.');
+        setPatients(ps => [d, ...ps].sort((a, b) => a.name.localeCompare(b.name)));
+        setSelectedPatient(d);
+        setShowNewPatient(false);
+      }
+      setNewPatientForm({ name: '', email: '', phone: '', birth_date: '', gender: '', objective: '', substitution_score: 70 });
+    } catch (error) {
+      console.error('Unable to save patient', error);
+      setPatientSaveError(error instanceof Error ? error.message : 'Não foi possível salvar o paciente. Tente novamente.');
     } finally { setSavingPatient(false); }
   };
 
@@ -1142,11 +1293,13 @@ export default function PacientesPage() {
 
   const tabs = [
     { id: 'consulta', label: 'Consulta', icon: 'medical_services' },
+    { id: 'historico', label: 'Prontuário', icon: 'history' },
     { id: 'anamnese', label: 'Anamnese', icon: 'assignment' },
     { id: 'antropometria', label: 'Antropometria', icon: 'straighten' },
     { id: 'bia', label: 'BIA', icon: 'monitor_weight' },
     { id: 'exames', label: 'Exames', icon: 'lab_panel' },
     { id: 'dieta', label: 'Dieta', icon: 'restaurant_menu' },
+    { id: 'alimentos', label: 'Tabelas Alimentares', icon: 'nutrition' },
     { id: 'chat', label: 'Chat', icon: 'chat' },
   ];
 
@@ -1261,7 +1414,7 @@ export default function PacientesPage() {
                   <input value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Buscar paciente..."
                     className="w-full bg-gray-50 dark:bg-[#0A0A0B] border border-gray-200 dark:border-[#27272A] rounded-xl pl-9 pr-3 py-2 text-xs outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
                 </div>
-                <button onClick={() => setShowNewPatient(true)}
+                <button onClick={openNewPatient}
                   className="w-full bg-purple-700 text-white py-2 rounded-xl text-xs font-bold hover:bg-purple-800 transition-all flex items-center justify-center gap-1">
                   <span className="material-symbols-outlined text-sm">person_add</span>
                   Novo Paciente
@@ -1298,24 +1451,78 @@ export default function PacientesPage() {
             {/* Main content */}
             <div className="flex-1 overflow-y-auto">
               {!selectedPatient && !showNewPatient ? (
-                <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                  <div className="w-20 h-20 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center mb-4">
-                    <span className="material-symbols-outlined text-4xl text-purple-400">person_search</span>
+                <>
+                  {/* Empty state for Desktop, or Mobile when there are no patients at all */}
+                  <div className={`flex-col items-center justify-center h-full text-center p-8 ${patients.length === 0 ? 'flex' : 'hidden md:flex'}`}>
+                    <div className="w-20 h-20 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center mb-4">
+                      <span className="material-symbols-outlined text-4xl text-purple-400">person_search</span>
+                    </div>
+                    <h2 className="text-base font-bold dark:text-white mb-2">Selecione um Paciente</h2>
+                    <p className="text-sm text-gray-400 max-w-xs mb-6">Escolha um paciente na lista ao lado ou cadastre um novo para acessar o prontuário completo.</p>
+                    <button onClick={openNewPatient}
+                      className="bg-purple-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-purple-800 transition-all flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm">person_add</span>
+                      Cadastrar Primeiro Paciente
+                    </button>
                   </div>
-                  <h2 className="text-base font-bold dark:text-white mb-2">Selecione um Paciente</h2>
-                  <p className="text-sm text-gray-400 max-w-xs mb-6">Escolha um paciente na lista ao lado ou cadastre um novo para acessar o prontuário completo.</p>
-                  <button onClick={() => setShowNewPatient(true)}
-                    className="bg-purple-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-purple-800 transition-all flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm">person_add</span>
-                    Cadastrar Primeiro Paciente
-                  </button>
-                </div>
+
+                  {/* Mobile Patients List when there are patients registered */}
+                  {patients.length > 0 && (
+                    <div className="md:hidden flex flex-col h-full bg-gray-50 dark:bg-[#0A0A0B] p-4">
+                      <div className="flex flex-col gap-3 mb-4">
+                        <div className="flex items-center justify-between">
+                          <h2 className="text-base font-black dark:text-white">Seus Pacientes</h2>
+                          <button onClick={openNewPatient}
+                            className="bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-bold hover:bg-purple-800 transition-all flex items-center gap-1">
+                            <span className="material-symbols-outlined text-xs">person_add</span>
+                            Novo Paciente
+                          </button>
+                        </div>
+                        <div className="relative">
+                          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">search</span>
+                          <input value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Buscar paciente..."
+                            className="w-full bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-xl pl-9 pr-3 py-2.5 text-xs outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
+                        </div>
+                      </div>
+
+                      <div className="flex-1 overflow-y-auto space-y-2 pb-6">
+                        {loadingPatients ? (
+                          <div className="flex items-center justify-center py-8"><div className="w-6 h-6 border-4 border-purple-200 border-t-purple-700 rounded-full animate-spin" /></div>
+                        ) : filteredPatients.length === 0 ? (
+                          <div className="text-center py-8 bg-white dark:bg-[#18181B] rounded-2xl border border-gray-100 dark:border-[#27272A] p-4">
+                            <span className="material-symbols-outlined text-3xl text-gray-300 block mb-2">person_off</span>
+                            <p className="text-xs text-gray-400">{searchTerm ? 'Nenhum paciente encontrado' : 'Nenhum paciente cadastrado'}</p>
+                          </div>
+                        ) : (
+                          filteredPatients.map(p => (
+                            <div key={p.id} onClick={() => { setSelectedPatient(p); setActiveTab('anamnese'); }}
+                              className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-[#18181B] rounded-xl border border-gray-100 dark:border-[#27272A] active:scale-[0.99] transition-all cursor-pointer">
+                              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 font-bold text-sm shrink-0">
+                                {p.name.charAt(0).toUpperCase()}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-bold dark:text-white truncate">{p.name}</p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  {p.birth_date && <p className="text-[10px] text-gray-400">{fmtDate(p.birth_date)} ({calculateAge(p.birth_date)})</p>}
+                                  {p.objective && <p className="text-[10px] text-purple-600 dark:text-purple-400 truncate">• {p.objective}</p>}
+                                </div>
+                              </div>
+                              <button onClick={(e) => deletePatient(p.id, e)} className="text-gray-300 hover:text-red-500 transition-all p-1">
+                                <span className="material-symbols-outlined text-sm">delete</span>
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : showNewPatient ? (
-                <div className="p-6 max-w-2xl">
+                <div className="p-6 max-w-2xl animate-fade-in">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-base font-bold dark:text-white flex items-center gap-2">
-                      <span className="material-symbols-outlined text-purple-700">person_add</span>
-                      Novo Paciente
+                      <span className="material-symbols-outlined text-purple-700">{isEditingPatient ? 'edit' : 'person_add'}</span>
+                      {isEditingPatient ? 'Editar Perfil do Paciente' : 'Novo Paciente'}
                     </h2>
                     <button onClick={() => setShowNewPatient(false)} className="text-gray-400 hover:text-gray-600">
                       <span className="material-symbols-outlined">close</span>
@@ -1357,11 +1564,27 @@ export default function PacientesPage() {
                       <input value={newPatientForm.objective} onChange={e => setNewPatientForm(p => ({ ...p, objective: e.target.value }))} placeholder="Ex: Emagrecimento, Hipertrofia, Controle de DM..."
                         className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white" />
                     </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-gray-500 mb-1">Flexibilidade com Trocas Alimentares (Calculadora)</label>
+                      <select value={newPatientForm.substitution_score} onChange={e => setNewPatientForm(p => ({ ...p, substitution_score: parseInt(e.target.value) }))}
+                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-[#27272A] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500 dark:text-white font-medium">
+                        <option value={90}>Restrito (Score exigido: 90+)</option>
+                        <option value={80}>Moderado (Score exigido: 80+)</option>
+                        <option value={70}>Flexível (Score exigido: 70+)</option>
+                        <option value={60}>Muito Flexível (Score exigido: 60+)</option>
+                      </select>
+                      <p className="text-[10px] text-gray-400 mt-1">Determina o Score de similaridade nutricional necessário para liberar trocas de alimentos na calculadora do paciente.</p>
+                    </div>
                   </div>
-                  <button onClick={createPatient} disabled={savingPatient || !newPatientForm.name.trim()}
+                  {patientSaveError && (
+                    <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300">
+                      {patientSaveError}
+                    </p>
+                  )}
+                  <button onClick={savePatient} disabled={savingPatient || !newPatientForm.name.trim()}
                     className="mt-6 w-full bg-purple-700 text-white py-3 rounded-xl font-bold hover:bg-purple-800 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
-                    <span className="material-symbols-outlined text-sm">person_add</span>
-                    {savingPatient ? 'Cadastrando...' : 'Cadastrar Paciente'}
+                    <span className="material-symbols-outlined text-sm">{isEditingPatient ? 'save' : 'person_add'}</span>
+                    {savingPatient ? 'Salvando...' : isEditingPatient ? 'Salvar Alterações' : 'Cadastrar Paciente'}
                   </button>
                 </div>
               ) : selectedPatient && (
@@ -1369,20 +1592,27 @@ export default function PacientesPage() {
                   {/* Patient header */}
                   <div className="bg-white dark:bg-[#18181B] border-b border-gray-200 dark:border-[#27272A] px-6 py-4">
                     <div className="flex items-center gap-4">
+                      <button onClick={() => setSelectedPatient(null)} className="md:hidden text-gray-500 hover:text-purple-700 transition-colors flex items-center justify-center -ml-2 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#27272A]">
+                        <span className="material-symbols-outlined text-xl">arrow_back</span>
+                      </button>
                       <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 font-black text-lg">
                         {selectedPatient.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1">
                         <h2 className="text-base font-black dark:text-white">{selectedPatient.name}</h2>
                         <div className="flex items-center gap-3 flex-wrap">
-                          {selectedPatient.birth_date && <p className="text-xs text-gray-400">Nasc. {fmtDate(selectedPatient.birth_date)}</p>}
+                          {selectedPatient.birth_date && <p className="text-xs text-gray-400">Nasc. {fmtDate(selectedPatient.birth_date)} ({calculateAge(selectedPatient.birth_date)})</p>}
                           {selectedPatient.gender && <p className="text-xs text-gray-400 capitalize">• {selectedPatient.gender}</p>}
                           {selectedPatient.objective && <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold">• {selectedPatient.objective}</p>}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
+                        <button onClick={openEditPatient} className="text-[10px] sm:text-xs text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 px-2.5 py-1.5 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors flex items-center gap-1 font-bold border border-purple-100/50 dark:border-purple-800/30">
+                          <span className="material-symbols-outlined text-sm">edit</span>
+                          Editar Perfil
+                        </button>
                         {selectedPatient.phone && (
-                          <a href={`tel:${selectedPatient.phone}`} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1">
+                          <a href={`tel:${selectedPatient.phone}`} className="text-xs text-gray-400 hover:text-gray-600 flex items-center justify-center w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-800">
                             <span className="material-symbols-outlined text-sm">phone</span>
                           </a>
                         )}
@@ -1403,11 +1633,13 @@ export default function PacientesPage() {
                   {/* Tab content */}
                   <div className="flex-1 overflow-y-auto p-6">
                     {activeTab === 'consulta' && <ConsultaTab selectedPatient={selectedPatient} token={token} supabase={supabase} />}
+                    {activeTab === 'historico' && <HistoricoConsultasTab patientId={selectedPatient.id} supabase={supabase} />}
                     {activeTab === 'anamnese' && <AnamneseTab patientId={selectedPatient.id} token={token} />}
-                    {activeTab === 'antropometria' && <AnthropometryTab patientId={selectedPatient.id} token={token} />}
+                    {activeTab === 'antropometria' && <AnthropometryTab patientId={selectedPatient.id} selectedPatient={selectedPatient} token={token} />}
                     {activeTab === 'bia' && <BiaTab patientId={selectedPatient.id} token={token} />}
                     {activeTab === 'exames' && <ExamsTab patientId={selectedPatient.id} token={token} />}
                     {activeTab === 'dieta' && <DietTab patientId={selectedPatient.id} patientName={selectedPatient.name} token={token} />}
+                    {activeTab === 'alimentos' && <AlimentosTab supabase={supabase} token={token} />}
                     {activeTab === 'chat' && <ChatTab selectedPatient={selectedPatient} supabase={supabase} />}
                   </div>
                 </div>

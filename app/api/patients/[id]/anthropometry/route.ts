@@ -37,6 +37,14 @@ export async function POST(req: Request, context: { params: any }) {
   const { id } = await context.params;
   const body = await req.json();
 
+  const { data: patient } = await supabase
+    .from('patients')
+    .select('id')
+    .eq('id', id)
+    .eq('nutritionist_id', user.id)
+    .maybeSingle();
+  if (!patient) return NextResponse.json({ error: 'Paciente não encontrado' }, { status: 404 });
+
   // Auto-calculate IMC if weight and height provided
   let imc = body.imc;
   if (!imc && body.weight_kg && body.height_cm) {

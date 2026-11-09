@@ -1,6 +1,9 @@
 const { GoogleGenAI } = require('@google/genai');
 
-const geminiApiKey = "AIzaSyAAWT1D0RLwjxoVnB4aar7EMrubHUBzKaI";
+require('dotenv').config({ path: '.env.local' });
+
+const geminiApiKey = process.env.GEMINI_API_KEY;
+if (!geminiApiKey) throw new Error('GEMINI_API_KEY não configurada.');
 const ai = new GoogleGenAI({ apiKey: geminiApiKey });
 
 async function listModels() {
