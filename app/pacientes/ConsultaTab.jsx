@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
 
 const AUDIO_MIME_TYPES = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
 
@@ -17,9 +16,7 @@ function getAudioMimeType(mimeType) {
 }
 
 export default function ConsultaTab({ selectedPatient, token, supabase }) {
-  const [sessionToken, setSessionToken] = useState(null);
   const [consultationId, setConsultationId] = useState(null);
-  const [mobileRecorderActive, setMobileRecorderActive] = useState(false);
   const [recording, setRecording] = useState(false);
   const [transcription, setTranscription] = useState('');
   const [notes, setNotes] = useState('');
@@ -29,18 +26,16 @@ export default function ConsultaTab({ selectedPatient, token, supabase }) {
   const [processingAudio, setProcessingAudio] = useState(false);
   const [processingAI, setProcessingAI] = useState(false);
   const [recordingError, setRecordingError] = useState('');
+  const [startingConsultation, setStartingConsultation] = useState(false);
+  const [consultationStatus, setConsultationStatus] = useState('');
+  const [evolutionAnalysis, setEvolutionAnalysis] = useState('');
+  const [analyzingEvolution, setAnalyzingEvolution] = useState(false);
 
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
 
-  const qrUrl = typeof window !== 'undefined' ? `${window.location.origin}/mobile-recorder/${sessionToken}` : '';
-
   useEffect(() => {
-    let cancelled = false;
-    const patientId = selectedPatient?.id;
-    if (!patientId) return undefined;
-
-    setSessionToken(null);
+    if (!selectedPatient?.id) return;
     setConsultationId(null);
     setDesktopAudio(null);
     setDesktopAudioMimeType('audio/webm');
@@ -48,32 +43,8 @@ export default function ConsultaTab({ selectedPatient, token, supabase }) {
     setNotes('');
     setStructuredReport('');
     setRecordingError('');
-
-    // Generate a separate session whenever the selected patient changes.
-    async function initSession() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        if (!cancelled) setRecordingError('Sua sessão expirou. Faça login novamente para iniciar uma consulta.');
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('consultations')
-        .insert({ patient_id: patientId, user_id: user.id })
-        .select()
-        .single();
-
-      if (!cancelled && data) {
-        setSessionToken(data.session_token);
-        setConsultationId(data.id);
-      } else if (!cancelled) {
-        console.error('Erro ao iniciar consulta', error);
-        setRecordingError('Não foi possível preparar a sessão da consulta. Tente iniciar uma nova consulta.');
-      }
-    }
-    initSession();
-
-    return () => { cancelled = true; };
+    setConsultationStatus('Clique em “Nova Consulta” para iniciar o atendimento atual.');
+    setEvolutionAnalysis('');
   }, [selectedPatient?.id, supabase]);
 
   const startRecording = async () => {
@@ -179,30 +150,64 @@ export default function ConsultaTab({ selectedPatient, token, supabase }) {
   };
 
   const handleNewConsultation = async () => {
+    if (!selectedPatient?.id || startingConsultation) return;
     if (recording && mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       setRecording(false);
     }
-    setTranscription('');
-    setNotes('');
-    setStructuredReport('');
-    setDesktopAudio(null);
-    setMobileRecorderActive(false);
-
+    setStartingConsultation(true);
+    setRecordingError('');
+    setConsultationStatus('Iniciando nova consulta...');
     try {
-      const user = (await supabase.auth.getUser()).data.user;
-      const { data } = await supabase
-        .from('consultations')
-        .insert({ patient_id: selectedPatient.id, user_id: user?.id })
-        .select()
-        .single();
+      const response = await fetch('/api/consultations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ patientId: selectedPatient.id })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.consultation?.id) throw new Error(data.error || 'Não foi possível iniciar a consulta.');
 
-      if (data) {
-        setSessionToken(data.session_token);
-        setConsultationId(data.id);
-      }
+      setConsultationId(data.consultation.id);
+      setTranscription('');
+      setNotes('');
+      setStructuredReport('');
+      setDesktopAudio(null);
+      setEvolutionAnalysis('');
+      setConsultationStatus('Nova consulta iniciada. Você já pode gravar ou preencher as anotações.');
     } catch (e) {
       console.error(e);
+      const message = e instanceof Error ? e.message : 'Não foi possível iniciar a consulta.';
+      setRecordingError(message);
+      setConsultationStatus('A consulta não foi iniciada. Tente novamente.');
+    } finally {
+      setStartingConsultation(false);
+    }
+  };
+
+  const analyzeEvolution = async () => {
+    if (!consultationId || analyzingEvolution) return;
+    setAnalyzingEvolution(true);
+    setRecordingError('');
+    try {
+      const response = await fetch('/api/structure-consultation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          type: 'evolution',
+          patientId: selectedPatient.id,
+          currentConsultationId: consultationId,
+          transcription,
+          notes,
+          patientData: { allergies: selectedPatient.allergies, chronic_diseases: selectedPatient.diagnoses }
+        })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.report) throw new Error(data.error || 'Não foi possível analisar as consultas anteriores.');
+      setEvolutionAnalysis(data.report);
+    } catch (e) {
+      setRecordingError(e instanceof Error ? e.message : 'Não foi possível analisar as consultas anteriores.');
+    } finally {
+      setAnalyzingEvolution(false);
     }
   };
 
@@ -234,10 +239,25 @@ export default function ConsultaTab({ selectedPatient, token, supabase }) {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Consulta Médica/Nutricional</h2>
         <button 
-          onClick={handleNewConsultation} 
-          className="bg-purple-700 hover:bg-purple-800 transition-colors text-white px-4 py-2 rounded-xl font-bold text-sm active:scale-95 flex items-center gap-2"
+          onClick={handleNewConsultation}
+          disabled={startingConsultation}
+          className="bg-purple-700 hover:bg-purple-800 transition-colors text-white px-4 py-2 rounded-xl font-bold text-sm active:scale-95 flex items-center gap-2 disabled:opacity-60"
         >
-          + Nova Consulta
+          {startingConsultation ? 'Iniciando...' : '+ Nova Consulta'}
+        </button>
+      </div>
+
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
+        <p className={`text-xs flex-1 ${consultationId ? 'text-green-700 dark:text-green-400' : 'text-gray-500'}`}>{consultationStatus}</p>
+        <button
+          type="button"
+          onClick={analyzeEvolution}
+          disabled={!consultationId || analyzingEvolution}
+          className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-100 text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Compara as duas últimas consultas salvas com o atendimento atual"
+        >
+          <span className="material-symbols-outlined text-base">monitoring</span>
+          {analyzingEvolution ? 'Analisando evolução...' : 'Analisar evolução anterior'}
         </button>
       </div>
 
@@ -262,31 +282,6 @@ export default function ConsultaTab({ selectedPatient, token, supabase }) {
           </div>
         </div>
       </div>
-
-      {/* Security Recorder */}
-      <div className="bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] p-4 rounded-xl mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div>
-            <h3 className="font-bold text-gray-900 dark:text-white text-sm">Gravador de Segurança Mobile</h3>
-            <p className="text-xs text-gray-500">Grava backup no celular via QR code em caso de falha de internet.</p>
-          </div>
-        </div>
-        <button onClick={() => setMobileRecorderActive(!mobileRecorderActive)} className="px-4 py-1.5 border border-gray-300 dark:border-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
-          {mobileRecorderActive ? 'Ocultar' : 'Ativar QR Code'}
-        </button>
-      </div>
-
-      {mobileRecorderActive && sessionToken && (
-        <div className="bg-white dark:bg-black border border-gray-200 dark:border-[#27272A] p-6 rounded-xl mb-6 flex flex-col items-center justify-center animate-fade-in">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 text-center">
-            Aponte a câmera do seu celular para abrir o gravador de backup.
-          </p>
-          <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100">
-            <QRCodeSVG value={qrUrl} size={180} />
-          </div>
-          <p className="text-xs text-blue-500 mt-4 break-all max-w-full">{qrUrl}</p>
-        </div>
-      )}
 
       {/* Main Recorder */}
       <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900 p-4 rounded-xl mb-6">
@@ -327,6 +322,17 @@ export default function ConsultaTab({ selectedPatient, token, supabase }) {
           {recordingError && <p role="alert" className="mt-4 text-sm font-medium text-red-600 dark:text-red-400">{recordingError}</p>}
         </div>
       </div>
+
+      {evolutionAnalysis && (
+        <section className="mb-6 rounded-xl border border-purple-200 dark:border-purple-900/60 bg-purple-50/60 dark:bg-purple-950/20 p-5">
+          <h3 className="font-bold text-sm text-purple-900 dark:text-purple-200 flex items-center gap-2 mb-2">
+            <span className="material-symbols-outlined text-lg">trending_up</span>
+            Evolução clínica entre consultas
+          </h3>
+          <p className="text-xs text-purple-800/70 dark:text-purple-200/70 mb-4">Baseada nas duas consultas salvas mais recentes e no atendimento atual.</p>
+          <div className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">{evolutionAnalysis}</div>
+        </section>
+      )}
 
       {/* Transcrição e Notas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">

@@ -21,6 +21,40 @@ function removeInternalSources(text: string) {
     .trim();
 }
 
+async function consumeChatQuotaWithCompatibilityFallback(supabase: ReturnType<typeof getServiceSupabase>, userId: string) {
+  const { data, error } = await supabase.rpc('consume_chat_quota', { p_user_id: userId });
+  const quota = Array.isArray(data) ? data[0] : data;
+  if (!error && quota) return quota;
+
+  // Compatibilidade temporária para bancos que ainda executam a versão antiga
+  // da função SQL, cuja coluna de retorno "questions_count" é ambígua.
+  if (!/questions_count.*ambiguous|column reference.*ambiguous/i.test(error?.message || '')) {
+    throw error || new Error('Falha ao verificar limite de uso.');
+  }
+
+  const { data: usage, error: usageError } = await supabase
+    .from('user_usage')
+    .select('plan, questions_count')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (usageError) throw usageError;
+
+  const plan = usage?.plan || 'free';
+  const questionLimit = plan === 'admin' ? null : plan === 'ultra' ? 200 : plan === 'premium' ? 300 : 30;
+  const questionsCount = usage?.questions_count || 0;
+  if (questionLimit !== null && questionsCount >= questionLimit) {
+    return { allowed: false, plan, question_limit: questionLimit };
+  }
+
+  const { error: updateError } = await supabase.from('user_usage').upsert({
+    user_id: userId,
+    plan,
+    questions_count: questionsCount + 1,
+  }, { onConflict: 'user_id' });
+  if (updateError) throw updateError;
+  return { allowed: true, plan, question_limit: questionLimit };
+}
+
 export async function POST(req: Request) {
   try {
     if (requestIsTooLarge(req, 6 * 1024 * 1024)) {
@@ -44,9 +78,7 @@ export async function POST(req: Request) {
     }
 
     const supabase = getServiceSupabase();
-    const { data: quotaRows, error: quotaError } = await supabase.rpc('consume_chat_quota', { p_user_id: user.id });
-    const quota = Array.isArray(quotaRows) ? quotaRows[0] : quotaRows;
-    if (quotaError || !quota) throw quotaError || new Error('Falha ao verificar limite de uso.');
+    const quota = await consumeChatQuotaWithCompatibilityFallback(supabase, user.id);
     if (!quota.allowed) {
       return NextResponse.json({
         error: `Você atingiu o limite de ${quota.question_limit} perguntas do plano ${quota.plan}. Faça upgrade para continuar.`,

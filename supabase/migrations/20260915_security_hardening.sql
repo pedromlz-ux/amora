@@ -66,10 +66,10 @@ BEGIN
     RETURN;
   END IF;
 
-  UPDATE public.user_usage
-  SET questions_count = questions_count + 1
-  WHERE user_id = p_user_id
-  RETURNING questions_count INTO current_count;
+  UPDATE public.user_usage AS usage
+  SET questions_count = usage.questions_count + 1
+  WHERE usage.user_id = p_user_id
+  RETURNING usage.questions_count INTO current_count;
 
   RETURN QUERY SELECT true, current_plan, current_count, max_questions;
 END;
